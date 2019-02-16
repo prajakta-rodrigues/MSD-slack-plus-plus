@@ -15,4 +15,7 @@
 target/
 *.class
 
+######IntelijIdea Files
+.idea
+
 
