@@ -1,9 +1,13 @@
 import  edu.northeastern.ccs.im.*;
+import edu.northeastern.ccs.im.server.ClientRunnable;
+import edu.northeastern.ccs.im.server.Prattle;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 
@@ -12,6 +16,9 @@ import java.nio.channels.SocketChannel;
  * All the test cases
  */
 public class PrattleTest {
+
+    public PrattleTest() throws IOException {
+    }
 
     @Test
     public void testNetworkConnectionSocketChannel() throws IOException {
@@ -42,6 +49,26 @@ public class PrattleTest {
         String msg = msd.toString();
         String msg1 = msd1.toString();
         String msg2 = msd2.toString();
-        Assert.assertEquals(msg, "HLO 4 koka 2 --");
+        Assert.assertEquals("HLO 4 koka 2 --",msg);
     }
+
+//    @BeforeClass
+//    public static void testPrattleSocket() throws IOException {
+//        String[] port = {};
+//        Prattle.main(port);
+//        Prattle.broadcastMessage(Message.makeSimpleLoginMessage("JohnWick"));
+//        Prattle.stopServer();
+//    }
+
+//    @Test
+//    public void testClientRunnable() throws IOException {
+//        ServerSocketChannel serverSocket = ServerSocketChannel.open();
+//        SocketChannel socketChannel = SocketChannel.open();
+//        NetworkConnection nc = new NetworkConnection(socketChannel);
+//        nc.sendMessage(Message.makeSimpleLoginMessage("JohnWick"));
+//        ClientRunnable cr = new ClientRunnable(nc);
+//    }
+
+
+
 }
