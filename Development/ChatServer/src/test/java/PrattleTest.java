@@ -1,4 +1,6 @@
+
 import  edu.northeastern.ccs.im.*;
+import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.Prattle;
 import org.junit.Assert;
@@ -6,6 +8,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -50,6 +54,22 @@ public class PrattleTest {
         String msg1 = msd1.toString();
         String msg2 = msd2.toString();
         Assert.assertEquals("HLO 4 koka 2 --",msg);
+    }
+
+    @Test
+    public  void testBuddy() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Buddy buddy = Buddy.makeTestBuddy("jaffa");
+        String name = buddy.getUserName();
+        Method method1 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("getBuddy", String.class);
+        Method method2 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("getEmptyBuddy", String.class);
+        Method method3 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("removeBuddy", String.class);
+        method1.setAccessible(true);
+        method2.setAccessible(true);
+        method3.setAccessible(true);
+        method1.invoke(null,"jaffa");
+        method2.invoke(null,"daffa");
+        method3.invoke(null,"daffa");
+        Assert.assertEquals(name,"jaffa");
     }
 
 //    @BeforeClass
