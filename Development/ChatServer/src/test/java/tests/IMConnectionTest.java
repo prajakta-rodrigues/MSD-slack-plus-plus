@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,9 +39,14 @@ public class IMConnectionTest {
 
 			}
 		});
-
+		
 	}
 
+	@Before() 
+	public void init() throws InterruptedException{
+		Thread.sleep(2000);
+		
+	}
 	/**
 	 * Kill server.
 	 *
@@ -55,7 +61,6 @@ public class IMConnectionTest {
 		}
 	}
 
-	/** The i M connection. */
 	private IMConnection iMConnection;
 
 	/**
@@ -65,8 +70,7 @@ public class IMConnectionTest {
 	public void testCreateIMConnectionNullUsername() {
 
 		iMConnection = new IMConnection("localhost", 4122, null);
-		iMConnection.addMessageListener(MessageScanner.getInstance());
-		assert true;
+		assertEquals("TooDumbToEnterRealUsername" , iMConnection.getUserName());
 	}
 
 	/**
@@ -76,8 +80,7 @@ public class IMConnectionTest {
 	public void testCreateIMConnectionEmptyUsername() {
 
 		iMConnection = new IMConnection("localhost", 4122, "");
-		iMConnection.addMessageListener(MessageScanner.getInstance());
-		assert true;
+		assertEquals("TooDumbToEnterRealUsername" , iMConnection.getUserName());
 	}
 
 	/**
@@ -86,8 +89,8 @@ public class IMConnectionTest {
 	@Test
 	public void testCreateIMConnectionNonEmptyUsername() {
 
-		iMConnection = new IMConnection("localhost", 4122, "prajakta");
-		assert true;
+		iMConnection = new IMConnection("localhost", 4122, "maria");
+		assertEquals("maria" , iMConnection.getUserName());
 	}
 
 	/**
@@ -95,7 +98,7 @@ public class IMConnectionTest {
 	 */
 	public void testAddMessageListenerValidListener() {
 
-		iMConnection = new IMConnection("localhost", 4122, "prajakta");
+		iMConnection = new IMConnection("localhost", 4122, "diana");
 		iMConnection.addMessageListener(MessageScanner.getInstance());
 		assert true;
 	}
@@ -106,7 +109,7 @@ public class IMConnectionTest {
 	@Test(expected = InvalidListenerException.class)
 	public void testAddMessageListenerNull() {
 
-		iMConnection = new IMConnection("localhost", 4122, "prajakta");
+		iMConnection = new IMConnection("localhost", 4122, "dim");
 		iMConnection.addMessageListener(null);
 	}
 
@@ -115,7 +118,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void isConnectionActiveNotConnection() {
-		iMConnection = new IMConnection("localhost", 4127, "pra");
+		iMConnection = new IMConnection("localhost", 4127, "doe");
 		assertEquals(false, iMConnection.connectionActive());
 	}
 
@@ -124,7 +127,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void isConnectionActiveWhenConnected() {
-		iMConnection = new IMConnection("localhost", 4545, "pra");
+		iMConnection = new IMConnection("localhost", 4545, "jake");
 		iMConnection.connect();
 		assertEquals(true, iMConnection.connectionActive());
 	}
@@ -147,7 +150,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void testConnectFail() {
-		iMConnection = new IMConnection("localhost", 4111, "omar");
+		iMConnection = new IMConnection("localhost", 4111, "joe");
 		assertFalse(iMConnection.connect());
 	}
 
@@ -159,16 +162,27 @@ public class IMConnectionTest {
 		iMConnection = new IMConnection("localhost", 4545, "pra");
 		assertEquals(true, iMConnection.connect());
 	}
+	
+	/**
+	 * Test connect multiple clients success.
+	 */
+	@Test
+	public void testMultipleClientsConnectSuccess() {
+		iMConnection = new IMConnection("localhost", 4545, "pra");
+		IMConnection iMConnectionAnother = new IMConnection("localhost", 4545, "kid");		
+		assertEquals(true, iMConnection.connect());
+		assertEquals(true, iMConnectionAnother.connect());
+	}
 
 	/**
 	 * Test disconnect success.
 	 */
 	@Test
 	public void testDisconnectSuccess() {
-		iMConnection = new IMConnection("localhost", 4545, "pra");
+		iMConnection = new IMConnection("localhost", 4545, "praj");
 		iMConnection.connect();
 		iMConnection.disconnect();
-		assert true;
+		System.out.println(iMConnection.connectionActive());
 	}
 
 	/**
@@ -206,8 +220,8 @@ public class IMConnectionTest {
 	 */
 	@Test(expected  = IllegalOperationException.class)
 	public void testMessageScannerException() {
-		iMConnection = new IMConnection("localhost", 4545, "omar");
-		assertEquals(null , iMConnection.getMessageScanner());
+		iMConnection = new IMConnection("localhost", 4545, "omari");
+		iMConnection.getMessageScanner();
 	}
 
 	/**
