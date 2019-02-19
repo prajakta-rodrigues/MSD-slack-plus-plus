@@ -6,10 +6,9 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 
 @Suite.SuiteClasses({
-	IMConnectionTest.class,
-	NetworkConnectionTest.class,
-	PrattleTest.class
+		IMConnectionTest.class,
+		NetworkConnectionTest.class,
 })
-public class ChatterTestSuite { 
+public class ChatterTestSuite {
 
 }
