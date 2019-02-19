@@ -3,19 +3,21 @@ package tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.northeastern.ccs.im.client.*;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.northeastern.ccs.im.client.IMConnection;
-import edu.northeastern.ccs.im.client.IllegalNameException;
-import edu.northeastern.ccs.im.client.IllegalOperationException;
-import edu.northeastern.ccs.im.client.InvalidListenerException;
-import edu.northeastern.ccs.im.client.MessageScanner;
 import edu.northeastern.ccs.im.server.Prattle;
 
 /**
@@ -232,5 +234,111 @@ public class IMConnectionTest {
 		iMConnection = new IMConnection("localhost", 4545, "jane");
 		iMConnection.connect();
 		assertEquals(true , iMConnection.getMessageScanner() instanceof MessageScanner);
+	}
+
+	/**
+	 * Test get empty username instance.
+	 */
+	@Test
+	public void testEmptyUsername() {
+		iMConnection = new IMConnection("localhost", 4545, "");
+		assertEquals("TooDumbToEnterRealUsername", iMConnection.getUserName());
+	}
+
+	/**
+	 * Test Keyboard scanner public classes.
+	 */
+	@Test(expected = NoSuchElementException.class)
+	public void testKeyBoardScannerNext() {
+		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection.connect();
+		iMConnection.sendMessage("First message \n jaffa");
+		KeyboardScanner ks = iMConnection.getKeyboardScanner();
+		ks.next();
+		ks.nextLine();
+		if(ks.hasNext()) {
+			ks.next();
+		}
+
+		assertEquals(true,true);
+	}
+
+	/**
+	 * Test Keyboardscanner emptylist of messages.
+	 */
+	@Test(expected = NoSuchElementException.class)
+	public void testKeyBoardScannerEmptyLineMesssages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
+		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection.connect();
+		KeyboardScanner ks = iMConnection.getKeyboardScanner();
+		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
+		field.setAccessible(true);
+		List<String> msgs = new ArrayList<>();
+		field.set(ks, msgs);
+		ks.nextLine();
+		assertEquals(true,true);
+	}
+
+	/**
+	 * Test Keyboardscanner emptylist of messages.
+	 */
+	@Test
+	public void testKeyBoardScannerEmptyMessages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
+		iMConnection = new IMConnection("localhost", 4545, "koka");
+		iMConnection.connect();
+		KeyboardScanner ks = iMConnection.getKeyboardScanner();
+		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
+		field.setAccessible(true);
+		List<String> msgs = new ArrayList<>();
+		field.set(ks, msgs);
+		msgs.add("First Line");
+		msgs.add("Second");
+		msgs.add("third");
+		if(ks.hasNext()) {
+			ks.next();
+		}
+		ks.nextLine();
+		assertEquals("Second",ks.nextLine());
+	}
+
+
+	/**
+	 * Test Keyboardscanner list of messages.
+	 */
+	@Test(expected = NoSuchElementException.class)
+	public void testKeyBoardScannerMesssages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
+		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection.connect();
+		KeyboardScanner ks = iMConnection.getKeyboardScanner();
+		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
+		field.setAccessible(true);
+		List<String> msgs = new ArrayList<>();
+		field.set(ks, msgs);
+		ks.next();
+		ks.nextLine();
+		if(ks.hasNext()) {
+			System.out.println(ks.hasNext());
+			ks.next();
+		}
+		assertEquals(true,true);
+	}
+
+
+
+	/**
+	 * Test restart keyboard scanner singleton instance...yet to be completed
+	 */
+	@Test
+	public void testRestartKeyboardScanner() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection.connect();
+		MessageScanner msg = MessageScanner.getInstance();
+		Method restartMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredMethod("restart");
+		Method closeMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredMethod("close");
+		restartMethod.setAccessible(true);
+		closeMethod.setAccessible(true);
+		closeMethod.invoke(null);
+		restartMethod.invoke(null);
+		assertEquals(iMConnection.getKeyboardScanner(),iMConnection.getKeyboardScanner());
 	}
 }
