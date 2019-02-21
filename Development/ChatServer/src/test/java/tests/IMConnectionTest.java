@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.client.*;
 import org.junit.AfterClass;
@@ -22,7 +23,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-
+import org.powermock.api.mockito.PowerMockito;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.ClientTimer;
@@ -404,8 +405,23 @@ public class IMConnectionTest {
 		field.setAccessible(true);
 		field.set(clientRunnable, 123);
 		assertEquals(123, clientRunnable.getUserId() );
+		iMConnection.disconnect();
 	}
 	
-
+	
+	@Test
+	public void testClientUserNameNull() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+		iMConnection = new IMConnection("localhost", 4545, "testingUser1");
+		iMConnection.connect();
+		Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("active");
+		activeClient.setAccessible(true);
+		ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient.get(null);
+		ClientRunnable clientRunnable = active.peek();
+		Method setUserNameMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("setUserName", String.class);
+		setUserNameMethod.setAccessible(true);
+		setUserNameMethod.invoke(clientRunnable, new Object[] { null });
+		iMConnection.disconnect();
+	}
+	
 	
 }
