@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,6 +33,25 @@ public class NetworkConnectionTest {
 		assert true;
 
 	}
+	
+	@Test(expected = AssertionError.class)
+	public void testNetworkConnectionException() throws IOException {
+		SocketChannel socketChannel = SocketChannel.open();
+		socketChannel.close();
+		networkConnection = new NetworkConnection(socketChannel);
+
+	}
+
+	
+	@Test(expected = NoSuchElementException.class)
+	public void testNoMessageNetworkConnectionException() throws IOException {
+		SocketChannel socketChannel = SocketChannel.open();
+		networkConnection = new NetworkConnection(socketChannel);
+		Iterator<Message> iterator = networkConnection.iterator();
+		iterator.next();
+
+	}
+
 
 
 }

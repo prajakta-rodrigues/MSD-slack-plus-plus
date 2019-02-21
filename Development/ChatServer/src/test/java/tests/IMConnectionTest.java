@@ -3,21 +3,29 @@ package tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.client.*;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+
+import edu.northeastern.ccs.im.server.ClientRunnable;
+import edu.northeastern.ccs.im.server.ClientTimer;
 import edu.northeastern.ccs.im.server.Prattle;
 
 /**
@@ -46,7 +54,7 @@ public class IMConnectionTest {
 
 	@Before() 
 	public void init() throws InterruptedException{
-		Thread.sleep(2000);
+		Thread.sleep(3000);
 		
 	}
 	/**
@@ -170,7 +178,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void testMultipleClientsConnectSuccess() {
-		iMConnection = new IMConnection("localhost", 4545, "pra");
+		iMConnection = new IMConnection("localhost", 4545, "arp");
 		IMConnection iMConnectionAnother = new IMConnection("localhost", 4545, "kid");		
 		assertEquals(true, iMConnection.connect());
 		assertEquals(true, iMConnectionAnother.connect());
@@ -195,6 +203,21 @@ public class IMConnectionTest {
 		iMConnection = new IMConnection("localhost", 4545, "sean");
 		iMConnection.connect();
 		iMConnection.sendMessage("hey I am testing");
+		assert true;
+	}
+	
+	/**
+	 * Test send longer than byte buffer limit message.
+	 */
+	@Test
+	public void testSendLongMessage() {
+		iMConnection = new IMConnection("localhost", 4545, "testUser5");
+		iMConnection.connect();
+		StringBuilder str = new StringBuilder();
+		for(int i = 0; i < 1421 ; i++) {
+			str.append("hey I am testinguyyyyyyyyyyyyyyyyyuuuuuuuyyyyyyyyyyyy ");
+		}
+		iMConnection.sendMessage(str.toString());
 		assert true;
 	}
 
@@ -250,7 +273,7 @@ public class IMConnectionTest {
 	 */
 	@Test(expected = NoSuchElementException.class)
 	public void testKeyBoardScannerNext() {
-		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection = new IMConnection("localhost", 4545, "testSubject");
 		iMConnection.connect();
 		iMConnection.sendMessage("First message \n jaffa");
 		KeyboardScanner ks = iMConnection.getKeyboardScanner();
@@ -268,7 +291,7 @@ public class IMConnectionTest {
 	 */
 	@Test(expected = NoSuchElementException.class)
 	public void testKeyBoardScannerEmptyLineMesssages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection = new IMConnection("localhost", 4545, "testSubject1");
 		iMConnection.connect();
 		KeyboardScanner ks = iMConnection.getKeyboardScanner();
 		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
@@ -284,7 +307,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void testKeyBoardScannerEmptyMessages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-		iMConnection = new IMConnection("localhost", 4545, "koka");
+		iMConnection = new IMConnection("localhost", 4545, "testSubject2");
 		iMConnection.connect();
 		KeyboardScanner ks = iMConnection.getKeyboardScanner();
 		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
@@ -307,7 +330,7 @@ public class IMConnectionTest {
 	 */
 	@Test(expected = NoSuchElementException.class)
 	public void testKeyBoardScannerMesssages() throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection = new IMConnection("localhost", 4545, "testSubject3");
 		iMConnection.connect();
 		KeyboardScanner ks = iMConnection.getKeyboardScanner();
 		Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredField("messages");
@@ -330,7 +353,7 @@ public class IMConnectionTest {
 	 */
 	@Test
 	public void testRestartKeyboardScanner() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		iMConnection = new IMConnection("localhost", 4545, "");
+		iMConnection = new IMConnection("localhost", 4545, "testSubject4");
 		iMConnection.connect();
 		MessageScanner msg = MessageScanner.getInstance();
 		Method restartMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner").getDeclaredMethod("restart");
@@ -341,4 +364,48 @@ public class IMConnectionTest {
 		restartMethod.invoke(null);
 		assertEquals(iMConnection.getKeyboardScanner(),iMConnection.getKeyboardScanner());
 	}
+	
+	
+	@Test
+	public void testRemoveClient() throws IOException {
+		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+		Prattle.removeClient(new ClientRunnable(networkConnection));
+		assert true;
+		
+	}
+	
+	@Test
+	public void testClientTimeout() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+		iMConnection = new IMConnection("localhost", 4545, "testingUser");
+		iMConnection.connect();
+		Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("active");
+		activeClient.setAccessible(true);
+		ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient.get(null);
+		ClientRunnable clientRunnable = active.peek();
+		
+		Field field = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("timer");
+		field.setAccessible(true);
+		ClientTimer clientTimer = Mockito.mock(ClientTimer.class);
+		field.set(clientRunnable, clientTimer);
+		Mockito.when(clientTimer.isBehind()).thenReturn(true);
+		
+	}
+	
+	@Test
+	public void testClientUserId() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+		iMConnection = new IMConnection("localhost", 4545, "testingUser1");
+		iMConnection.connect();
+		Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("active");
+		activeClient.setAccessible(true);
+		ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient.get(null);
+		ClientRunnable clientRunnable = active.peek();
+		
+		Field field = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("userId");
+		field.setAccessible(true);
+		field.set(clientRunnable, 123);
+		assertEquals(123, clientRunnable.getUserId() );
+	}
+	
+
+	
 }
