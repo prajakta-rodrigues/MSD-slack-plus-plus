@@ -71,7 +71,7 @@ public class ChatLogger {
    * 
    * @param type the type of handler to be used by the logger
    */
-  public static void setMode(HandlerType type) {
+  public static void setMode(HandlerType type)  {
 
     switch (type) {
     case FILE:
