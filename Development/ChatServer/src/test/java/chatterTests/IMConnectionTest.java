@@ -38,6 +38,12 @@ import edu.northeastern.ccs.im.server.Prattle;
  */
 public class IMConnectionTest {
 
+  private String clientKeyBoardScanner = "edu.northeastern.ccs.im.client.KeyboardScanner";
+  private String clientServerPrattle = "edu.northeastern.ccs.im.server.Prattle";
+  private String clientSocketNB = "edu.northeastern.ccs.im.client.SocketNB";
+
+  private String actives = "active";
+  private String locahost = "locahost";
   /**
    * The executor.
    */
@@ -71,7 +77,7 @@ public class IMConnectionTest {
    * @throws InterruptedException the interrupted exception
    */
   @AfterClass()
-  public static void killSetup() throws InterruptedException {
+  public static void killSetup() {
     Prattle.stopServer();
     if (null != executor) {
       executor.shutdownNow();
@@ -299,13 +305,12 @@ public class IMConnectionTest {
     iMConnection = new IMConnection("localhost", 4545, "testSubject1");
     iMConnection.connect();
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
-    Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Field field = Class.forName(clientKeyBoardScanner)
         .getDeclaredField("messages");
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
     field.set(ks, msgs);
     ks.nextLine();
-    assertEquals(true, true);
   }
 
   /**
@@ -317,7 +322,7 @@ public class IMConnectionTest {
     iMConnection = new IMConnection("localhost", 4545, "testSubject2");
     iMConnection.connect();
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
-    Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Field field = Class.forName(clientKeyBoardScanner)
         .getDeclaredField("messages");
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
@@ -342,7 +347,7 @@ public class IMConnectionTest {
     iMConnection.connect();
     ChatLogger.warning("testing");
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
-    Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Field field = Class.forName(clientKeyBoardScanner)
         .getDeclaredField("messages");
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
@@ -362,20 +367,20 @@ public class IMConnectionTest {
       InvocationTargetException, IllegalAccessException, NoSuchFieldException {
     iMConnection = new IMConnection("localhost", 4545, "testSubject4");
     iMConnection.connect();
-    Method restartMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Method restartMethod = Class.forName(clientKeyBoardScanner)
         .getDeclaredMethod("restart");
-    Method closeMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Method closeMethod = Class.forName(clientKeyBoardScanner)
         .getDeclaredMethod("close");
     KeyboardScanner keyboardScanner = iMConnection.getKeyboardScanner();
     restartMethod.setAccessible(true);
     closeMethod.setAccessible(true);
-    Field scanner = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Field scanner = Class.forName(clientKeyBoardScanner)
         .getDeclaredField("producer");
     scanner.setAccessible(true);
     Thread producer = Mockito.mock(Thread.class);
     scanner.set(keyboardScanner, producer);
     Mockito.when(producer.getState()).thenReturn(State.TERMINATED);
-    Field field = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Field field = Class.forName(clientKeyBoardScanner)
         .getDeclaredField("messages");
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
@@ -392,10 +397,10 @@ public class IMConnectionTest {
 
   @Test
   public void testCloseKeyBoardInstanceNull()
-      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+      throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     iMConnection = new IMConnection("localhost", 4545, "testSubject51");
-    Method closeMethod = Class.forName("edu.northeastern.ccs.im.client.KeyboardScanner")
+    Method closeMethod = Class.forName(clientKeyBoardScanner)
         .getDeclaredMethod("close");
     closeMethod.setAccessible(true);
     closeMethod.invoke(null);
@@ -416,8 +421,8 @@ public class IMConnectionTest {
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
     iMConnection = new IMConnection("localhost", 4545, "testingUser");
     iMConnection.connect();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
+    Field activeClient = Class.forName(clientServerPrattle)
+        .getDeclaredField(actives);
     activeClient.setAccessible(true);
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
@@ -450,8 +455,8 @@ public class IMConnectionTest {
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
     iMConnection = new IMConnection("localhost", 4545, "testingUser1");
     iMConnection.connect();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
+    Field activeClient = Class.forName(clientServerPrattle)
+        .getDeclaredField(actives);
     activeClient.setAccessible(true);
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
@@ -470,8 +475,8 @@ public class IMConnectionTest {
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
     iMConnection = new IMConnection("localhost", 4545, "testingUser1");
     iMConnection.connect();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
+    Field activeClient = Class.forName(clientServerPrattle)
+        .getDeclaredField(actives);
     activeClient.setAccessible(true);
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
@@ -479,7 +484,7 @@ public class IMConnectionTest {
     Method setUserNameMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredMethod("setUserName", String.class);
     setUserNameMethod.setAccessible(true);
-    setUserNameMethod.invoke(clientRunnable, new Object[]{null});
+    setUserNameMethod.invoke(clientRunnable, new Object[] {null});
     iMConnection.disconnect();
   }
 
@@ -526,7 +531,7 @@ public class IMConnectionTest {
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     SocketNB socketNB = new SocketNB("localhost", 4545);
-    Method connectedMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+    Method connectedMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("startIMConnection");
     connectedMethod.setAccessible(true);
 
@@ -538,7 +543,7 @@ public class IMConnectionTest {
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     SocketNB socketNB = new SocketNB("", 0);
-    Method connectedMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+    Method connectedMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("isConnected");
     connectedMethod.setAccessible(true);
     assertEquals(false, connectedMethod.invoke(socketNB));
@@ -548,7 +553,8 @@ public class IMConnectionTest {
   public void testScanForMessagesWorker()
       throws NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-    iMConnection = new IMConnection("localhost", 4545, "testUser42");
+    String testUser = "testUser42";
+    iMConnection = new IMConnection("localhost", 4545, testUser);
     Constructor<ScanForMessagesWorker> constructor;
     constructor = ScanForMessagesWorker.class
         .getDeclaredConstructor(IMConnection.class, SocketNB.class);
@@ -559,17 +565,17 @@ public class IMConnectionTest {
         .getDeclaredMethod("process", List.class);
     processMethod.setAccessible(true);
     List<edu.northeastern.ccs.im.client.Message> msg = new ArrayList<>();
-    msg.add(edu.northeastern.ccs.im.client.Message.makeAcknowledgeMessage("testUser42"));
+    msg.add(edu.northeastern.ccs.im.client.Message.makeAcknowledgeMessage(testUser));
     msg.add(edu.northeastern.ccs.im.client.Message.makeNoAcknowledgeMessage());
-    msg.add(edu.northeastern.ccs.im.client.Message.makeLoginMessage("testUser42"));
+    msg.add(edu.northeastern.ccs.im.client.Message.makeLoginMessage(testUser));
     processMethod.invoke(scanForMessagesWorker, msg);
   }
 
   @Test
   public void testSocketNBReadArgumentEmptyBuffer() throws NoSuchMethodException,
       ClassNotFoundException {
-    SocketNB socketNB = new SocketNB("locahost", 4545);
-    Method readMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+    SocketNB socketNB = new SocketNB(locahost, 4545);
+    Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("readArgument",
             CharBuffer.class);
     readMethod.setAccessible(true);
@@ -588,8 +594,8 @@ public class IMConnectionTest {
   public void testSocketNBReadArgument()
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    SocketNB socketNB = new SocketNB("locahost", 4545);
-    Method readMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+    SocketNB socketNB = new SocketNB(locahost, 4545);
+    Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("readArgument",
             CharBuffer.class);
     readMethod.setAccessible(true);
@@ -602,8 +608,8 @@ public class IMConnectionTest {
   @Test
   public void testSocketNBprint()
       throws NoSuchMethodException, ClassNotFoundException {
-    SocketNB socketNB = new SocketNB("locahost", 4545);
-    Method readMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+    SocketNB socketNB = new SocketNB(locahost, 4545);
+    Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("print",
             edu.northeastern.ccs.im.client.Message.class);
     readMethod.setAccessible(true);

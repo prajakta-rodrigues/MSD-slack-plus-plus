@@ -12,7 +12,9 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
+import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -21,10 +23,6 @@ import static org.junit.Assert.fail;
  * Created by venkateshkoka on 2/10/19. All the test cases
  */
 public class PrattleTest {
-
-  public PrattleTest() throws IOException {
-  }
-
 
   /**
    * Test ServerConstants Types...
@@ -86,18 +84,25 @@ public class PrattleTest {
     sc.isDisplayMessage();
     sc.isInitialization();
     sc.terminate();
-    sc.getSender();
-    sc.getText();
+    String sender = sc.getSender();
+    String text = sc.getText();
     assertTrue(true);
+    assertEquals(sender, "Jaffa");
+    assertNull(text);
   }
 
   @Test
   public void testNetworkConnectionSocketChannel() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
-    socketChannel.configureBlocking(false);
-    socketChannel.connect(new InetSocketAddress("localhost", 4545));
-    new NetworkConnection(socketChannel);
-    assert true;
+    try {
+      socketChannel.configureBlocking(false);
+      socketChannel.connect(new InetSocketAddress("localhost", 4545));
+      new NetworkConnection(socketChannel);
+    } catch (Exception e) {
+      fail("Exception should not be thrown");
+    } finally {
+      socketChannel.close();
+    }
   }
 
   @Test
