@@ -132,6 +132,8 @@ public class PrattleTest {
         method1.setAccessible(true);
         method2.setAccessible(true);
         method3.setAccessible(true);
+        method2.invoke(null,"daffa");
+        method1.invoke(null,"jaffa");
         method1.invoke(null,"jaffa");
         method2.invoke(null,"daffa");
         method3.invoke(null,"daffa");
