@@ -517,6 +517,31 @@ public class IMConnectionTest {
 		Mockito.when(value.next()).thenReturn(message);
 		clientRunnable.run();
 	}
+	
+	@Test
+	public void testClientRunnableBroadcastMessageNameNull() {
+		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+		ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
+		Iterator<Message> value = Mockito.mock(Iterator.class);
+		Mockito.when(networkConnection.iterator()).thenReturn(value);
+		Mockito.when(value.hasNext()).thenReturn(true);
+		Message message = Message.makeBroadcastMessage(null, "test51");
+		Mockito.when(value.next()).thenReturn(message);
+		clientRunnable.run();
+	}
+	
+	@Test
+	public void testClientRunnableBroadcastMessageDifferentName() {
+		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+		ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
+		clientRunnable.setName("test61");
+		Iterator<Message> value = Mockito.mock(Iterator.class);
+		Mockito.when(networkConnection.iterator()).thenReturn(value);
+		Mockito.when(value.hasNext()).thenReturn(true);
+		Message message = Message.makeBroadcastMessage(null, "test51");
+		Mockito.when(value.next()).thenReturn(message);
+		clientRunnable.run();
+	}
 
 	@Test
 	public void testStartIMConnectionSocketNB() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
@@ -597,6 +622,17 @@ public class IMConnectionTest {
 				edu.northeastern.ccs.im.Message.class);
 		msgChecksMethod.setAccessible(true);
 		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
+		
+	}
+	
+	@Test
+	public void testMessageNullChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null); 
+		clientRunnable.setName("usr3");
+		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+				edu.northeastern.ccs.im.Message.class);
+		msgChecksMethod.setAccessible(true);
+		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage(null, "hey"));
 		
 	}
 	
