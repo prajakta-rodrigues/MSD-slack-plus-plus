@@ -1,3 +1,4 @@
+package tests;
 
 import  edu.northeastern.ccs.im.*;
 import edu.northeastern.ccs.im.Message;
