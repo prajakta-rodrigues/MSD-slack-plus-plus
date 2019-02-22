@@ -424,7 +424,8 @@ public class IMConnectionTest {
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
     activeClient.setAccessible(true);
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+    @SuppressWarnings("unchecked")
+	ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
     ClientRunnable clientRunnable = active.peek();
 
@@ -458,7 +459,8 @@ public class IMConnectionTest {
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
     activeClient.setAccessible(true);
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+    @SuppressWarnings("unchecked")
+	ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
     ClientRunnable clientRunnable = active.peek();
 
@@ -478,7 +480,8 @@ public class IMConnectionTest {
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
     activeClient.setAccessible(true);
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+    @SuppressWarnings("unchecked")
+	ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
     ClientRunnable clientRunnable = active.peek();
     Method setUserNameMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
@@ -518,7 +521,8 @@ public class IMConnectionTest {
   public void testClientRunnableNameNull() {
     NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
     ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
-    Iterator<Message> value = Mockito.mock(Iterator.class);
+    @SuppressWarnings("unchecked")
+	Iterator<Message> value = Mockito.mock(Iterator.class);
     Mockito.when(networkConnection.iterator()).thenReturn(value);
     Mockito.when(value.hasNext()).thenReturn(true);
     Message message = Message.makeSimpleLoginMessage(null);
@@ -621,6 +625,55 @@ public class IMConnectionTest {
       assert true;
     }
   }
+  
+  @Test
+	public void testClientRunnableBroadcastMessageNameNull() {
+		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+		ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
+		@SuppressWarnings("unchecked")
+		Iterator<Message> value = Mockito.mock(Iterator.class);
+		Mockito.when(networkConnection.iterator()).thenReturn(value);
+		Mockito.when(value.hasNext()).thenReturn(true);
+		Message message = Message.makeBroadcastMessage(null, "test51");
+		Mockito.when(value.next()).thenReturn(message);
+		clientRunnable.run();
+	}
+	
+	@Test
+	public void testClientRunnableBroadcastMessageDifferentName() {
+		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+		ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
+		clientRunnable.setName("test61");
+		@SuppressWarnings("unchecked")
+		Iterator<Message> value = Mockito.mock(Iterator.class);
+		Mockito.when(networkConnection.iterator()).thenReturn(value);
+		Mockito.when(value.hasNext()).thenReturn(true);
+		Message message = Message.makeBroadcastMessage(null, "test51");
+		Mockito.when(value.next()).thenReturn(message);
+		clientRunnable.run();
+	}
+	
+	
+	@Test
+	public void testMessageNullChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null); 
+		clientRunnable.setName("usr3");
+		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+				edu.northeastern.ccs.im.Message.class);
+		msgChecksMethod.setAccessible(true);
+		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage(null, "hey"));
+		
+	}
 
+	@Test
+	public void testMessageChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null); 
+		clientRunnable.setName("usr1");
+		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+				edu.northeastern.ccs.im.Message.class);
+		msgChecksMethod.setAccessible(true);
+		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
+		
+	}
 
 }
