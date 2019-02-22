@@ -1,18 +1,14 @@
-package tests;
+package chatterTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.CharBuffer;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
-import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
