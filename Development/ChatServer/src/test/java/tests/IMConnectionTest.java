@@ -413,7 +413,7 @@ public class IMConnectionTest {
 		assert true;
 
 	}
-
+	
 	@Test
 	public void testClientTimeout() throws NoSuchFieldException, SecurityException, ClassNotFoundException,
 			IllegalArgumentException, IllegalAccessException {
@@ -589,6 +589,17 @@ public class IMConnectionTest {
 		assertEquals(null, readMethod.invoke(socketNB, charBuf));
 	}
 
+	@Test
+	public void testMessageChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null); 
+		clientRunnable.setName("usr1");
+		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+				edu.northeastern.ccs.im.Message.class);
+		msgChecksMethod.setAccessible(true);
+		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
+		
+	}
+	
 	@Test
 	public void testSocketNBprint() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
