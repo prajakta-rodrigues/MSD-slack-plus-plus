@@ -1,27 +1,20 @@
 
-import  edu.northeastern.ccs.im.*;
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.client.*;
-import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.ServerConstants;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import static com.sun.corba.se.spi.activation.IIOP_CLEAR_TEXT.value;
+import edu.northeastern.ccs.im.Message;
+import edu.northeastern.ccs.im.MessageType;
+import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.client.Buddy;
+
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -43,8 +36,7 @@ public class PrattleTest {
     public void testChatloggerTypes() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.ServerConstants").getDeclaredConstructor();
         constructor.setAccessible(true);
-        Object sc = constructor.newInstance();
-        assertEquals(true, true);
+        constructor.newInstance();
     }
 
     /**
@@ -61,41 +53,43 @@ public class PrattleTest {
         if(msd1.getText().length()>0) {
             b =  msg.isInitialization();
         }
-        assertEquals(b, false);
+        assertFalse(b);
     }
 
     /**
-     * Test hadle type methods in Message...
+     * Test handle type methods in Message...
      */
     @Test
     public void testClientMessageClass() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        String jaffa = "jaffa";
+        String hello = "hello";
         Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message").getDeclaredMethod("makeMessage", String.class, String.class, String.class);
         Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message").getDeclaredMethod("makeHelloMessage", String.class);
         makeMessageMethod.setAccessible(true);
         makeHelloMessageMethod.setAccessible(true);
-        makeMessageMethod.invoke(null,"HLO","Jaffa","Hello busy people");
-        makeMessageMethod.invoke(null,"ACK","Jaffa","Hello busy people");
-        makeMessageMethod.invoke(null,"NAK","Jaffa","Hello busy people");
-        makeHelloMessageMethod.invoke(null,"Jaffa");
+        makeMessageMethod.invoke(null,"HLO",jaffa,hello);
+        makeMessageMethod.invoke(null,"ACK",jaffa,hello);
+        makeMessageMethod.invoke(null,"NAK",jaffa,hello);
+        makeHelloMessageMethod.invoke(null,jaffa);
         edu.northeastern.ccs.im.client.Message sc = edu.northeastern.ccs.im.client.Message.makeLoginMessage("jaffa");
         sc.isAcknowledge();
         sc.isBroadcastMessage();
         sc.isDisplayMessage();
         sc.isInitialization();
         sc.terminate();
-        sc.getSender();
-        sc.getText();
-        assertEquals(true, true);
+        assertEquals(jaffa, sc.getSender());
+        assertNull(sc.getText());
     }
 
 
 
     @Test
     public void testNetworkConnectionSocketChannel() throws IOException {
-       SocketChannel socketChannel = SocketChannel.open();
-       socketChannel.configureBlocking(false);
-       socketChannel.connect(new InetSocketAddress("localhost", 4545));
-       NetworkConnection networkConnection = new NetworkConnection(socketChannel);
+      try (SocketChannel socketChannel = SocketChannel.open()) {
+        socketChannel.configureBlocking(false);
+        socketChannel.connect(new InetSocketAddress("localhost", 4545));
+        new NetworkConnection(socketChannel);
+      }
        assert true;
     }
 
@@ -119,35 +113,39 @@ public class PrattleTest {
         String msg = msd.toString();
         String msg1 = msd1.toString();
         String msg2 = msd2.toString();
-        Assert.assertEquals("HLO 4 koka 2 --",msg);
+        assertEquals("HLO 4 koka 2 --",msg);
+        assertEquals("BCT 4 koka 11 Hello There", msg1);
+        assertEquals("HLO 2 -- 2 --", msg2);
     }
 
     @Test
     public  void testBuddy() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Buddy buddy = Buddy.makeTestBuddy("jaffa");
+        String bud = "edu.northeastern.ccs.im.client.Buddy";
+        String daffa = "daffa";
+        String jaffa = "jaffa";
+        Buddy buddy = Buddy.makeTestBuddy(jaffa);
         String name = buddy.getUserName();
-        Method method1 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("getBuddy", String.class);
-        Method method2 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("getEmptyBuddy", String.class);
-        Method method3 = Class.forName("edu.northeastern.ccs.im.client.Buddy").getDeclaredMethod("removeBuddy", String.class);
+        Method method1 = Class.forName(bud).getDeclaredMethod("getBuddy", String.class);
+        Method method2 = Class.forName(bud).getDeclaredMethod("getEmptyBuddy", String.class);
+        Method method3 = Class.forName(bud).getDeclaredMethod("removeBuddy", String.class);
         method1.setAccessible(true);
         method2.setAccessible(true);
         method3.setAccessible(true);
-        method2.invoke(null,"daffa");
-        method1.invoke(null,"jaffa");
-        method1.invoke(null,"jaffa");
-        method2.invoke(null,"daffa");
-        method3.invoke(null,"daffa");
-        Assert.assertEquals(name,"jaffa");
+        method2.invoke(null,daffa);
+        method1.invoke(null,jaffa);
+        method1.invoke(null,jaffa);
+        method2.invoke(null,daffa);
+        method3.invoke(null,daffa);
+        Assert.assertEquals(name,jaffa);
     }
-
-    private NetworkConnection networkConnection;
 
     @Test
     public void testNetworkConnectionSocketChannel1() throws IOException {
-        SocketChannel socketChannel = SocketChannel.open();
+      try (SocketChannel socketChannel = SocketChannel.open()) {
         socketChannel.configureBlocking(false);
         socketChannel.connect(new InetSocketAddress("localhost", 4514));
-        networkConnection = new NetworkConnection(socketChannel);
+        new NetworkConnection(socketChannel);
+      }
         assert true;
 
     }
