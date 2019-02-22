@@ -2,6 +2,7 @@ package chatterTests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -46,22 +47,25 @@ public class IMConnectionTest {
 
   private String actives = "active";
   
-  private String locahost = "locahost";
+  private String localhost = "localhost";
+
+  private String messages = "messages";
+
+  private String client = "edu.northeastern.ccs.im.server.ClientRunnable";
+
+  private String username = "TooDumbToEnterRealUsername";
   
   private static ExecutorService executor;
 
   /**
-   * Setup server.
+   * Setup server.`
    */
   @BeforeClass()
   public static void setup() {
     executor = Executors.newSingleThreadExecutor();
-    executor.execute(new Runnable() {
-      public void run() {
-        String[] args = {};
-        Prattle.main(args);
-
-      }
+    executor.execute(() -> {
+      String[] args = {};
+      Prattle.main(args);
     });
 
   }
@@ -96,8 +100,8 @@ public class IMConnectionTest {
   @Test
   public void testCreateIMConnectionNullUsername() {
 
-    iMConnection = new IMConnection("localhost", 4122, null);
-    assertEquals("TooDumbToEnterRealUsername", iMConnection.getUserName());
+    iMConnection = new IMConnection(localhost, 4122, null);
+    assertEquals(username, iMConnection.getUserName());
   }
 
   /**
@@ -106,8 +110,8 @@ public class IMConnectionTest {
   @Test
   public void testCreateIMConnectionEmptyUsername() {
 
-    iMConnection = new IMConnection("localhost", 4122, "");
-    assertEquals("TooDumbToEnterRealUsername", iMConnection.getUserName());
+    iMConnection = new IMConnection(localhost, 4122, "");
+    assertEquals(username, iMConnection.getUserName());
   }
 
   /**
@@ -116,16 +120,17 @@ public class IMConnectionTest {
   @Test
   public void testCreateIMConnectionNonEmptyUsername() {
 
-    iMConnection = new IMConnection("localhost", 4122, "maria");
+    iMConnection = new IMConnection(localhost, 4122, "maria");
     assertEquals("maria", iMConnection.getUserName());
   }
 
   /**
    * Test add message listener with valid listener.
    */
+  @Test
   public void testAddMessageListenerValidListener() {
 
-    iMConnection = new IMConnection("localhost", 4122, "diana");
+    iMConnection = new IMConnection(localhost, 4122, "diana");
     iMConnection.addMessageListener(MessageScanner.getInstance());
     assert true;
   }
@@ -136,7 +141,7 @@ public class IMConnectionTest {
   @Test(expected = InvalidListenerException.class)
   public void testAddMessageListenerNull() {
 
-    iMConnection = new IMConnection("localhost", 4122, "dim");
+    iMConnection = new IMConnection(localhost, 4122, "dim");
     iMConnection.addMessageListener(null);
   }
 
@@ -145,7 +150,7 @@ public class IMConnectionTest {
    */
   @Test
   public void isConnectionActiveNotConnection() {
-    iMConnection = new IMConnection("localhost", 4127, "doe");
+    iMConnection = new IMConnection(localhost, 4127, "doe");
     assertFalse(iMConnection.connectionActive());
   }
 
@@ -154,7 +159,7 @@ public class IMConnectionTest {
    */
   @Test
   public void isConnectionActiveWhenConnected() {
-    iMConnection = new IMConnection("localhost", 4545, "jake");
+    iMConnection = new IMConnection(localhost, 4545, "jake");
     iMConnection.connect();
     assertTrue(iMConnection.connectionActive());
   }
@@ -162,11 +167,10 @@ public class IMConnectionTest {
   /**
    * Test connecting with invalid username.
    *
-   * @throws Exception the exception while trying to connect
    */
   @Test(expected = IllegalNameException.class)
-  public void testConnectInvalidUsername() throws Exception {
-    iMConnection = new IMConnection("localhost", 4545, "prajakta_12");
+  public void testConnectInvalidUsername() {
+    iMConnection = new IMConnection(localhost, 4545, "prajakta_12");
     iMConnection.connect();
 
   }
@@ -176,7 +180,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testConnectFail() {
-    iMConnection = new IMConnection("localhost", 4111, "joe");
+    iMConnection = new IMConnection(localhost, 4111, "joe");
     assertFalse(iMConnection.connect());
   }
 
@@ -185,7 +189,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testConnectSuccess() {
-    iMConnection = new IMConnection("localhost", 4545, "pra");
+    iMConnection = new IMConnection(localhost, 4545, "pra");
     assertTrue(iMConnection.connect());
   }
 
@@ -194,8 +198,8 @@ public class IMConnectionTest {
    */
   @Test
   public void testMultipleClientsConnectSuccess() {
-    iMConnection = new IMConnection("localhost", 4545, "arp");
-    IMConnection iMConnectionAnother = new IMConnection("localhost", 4545, "kid");
+    iMConnection = new IMConnection(localhost, 4545, "arp");
+    IMConnection iMConnectionAnother = new IMConnection(localhost, 4545, "kid");
     assertTrue(iMConnection.connect());
     assertTrue(iMConnectionAnother.connect());
   }
@@ -205,7 +209,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testDisconnectSuccess() {
-    iMConnection = new IMConnection("localhost", 4545, "praj");
+    iMConnection = new IMConnection(localhost, 4545, "praj");
     iMConnection.connect();
     iMConnection.disconnect();
     System.out.println(iMConnection.connectionActive());
@@ -216,7 +220,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testSendMessage() {
-    iMConnection = new IMConnection("localhost", 4545, "sean");
+    iMConnection = new IMConnection(localhost, 4545, "sean");
     iMConnection.connect();
     iMConnection.sendMessage("hey I am testing");
     assert true;
@@ -227,7 +231,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testSendLongMessage() {
-    iMConnection = new IMConnection("localhost", 4545, "testUser5");
+    iMConnection = new IMConnection(localhost, 4545, "testUser5");
     iMConnection.connect();
     StringBuilder str = new StringBuilder();
     for (int i = 0; i < 1421; i++) {
@@ -242,7 +246,7 @@ public class IMConnectionTest {
    */
   @Test(expected = IllegalOperationException.class)
   public void testSendMessageFailed() {
-    iMConnection = new IMConnection("localhost", 4545, "koka");
+    iMConnection = new IMConnection(localhost, 4545, "koka");
     iMConnection.sendMessage("hey I am testing");
   }
 
@@ -251,7 +255,7 @@ public class IMConnectionTest {
    */
   @Test
   public void testGetKeyboardScanner() {
-    iMConnection = new IMConnection("localhost", 4545, "omar");
+    iMConnection = new IMConnection(localhost, 4545, "omar");
     assertEquals(iMConnection.getKeyboardScanner(), iMConnection.getKeyboardScanner());
   }
 
@@ -260,7 +264,7 @@ public class IMConnectionTest {
    */
   @Test(expected = IllegalOperationException.class)
   public void testMessageScannerException() {
-    iMConnection = new IMConnection("localhost", 4545, "omari");
+    iMConnection = new IMConnection(localhost, 4545, "omari");
     iMConnection.getMessageScanner();
   }
 
@@ -269,9 +273,9 @@ public class IMConnectionTest {
    */
   @Test
   public void testMessageScanner() {
-    iMConnection = new IMConnection("localhost", 4545, "jane");
+    iMConnection = new IMConnection(localhost, 4545, "jane");
     iMConnection.connect();
-    assertTrue(iMConnection.getMessageScanner() instanceof MessageScanner);
+    assertNotNull(iMConnection.getMessageScanner());
   }
 
   /**
@@ -279,8 +283,8 @@ public class IMConnectionTest {
    */
   @Test
   public void testEmptyUsername() {
-    iMConnection = new IMConnection("localhost", 4545, "");
-    assertEquals("TooDumbToEnterRealUsername", iMConnection.getUserName());
+    iMConnection = new IMConnection(localhost, 4545, "");
+    assertEquals(username, iMConnection.getUserName());
   }
 
   /**
@@ -288,7 +292,7 @@ public class IMConnectionTest {
    */
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerNext() {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject");
+    iMConnection = new IMConnection(localhost, 4545, "testSubject");
     iMConnection.connect();
     iMConnection.sendMessage("First message \n jaffa");
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
@@ -310,11 +314,11 @@ public class IMConnectionTest {
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerEmptyLineMesssages()
       throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject1");
+    iMConnection = new IMConnection(localhost, 4545, "testSubject1");
     iMConnection.connect();
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
     Field field = Class.forName(clientKeyBoardScanner)
-        .getDeclaredField("messages");
+        .getDeclaredField(messages);
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
     field.set(ks, msgs);
@@ -331,22 +335,23 @@ public class IMConnectionTest {
   @Test
   public void testKeyBoardScannerEmptyMessages()
       throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject2");
+    String second = "Second";
+    iMConnection = new IMConnection(localhost, 4545, "testSubject2");
     iMConnection.connect();
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
     Field field = Class.forName(clientKeyBoardScanner)
-        .getDeclaredField("messages");
+        .getDeclaredField(messages);
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
     field.set(ks, msgs);
     msgs.add("First Line");
-    msgs.add("Second");
+    msgs.add(second);
     msgs.add("third");
     if (ks.hasNext()) {
       ks.next();
     }
     ks.nextLine();
-    assertEquals("Second", ks.nextLine());
+    assertEquals(second, ks.nextLine());
   }
 
   /**
@@ -359,12 +364,12 @@ public class IMConnectionTest {
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerMesssages()
       throws NoSuchFieldException, IllegalAccessException, ClassNotFoundException {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject3");
+    iMConnection = new IMConnection(localhost, 4545, "testSubject3");
     iMConnection.connect();
     ChatLogger.warning("testing");
     KeyboardScanner ks = iMConnection.getKeyboardScanner();
     Field field = Class.forName(clientKeyBoardScanner)
-        .getDeclaredField("messages");
+        .getDeclaredField(messages);
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
     field.set(ks, msgs);
@@ -387,7 +392,7 @@ public class IMConnectionTest {
   @Test
   public void testRestartKeyboardScanner() throws ClassNotFoundException, NoSuchMethodException,
       InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject4");
+    iMConnection = new IMConnection(localhost, 4545, "testSubject4");
     iMConnection.connect();
     Method restartMethod = Class.forName(clientKeyBoardScanner)
         .getDeclaredMethod("restart");
@@ -403,7 +408,7 @@ public class IMConnectionTest {
     scanner.set(keyboardScanner, producer);
     Mockito.when(producer.getState()).thenReturn(State.TERMINATED);
     Field field = Class.forName(clientKeyBoardScanner)
-        .getDeclaredField("messages");
+        .getDeclaredField(messages);
     field.setAccessible(true);
     List<String> msgs = new ArrayList<>();
     field.set(keyboardScanner, msgs);
@@ -429,7 +434,7 @@ public class IMConnectionTest {
   public void testCloseKeyBoardInstanceNull()
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    iMConnection = new IMConnection("localhost", 4545, "testSubject51");
+    iMConnection = new IMConnection(localhost, 4545, "testSubject51");
     Method closeMethod = Class.forName(clientKeyBoardScanner)
         .getDeclaredMethod("close");
     closeMethod.setAccessible(true);
@@ -459,7 +464,7 @@ public class IMConnectionTest {
   @Test
   public void testClientTimeout()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-    iMConnection = new IMConnection("localhost", 4545, "testingUser");
+    iMConnection = new IMConnection(localhost, 4545, "testingUser");
     iMConnection.connect();
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
@@ -469,7 +474,7 @@ public class IMConnectionTest {
         .get(null);
     ClientRunnable clientRunnable = active.peek();
 
-    Field field = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+    Field field = Class.forName(client)
         .getDeclaredField("timer");
     field.setAccessible(true);
     ClientTimer clientTimer = Mockito.mock(ClientTimer.class);
@@ -506,7 +511,7 @@ public class IMConnectionTest {
   @Test
   public void testClientUserId()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-    iMConnection = new IMConnection("localhost", 4545, "testingUser1");
+    iMConnection = new IMConnection(localhost, 4545, "testingUser1");
     iMConnection.connect();
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
@@ -516,10 +521,11 @@ public class IMConnectionTest {
         .get(null);
     ClientRunnable clientRunnable = active.peek();
 
-    Field field = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+    Field field = Class.forName(client)
         .getDeclaredField("userId");
     field.setAccessible(true);
     field.set(clientRunnable, 123);
+    assert clientRunnable != null;
     assertEquals(123, clientRunnable.getUserId());
     iMConnection.disconnect();
   }
@@ -536,7 +542,7 @@ public class IMConnectionTest {
   @Test
   public void testClientUserNameNull()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-    iMConnection = new IMConnection("localhost", 4545, "testingUser1");
+    iMConnection = new IMConnection(localhost, 4545, "testingUser1");
     iMConnection.connect();
     Field activeClient = Class.forName(clientServerPrattle)
         .getDeclaredField(actives);
@@ -545,10 +551,10 @@ public class IMConnectionTest {
 	ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
         .get(null);
     ClientRunnable clientRunnable = active.peek();
-    Method setUserNameMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+    Method setUserNameMethod = Class.forName(client)
         .getDeclaredMethod("setUserName", String.class);
     setUserNameMethod.setAccessible(true);
-    setUserNameMethod.invoke(clientRunnable, new Object[] {null});
+    setUserNameMethod.invoke(clientRunnable, "object");
     iMConnection.disconnect();
   }
 
@@ -557,9 +563,9 @@ public class IMConnectionTest {
    */
   @Test
   public void handleOutgoingMessages() {
-    iMConnection = new IMConnection("localhost", 4545, "testUser22");
+    iMConnection = new IMConnection(localhost, 4545, "testUser22");
     iMConnection.connect();
-    IMConnection iMConnectionTwo = new IMConnection("localhost", 4545, "testUser21");
+    IMConnection iMConnectionTwo = new IMConnection(localhost, 4545, "testUser21");
     iMConnectionTwo.connect();
     iMConnection.sendMessage("hi");
     iMConnectionTwo.sendMessage("hey");
@@ -570,9 +576,9 @@ public class IMConnectionTest {
    */
   @Test
   public void handleExitMessages() {
-    iMConnection = new IMConnection("localhost", 4545, "testUser22");
+    iMConnection = new IMConnection(localhost, 4545, "testUser22");
     iMConnection.connect();
-    IMConnection iMConnectionTwo = new IMConnection("localhost", 4545, "testUser21");
+    IMConnection iMConnectionTwo = new IMConnection(localhost, 4545, "testUser21");
     iMConnectionTwo.connect();
     iMConnection.sendMessage("/quit");
   }
@@ -615,7 +621,7 @@ public class IMConnectionTest {
   public void testStartIMConnectionSocketNB()
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    SocketNB socketNB = new SocketNB("localhost", 4545);
+    SocketNB socketNB = new SocketNB(localhost, 4545);
     Method connectedMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("startIMConnection");
     connectedMethod.setAccessible(true);
@@ -656,13 +662,13 @@ public class IMConnectionTest {
       throws NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException, ClassNotFoundException {
     String testUser = "testUser42";
-    iMConnection = new IMConnection("localhost", 4545, testUser);
+    iMConnection = new IMConnection(localhost, 4545, testUser);
     Constructor<ScanForMessagesWorker> constructor;
     constructor = ScanForMessagesWorker.class
         .getDeclaredConstructor(IMConnection.class, SocketNB.class);
     constructor.setAccessible(true);
     ScanForMessagesWorker scanForMessagesWorker = constructor.newInstance(iMConnection,
-        new SocketNB("localhost", 4545));
+        new SocketNB(localhost, 4545));
     Method processMethod = Class.forName("edu.northeastern.ccs.im.client.ScanForMessagesWorker")
         .getDeclaredMethod("process", List.class);
     processMethod.setAccessible(true);
@@ -682,7 +688,7 @@ public class IMConnectionTest {
   @Test
   public void testSocketNBReadArgumentEmptyBuffer() throws NoSuchMethodException,
       ClassNotFoundException {
-    SocketNB socketNB = new SocketNB(locahost, 4545);
+    SocketNB socketNB = new SocketNB(localhost, 4545);
     Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("readArgument",
             CharBuffer.class);
@@ -710,7 +716,7 @@ public class IMConnectionTest {
   public void testSocketNBReadArgument()
       throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    SocketNB socketNB = new SocketNB(locahost, 4545);
+    SocketNB socketNB = new SocketNB(localhost, 4545);
     Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("readArgument",
             CharBuffer.class);
@@ -730,7 +736,7 @@ public class IMConnectionTest {
   @Test
   public void testSocketNBprint()
       throws NoSuchMethodException, ClassNotFoundException {
-    SocketNB socketNB = new SocketNB(locahost, 4545);
+    SocketNB socketNB = new SocketNB(localhost, 4545);
     Method readMethod = Class.forName(clientSocketNB)
         .getDeclaredMethod("print",
             edu.northeastern.ccs.im.client.Message.class);
@@ -743,7 +749,7 @@ public class IMConnectionTest {
       assert true;
     }
   }
-  
+
   /**
    * Test client runnable broadcast message name null.
    */
@@ -759,7 +765,7 @@ public class IMConnectionTest {
 		Mockito.when(value.next()).thenReturn(message);
 		clientRunnable.run();
 	}
-	
+
 	/**
 	 * Test client runnable broadcast message different name.
 	 */
@@ -776,8 +782,8 @@ public class IMConnectionTest {
 		Mockito.when(value.next()).thenReturn(message);
 		clientRunnable.run();
 	}
-	
-	
+
+
 	/**
 	 * Test message null checks.
 	 *
@@ -789,14 +795,14 @@ public class IMConnectionTest {
 	 * @throws InvocationTargetException the invocation target exception
 	 */
 	@Test
-	public void testMessageNullChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ClientRunnable clientRunnable = new ClientRunnable(null); 
+	public void testMessageNullChecks() throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null);
 		clientRunnable.setName("usr3");
-		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+		Method msgChecksMethod = Class.forName(client).getDeclaredMethod("messageChecks",
 				edu.northeastern.ccs.im.Message.class);
 		msgChecksMethod.setAccessible(true);
 		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage(null, "hey"));
-		
+
 	}
 
 	/**
@@ -810,10 +816,10 @@ public class IMConnectionTest {
 	 * @throws InvocationTargetException the invocation target exception
 	 */
 	@Test
-	public void testMessageChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ClientRunnable clientRunnable = new ClientRunnable(null); 
+	public void testMessageChecks() throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
+		ClientRunnable clientRunnable = new ClientRunnable(null);
 		clientRunnable.setName("usr1");
-		Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredMethod("messageChecks",
+		Method msgChecksMethod = Class.forName(client).getDeclaredMethod("messageChecks",
 				edu.northeastern.ccs.im.Message.class);
 		msgChecksMethod.setAccessible(true);
 		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
