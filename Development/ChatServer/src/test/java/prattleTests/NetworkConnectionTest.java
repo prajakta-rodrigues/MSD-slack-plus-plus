@@ -1,4 +1,4 @@
-package chatterTests;
+package prattleTests;
 
 import static org.junit.Assert.assertTrue;
 
@@ -23,13 +23,16 @@ import edu.northeastern.ccs.im.NetworkConnection;
 public class NetworkConnectionTest {
 
   private NetworkConnection networkConnection;
+  private String prattle = "edu.northeastern.ccs.im.server.Prattle";
+  private String ct = "createClientThread";
 
   @Test
   public void testNetworkConnectionSocketChannel() throws IOException {
-    SocketChannel socketChannel = SocketChannel.open();
-    socketChannel.configureBlocking(false);
-    socketChannel.connect(new InetSocketAddress("localhost", 4514));
-    networkConnection = new NetworkConnection(socketChannel);
+    try (SocketChannel socketChannel = SocketChannel.open()) {
+      socketChannel.configureBlocking(false);
+      socketChannel.connect(new InetSocketAddress("localhost", 4514));
+      networkConnection = new NetworkConnection(socketChannel);
+    }
     assert true;
 
   }
@@ -43,7 +46,7 @@ public class NetworkConnectionTest {
   }
   
   @Test(expected = NullPointerException.class)
-  public void testNetworkConnectionNullException() throws IOException {
+  public void testNetworkConnectionNullException() {
     networkConnection = new NetworkConnection(null);
 
   }
@@ -72,8 +75,8 @@ public class NetworkConnectionTest {
       throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException {
     ServerSocketChannel serverSocket = Mockito.mock(ServerSocketChannel.class);
     ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(10);
-    Method createClientThreadMethod = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredMethod("createClientThread", ServerSocketChannel.class,
+    Method createClientThreadMethod = Class.forName(prattle)
+        .getDeclaredMethod(ct, ServerSocketChannel.class,
             ScheduledExecutorService.class);
     createClientThreadMethod.setAccessible(true);
     Mockito.when(serverSocket.accept()).thenThrow(new AssertionError());
@@ -86,8 +89,8 @@ public class NetworkConnectionTest {
 
     ServerSocketChannel serverSocket = Mockito.mock(ServerSocketChannel.class);
     ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(10);
-    Method createClientThreadMethod = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredMethod("createClientThread", ServerSocketChannel.class,
+    Method createClientThreadMethod = Class.forName(prattle)
+        .getDeclaredMethod(ct, ServerSocketChannel.class,
             ScheduledExecutorService.class);
     createClientThreadMethod.setAccessible(true);
     Mockito.when(serverSocket.accept()).thenThrow(new IOException());
@@ -100,8 +103,8 @@ public class NetworkConnectionTest {
 
     ServerSocketChannel serverSocket = Mockito.mock(ServerSocketChannel.class);
     ScheduledExecutorService threadPool = Executors.newScheduledThreadPool(10);
-    Method createClientThreadMethod = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredMethod("createClientThread", ServerSocketChannel.class,
+    Method createClientThreadMethod = Class.forName(prattle)
+        .getDeclaredMethod(ct, ServerSocketChannel.class,
             ScheduledExecutorService.class);
     createClientThreadMethod.setAccessible(true);
     Mockito.when(serverSocket.accept()).thenReturn(null);

@@ -6,8 +6,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 
 @Suite.SuiteClasses({
-		IMConnectionTest.class,
-		NetworkConnectionTest.class,
+		IMConnectionTest.class
 })
 public class ChatterTestSuite {
 
