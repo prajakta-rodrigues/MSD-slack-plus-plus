@@ -1,4 +1,4 @@
-package tests;
+package chatterTests;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,27 +7,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.NotYetConnectedException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Test;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.NetworkConnection;
-import edu.northeastern.ccs.im.client.IMConnection;
-import edu.northeastern.ccs.im.server.ServerConstants;
 
 public class NetworkConnectionTest {
 	private NetworkConnection networkConnection;
