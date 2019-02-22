@@ -117,6 +117,12 @@ public class MessageScannerTest {
     Message messsage = Message.makeLoginMessage(null);
     assertEquals("HLO 2 -- 2 --", messsage.toString());
   }
+  
+  @Test
+  public void testToStringMessageSenderNotNull() {
+    Message messsage = Message.makeLoginMessage("test12");
+    assertEquals("HLO 6 test12 2 --", messsage.toString());
+  }
 
 
   @Test

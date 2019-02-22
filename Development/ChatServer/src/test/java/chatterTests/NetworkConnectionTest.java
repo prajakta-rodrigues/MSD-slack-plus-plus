@@ -41,6 +41,12 @@ public class NetworkConnectionTest {
     networkConnection = new NetworkConnection(socketChannel);
 
   }
+  
+  @Test(expected = NullPointerException.class)
+  public void testNetworkConnectionNullException() throws IOException {
+    networkConnection = new NetworkConnection(null);
+
+  }
 
   @Test(expected = NotYetConnectedException.class)
   public void testSendMessage() throws IOException {
@@ -48,6 +54,16 @@ public class NetworkConnectionTest {
     networkConnection = new NetworkConnection(socketChannel);
     Message msg = Message.makeBroadcastMessage("john", "test this");
     networkConnection.sendMessage(msg);
+
+  }
+  
+  @Test
+  public void testSendEmptyMessage() throws IOException {
+    SocketChannel socketChannel = SocketChannel.open();
+    networkConnection = new NetworkConnection(socketChannel);
+    Message msg = Mockito.mock(Message.class);
+    Mockito.when(msg.toString()).thenReturn("");
+    assertTrue(networkConnection.sendMessage(msg));
 
   }
 
