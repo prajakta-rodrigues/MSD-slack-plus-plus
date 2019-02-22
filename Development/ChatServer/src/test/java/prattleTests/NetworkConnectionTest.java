@@ -20,12 +20,22 @@ import org.mockito.Mockito;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 
+/**
+ * The Class NetworkConnectionTest.
+ */
 public class NetworkConnectionTest {
 
   private NetworkConnection networkConnection;
+  
   private String prattle = "edu.northeastern.ccs.im.server.Prattle";
+  
   private String ct = "createClientThread";
 
+  /**
+   * Test network connection socket channel.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void testNetworkConnectionSocketChannel() throws IOException {
     try (SocketChannel socketChannel = SocketChannel.open()) {
@@ -37,6 +47,11 @@ public class NetworkConnectionTest {
 
   }
 
+  /**
+   * Test network connection exception.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test(expected = AssertionError.class)
   public void testNetworkConnectionException() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
@@ -45,12 +60,20 @@ public class NetworkConnectionTest {
 
   }
   
+  /**
+   * Test network connection null exception.
+   */
   @Test(expected = NullPointerException.class)
   public void testNetworkConnectionNullException() {
     networkConnection = new NetworkConnection(null);
 
   }
 
+  /**
+   * Test send message.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test(expected = NotYetConnectedException.class)
   public void testSendMessage() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
@@ -60,6 +83,11 @@ public class NetworkConnectionTest {
 
   }
   
+  /**
+   * Test send empty message.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void testSendEmptyMessage() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
@@ -70,6 +98,15 @@ public class NetworkConnectionTest {
 
   }
 
+  /**
+   * Creates the client thread assertion error exception.
+   *
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void createClientThreadAssertionErrorException()
       throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException {
@@ -83,6 +120,15 @@ public class NetworkConnectionTest {
     createClientThreadMethod.invoke(null, serverSocket, threadPool);
   }
 
+  /**
+   * Creates the client thread IO exception.
+   *
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void createClientThreadIOException()
       throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException {
@@ -97,6 +143,15 @@ public class NetworkConnectionTest {
     createClientThreadMethod.invoke(null, serverSocket, threadPool);
   }
 
+  /**
+   * Creates the client thread null socket.
+   *
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void createClientThreadNullSocket()
       throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException {
@@ -113,6 +168,11 @@ public class NetworkConnectionTest {
   }
 
 
+  /**
+   * Test no message network connection exception.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test(expected = NoSuchElementException.class)
   public void testNoMessageNetworkConnectionException() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
@@ -123,6 +183,11 @@ public class NetworkConnectionTest {
   }
 
 
+  /**
+   * Test close network connection.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void testCloseNetworkConnection() throws IOException {
     SocketChannel socketChannel = SocketChannel.open();
@@ -132,12 +197,18 @@ public class NetworkConnectionTest {
   }
 
 
+  /**
+   * Test message is broadcast.
+   */
   @Test
   public void testMessageIsBroadcast() {
     Message message = Message.makeBroadcastMessage("myName", "hey");
     assertTrue(message.isBroadcastMessage());
   }
 
+  /**
+   * Test message is login.
+   */
   @Test
   public void testMessageIsLogin() {
     Message message = Message.makeSimpleLoginMessage("myName");

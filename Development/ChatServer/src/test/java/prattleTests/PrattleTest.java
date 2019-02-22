@@ -27,7 +27,13 @@ import static org.junit.Assert.assertFalse;
 public class PrattleTest {
 
   /**
-   * Test ServerConstants Types...
+   * Test ServerConstants Types.
+   *
+   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws InstantiationException the instantiation exception
    */
   @Test
   public void testChatloggerTypes() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -37,7 +43,12 @@ public class PrattleTest {
   }
 
   /**
-   * Test makeHelloMessage in Message...
+   * Test makeHelloMessage in Message.
+   *
+   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testMessageClass() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -54,7 +65,13 @@ public class PrattleTest {
   }
 
   /**
-   * Test handle type methods in Message...
+   * Test handle type methods in Message.
+   *
+   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InstantiationException the instantiation exception
    */
   @Test
   public void testClientMessageClass() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
@@ -80,6 +97,11 @@ public class PrattleTest {
 
 
 
+  /**
+   * Test network connection socket channel.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void testNetworkConnectionSocketChannel() throws IOException {
     try (SocketChannel socketChannel = SocketChannel.open()) {
@@ -90,6 +112,9 @@ public class PrattleTest {
     assert true;
   }
 
+  /**
+   * Test message type.
+   */
   @Test
   public  void testMessageType() {
     MessageType mstype = MessageType.HELLO;
@@ -101,6 +126,9 @@ public class PrattleTest {
     Assert.assertEquals(mstype2,mstype3);
   }
 
+  /**
+   * Test message.
+   */
   @Test
   public  void testMessage() {
 
@@ -115,6 +143,14 @@ public class PrattleTest {
     assertEquals("HLO 2 -- 2 --", msg2);
   }
 
+  /**
+   * Test buddy.
+   *
+   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public  void testBuddy() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String bud = "edu.northeastern.ccs.im.client.Buddy";
@@ -136,6 +172,11 @@ public class PrattleTest {
     Assert.assertEquals(name,jaffa);
   }
 
+  /**
+   * Test network connection socket channel 1.
+   *
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
   @Test
   public void testNetworkConnectionSocketChannel1() throws IOException {
     try (SocketChannel socketChannel = SocketChannel.open()) {

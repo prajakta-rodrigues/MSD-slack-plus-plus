@@ -39,14 +39,15 @@ import edu.northeastern.ccs.im.server.Prattle;
 public class IMConnectionTest {
 
   private String clientKeyBoardScanner = "edu.northeastern.ccs.im.client.KeyboardScanner";
+  
   private String clientServerPrattle = "edu.northeastern.ccs.im.server.Prattle";
+  
   private String clientSocketNB = "edu.northeastern.ccs.im.client.SocketNB";
 
   private String actives = "active";
+  
   private String locahost = "locahost";
-  /**
-   * The executor.
-   */
+  
   private static ExecutorService executor;
 
   /**
@@ -65,6 +66,11 @@ public class IMConnectionTest {
 
   }
 
+  /**
+   * Initiates the server thread before testing client.
+   *
+   * @throws InterruptedException the interrupted exception
+   */
   @Before()
   public void init() throws InterruptedException {
     Thread.sleep(3000);
@@ -73,8 +79,6 @@ public class IMConnectionTest {
 
   /**
    * Kill server.
-   *
-   * @throws InterruptedException the interrupted exception
    */
   @AfterClass()
   public static void killSetup() {
@@ -298,6 +302,10 @@ public class IMConnectionTest {
 
   /**
    * Test Keyboardscanner emptylist of messages.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws ClassNotFoundException the class not found exception
    */
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerEmptyLineMesssages()
@@ -315,6 +323,10 @@ public class IMConnectionTest {
 
   /**
    * Test Keyboardscanner emptylist of messages.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws ClassNotFoundException the class not found exception
    */
   @Test
   public void testKeyBoardScannerEmptyMessages()
@@ -339,6 +351,10 @@ public class IMConnectionTest {
 
   /**
    * Test Keyboardscanner list of messages.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws ClassNotFoundException the class not found exception
    */
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerMesssages()
@@ -361,6 +377,12 @@ public class IMConnectionTest {
 
   /**
    * Test restart keyboard scanner singleton instance...yet to be completed
+   *
+   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws NoSuchFieldException the no such field exception
    */
   @Test
   public void testRestartKeyboardScanner() throws ClassNotFoundException, NoSuchMethodException,
@@ -395,6 +417,14 @@ public class IMConnectionTest {
     restartMethod.invoke(keyboardScanner);
   }
 
+  /**
+   * Test close key board instance null.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testCloseKeyBoardInstanceNull()
       throws NoSuchMethodException, ClassNotFoundException,
@@ -408,6 +438,9 @@ public class IMConnectionTest {
 
   }
 
+  /**
+   * Test remove client.
+   */
   @Test
   public void testRemoveClient() {
     NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
@@ -416,6 +449,13 @@ public class IMConnectionTest {
 
   }
 
+  /**
+   * Test client timeout.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public void testClientTimeout()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
@@ -438,6 +478,11 @@ public class IMConnectionTest {
 
   }
 
+  /**
+   * Logger test.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   */
   @Test
   public void loggerTest() throws NoSuchMethodException {
     Constructor<ChatLogger> constructor = ChatLogger.class.getDeclaredConstructor();
@@ -451,6 +496,13 @@ public class IMConnectionTest {
 
   }
 
+  /**
+   * Test client user id.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public void testClientUserId()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
@@ -472,6 +524,15 @@ public class IMConnectionTest {
     iMConnection.disconnect();
   }
 
+  /**
+   * Test client user name null.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testClientUserNameNull()
       throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -491,6 +552,9 @@ public class IMConnectionTest {
     iMConnection.disconnect();
   }
 
+  /**
+   * Handle outgoing messages.
+   */
   @Test
   public void handleOutgoingMessages() {
     iMConnection = new IMConnection("localhost", 4545, "testUser22");
@@ -501,6 +565,9 @@ public class IMConnectionTest {
     iMConnectionTwo.sendMessage("hey");
   }
 
+  /**
+   * Handle exit messages.
+   */
   @Test
   public void handleExitMessages() {
     iMConnection = new IMConnection("localhost", 4545, "testUser22");
@@ -510,6 +577,9 @@ public class IMConnectionTest {
     iMConnection.sendMessage("/quit");
   }
 
+  /**
+   * Test server illegal state exception.
+   */
   @Test(expected = IllegalStateException.class)
   public void testServerIllegalStateException() {
     String[] args = {};
@@ -517,6 +587,9 @@ public class IMConnectionTest {
   }
 
 
+  /**
+   * Test client runnable name null.
+   */
   @Test
   public void testClientRunnableNameNull() {
     NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
@@ -530,6 +603,14 @@ public class IMConnectionTest {
     clientRunnable.run();
   }
 
+  /**
+   * Test start IM connection socket NB.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testStartIMConnectionSocketNB()
       throws NoSuchMethodException, ClassNotFoundException,
@@ -542,6 +623,14 @@ public class IMConnectionTest {
     connectedMethod.invoke(socketNB);
   }
 
+  /**
+   * Test socket NB.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testSocketNB()
       throws NoSuchMethodException, ClassNotFoundException,
@@ -553,6 +642,15 @@ public class IMConnectionTest {
     assertEquals(false, connectedMethod.invoke(socketNB));
   }
 
+  /**
+   * Test scan for messages worker.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws InstantiationException the instantiation exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws ClassNotFoundException the class not found exception
+   */
   @Test
   public void testScanForMessagesWorker()
       throws NoSuchMethodException, InstantiationException,
@@ -575,6 +673,12 @@ public class IMConnectionTest {
     processMethod.invoke(scanForMessagesWorker, msg);
   }
 
+  /**
+   * Test socket NB read argument empty buffer.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   */
   @Test
   public void testSocketNBReadArgumentEmptyBuffer() throws NoSuchMethodException,
       ClassNotFoundException {
@@ -594,6 +698,14 @@ public class IMConnectionTest {
     }
   }
 
+  /**
+   * Test socket NB read argument.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testSocketNBReadArgument()
       throws NoSuchMethodException, ClassNotFoundException,
@@ -609,6 +721,12 @@ public class IMConnectionTest {
     assertNull(readMethod.invoke(socketNB, charBuf));
   }
 
+  /**
+   * Test socket N bprint.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   */
   @Test
   public void testSocketNBprint()
       throws NoSuchMethodException, ClassNotFoundException {
@@ -626,6 +744,9 @@ public class IMConnectionTest {
     }
   }
   
+  /**
+   * Test client runnable broadcast message name null.
+   */
   @Test
 	public void testClientRunnableBroadcastMessageNameNull() {
 		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
@@ -639,6 +760,9 @@ public class IMConnectionTest {
 		clientRunnable.run();
 	}
 	
+	/**
+	 * Test client runnable broadcast message different name.
+	 */
 	@Test
 	public void testClientRunnableBroadcastMessageDifferentName() {
 		NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
@@ -654,6 +778,16 @@ public class IMConnectionTest {
 	}
 	
 	
+	/**
+	 * Test message null checks.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testMessageNullChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		ClientRunnable clientRunnable = new ClientRunnable(null); 
@@ -665,6 +799,16 @@ public class IMConnectionTest {
 		
 	}
 
+	/**
+	 * Test message checks.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testMessageChecks() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		ClientRunnable clientRunnable = new ClientRunnable(null); 

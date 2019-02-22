@@ -18,10 +18,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+/**
+ * The Class ClientRunnableTest.
+ */
 public class ClientRunnableTest {
+  
   private ClientRunnable client;
+  
   private Iterator<Message> mockIterator;
 
+  /**
+   * Setup for tests.
+   */
   @Before
   public void initData() {
     NetworkConnection mockNetwork = Mockito.mock(NetworkConnection.class);
@@ -35,12 +43,18 @@ public class ClientRunnableTest {
     when(mockNetwork.iterator()).thenReturn(mockIterator);
   }
 
+  /**
+   * Test check for initialization.
+   */
   @Test
   public void testCheckForInitialization() {
     client.run();
     assertTrue(client.isInitialized());
   }
 
+  /**
+   * Test check for initialization null.
+   */
   @Test
   public void testCheckForInitializationNull() {
     mockIterator.next();
@@ -48,6 +62,9 @@ public class ClientRunnableTest {
     assertFalse(client.isInitialized());
   }
 
+  /**
+   * Test name.
+   */
   @Test
   public void testName() {
     client.setName("Franklin");
