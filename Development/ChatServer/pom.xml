@@ -34,23 +34,53 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version> 0.7.9</version>
 
+				<!--<configuration>-->
+					<!--<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>-->
+					<!--<dataFile>${basedir}/target/coverage-reports/Jacoco-unit.exec</dataFile>-->
+				<!--</configuration>-->
 				<configuration>
-					<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-					<dataFile>${basedir}/target/coverage-reports/Jacoco-unit.exec</dataFile>
+					<destFile>target/jacoco.exec</destFile>
 				</configuration>
 				<executions>
 					<execution>
-						<id>jacoco-initialize</id>
+						<id>prepare-agent</id>
 						<goals>
-							<goal> prepare-agent </goal>
+							<goal>prepare-agent</goal>
 						</goals>
 					</execution>
 					<execution>
-						<id>jacoco-site</id>
-						<phase> package</phase>
+						<id>report</id>
+						<phase>prepare-package</phase>
 						<goals>
-							<goal>report</goal></goals>
+							<goal>report</goal>
+						</goals>
 					</execution>
+					<execution>
+						<id>post-unit-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<!-- Sets the path to the file which contains the execution data. -->
+
+							<dataFile>target/jacoco.exec</dataFile>
+							<!-- Sets the output directory for the code coverage report. -->
+							<outputDirectory>target/jacoco-ut</outputDirectory>
+						</configuration>
+					</execution>
+					<!--<execution>-->
+						<!--<id>jacoco-initialize</id>-->
+						<!--<goals>-->
+							<!--<goal> prepare-agent </goal>-->
+						<!--</goals>-->
+					<!--</execution>-->
+					<!--<execution>-->
+						<!--<id>jacoco-site</id>-->
+						<!--<phase> package</phase>-->
+						<!--<goals>-->
+							<!--<goal>report</goal></goals>-->
+					<!--</execution>-->
 				</executions>
 			</plugin>
 			<plugin>
