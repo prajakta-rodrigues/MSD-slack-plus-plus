@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 import org.junit.Test;
 
-import edu.northeastern.ccs.im.MessageType;
+import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
 
@@ -90,7 +90,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testNotBroadcastMessage() {
-    edu.northeastern.ccs.im.Message messsage = edu.northeastern.ccs.im.Message.makeQuitMessage("q");
+    edu.northeastern.ccs.im.server.Message messsage = edu.northeastern.ccs.im.server.Message.makeQuitMessage("q");
     assertFalse(messsage.isBroadcastMessage());
 
   }
@@ -185,7 +185,7 @@ public class MessageScannerTest {
   @Test
   public void testMakeTypeBroadcastMessage() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    Method makeMethod = Class.forName("edu.northeastern.ccs.im.Message")
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
         .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     makeMethod.setAccessible(true);
     makeMethod.invoke(null, MessageType.BROADCAST.toString(), "test1", "testText");
@@ -202,7 +202,7 @@ public class MessageScannerTest {
   @Test
   public void testMakeTypeNoneMessage() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    Method makeMethod = Class.forName("edu.northeastern.ccs.im.Message")
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
         .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     makeMethod.setAccessible(true);
     assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));

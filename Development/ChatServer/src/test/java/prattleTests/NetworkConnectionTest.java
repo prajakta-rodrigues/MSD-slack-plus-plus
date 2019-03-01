@@ -17,8 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 
 /**
  * The Class NetworkConnectionTest.

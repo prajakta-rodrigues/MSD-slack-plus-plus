@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.MessageType;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.MessageType;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.client.Buddy;
 
 import static junit.framework.Assert.assertNull;
@@ -52,7 +52,7 @@ public class PrattleTest {
    */
   @Test
   public void testMessageClass() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.Message").getDeclaredMethod("makeHelloMessage", String.class);
+    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Message").getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null,"mike");
     Message msd1 =  Message.makeBroadcastMessage("koka","Hello There");

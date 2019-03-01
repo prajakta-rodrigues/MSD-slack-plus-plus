@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im;
+package edu.northeastern.ccs.im.server;
 
 /**
  * Each instance of this class represents a single transmission by our IM

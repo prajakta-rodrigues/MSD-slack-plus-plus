@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 
 import static junit.framework.Assert.assertFalse;

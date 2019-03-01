@@ -20,9 +20,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import edu.northeastern.ccs.im.ChatLogger;
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.ChatLogger;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.client.*;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -799,7 +799,7 @@ public class IMConnectionTest {
 		ClientRunnable clientRunnable = new ClientRunnable(null);
 		clientRunnable.setName("usr3");
 		Method msgChecksMethod = Class.forName(client).getDeclaredMethod("messageChecks",
-				edu.northeastern.ccs.im.Message.class);
+				Message.class);
 		msgChecksMethod.setAccessible(true);
 		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage(null, "hey"));
 
@@ -820,7 +820,7 @@ public class IMConnectionTest {
 		ClientRunnable clientRunnable = new ClientRunnable(null);
 		clientRunnable.setName("usr1");
 		Method msgChecksMethod = Class.forName(client).getDeclaredMethod("messageChecks",
-				edu.northeastern.ccs.im.Message.class);
+				edu.northeastern.ccs.im.server.Message.class);
 		msgChecksMethod.setAccessible(true);
 		msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
 		
