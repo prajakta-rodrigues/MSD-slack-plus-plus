@@ -70,7 +70,24 @@ public abstract class Prattle {
    * @param message Message containing the command being executed by the client.
    */
   public static void commandMessage(Message message) {
-    
+  	String[] messageContents = message.getText().split(" ");
+  	String command = messageContents[0];
+  	String param = messageContents[1];
+
+  	switch(command.toLowerCase()) {
+			case "/circle":
+				for(ClientRunnable activeUser : active) {
+					System.out.println(activeUser.getName());
+				}
+				break;
+			case "/dm":
+
+				break;
+			default:
+				throw new IllegalArgumentException("Your command type does not exist");
+				// let us determine a proper error handling system. I recommend some type of
+				// "Did you mean ... ?" or an automatic print out of all available commands
+		}
   }
 
 	/**
