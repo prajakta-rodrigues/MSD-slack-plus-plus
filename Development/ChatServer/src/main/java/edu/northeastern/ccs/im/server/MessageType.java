@@ -17,9 +17,9 @@ public enum MessageType {
 	 */
 	QUIT("BYE"),
 	/** Message whose contents is broadcast to all connected users. */
-	BROADCAST("BCT");
+	BROADCAST("BCT"),
 	/** Message whose intention is to allow the user to interact with the system */
-	// COMMAND("CMD");
+	COMMAND("CMD");
 
 	/** Store the short name of this message type. */
 	private String abbreviation;

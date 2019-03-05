@@ -31,7 +31,9 @@ public class Message {
 	 */
 	QUIT("BYE"),
 	/** Message whose contents is broadcast to all connected users. */
-	BROADCAST("BCT");
+	BROADCAST("BCT"),
+  /** Message whose contents is a command to control the console. */
+  COMMAND("CMD");
 		/** Store the short name of this message type. */
 		private String tla;
 
@@ -129,6 +131,17 @@ public class Message {
 		return new Message(MessageType.BROADCAST, myName, text);
 	}
 
+  /**
+   * Create a new command message to interact with the application.
+   *
+   * @param myName Name of the sender of the sender of this command.
+   * @param text Text of the command.
+   * @return Instance of Message that is a command.
+   */
+  public static Message makeCommandMessage(String myName, String text) {
+	  return new Message(MessageType.COMMAND, myName, text);
+  }
+
 	/**
 	 * Create a new message stating the name with which the user would like to
 	 * login.
@@ -162,7 +175,9 @@ public class Message {
 			result = makeAcknowledgeMessage(srcName);
 		} else if (handle.compareTo(MessageType.NO_ACKNOWLEDGE.toString()) == 0) {
 			result = makeNoAcknowledgeMessage();
-		}
+		} else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
+		  result = makeCommandMessage(srcName, text);
+    }
 		return result;
 	}
 

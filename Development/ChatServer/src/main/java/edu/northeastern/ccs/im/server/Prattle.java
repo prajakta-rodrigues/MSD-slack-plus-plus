@@ -7,7 +7,9 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -36,11 +38,13 @@ public abstract class Prattle {
 
 	/** Collection of threads that are currently being used. */
 	private static ConcurrentLinkedQueue<ClientRunnable> active;
+  // private static Map<Integer, ClientRunnable> active;
 
 	/** All of the static initialization occurs in this "method" */
 	static {
 		// Create the new queue of active threads.
 		active = new ConcurrentLinkedQueue<>();
+    // active = new Hashtable<>();
 	}
 
 	/**
@@ -58,6 +62,16 @@ public abstract class Prattle {
 			}
 		}
 	}
+
+  /**
+   * Execute a command based on the message provided.  Message output will only be sent to the
+   * client who originally sent it.
+   *
+   * @param message Message containing the command being executed by the client.
+   */
+  public static void commandMessage(Message message) {
+    
+  }
 
 	/**
 	 * Remove the given IM client from the list of active threads.
