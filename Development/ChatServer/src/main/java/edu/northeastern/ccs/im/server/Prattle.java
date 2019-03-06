@@ -76,9 +76,17 @@ public abstract class Prattle {
 
   	switch(command.toLowerCase()) {
 			case "/circle":
+				StringBuilder users = new StringBuilder();
+				String senderId = message.getName();
+				ClientRunnable currentSender = null;
 				for(ClientRunnable activeUser : active) {
-					System.out.println(activeUser.getName());
+					if(activeUser.getName().equals(senderId)) {
+						currentSender = activeUser;
+					}
+					users.append(activeUser.getName());
+					users.append("\n");
 				}
+				currentSender.enqueueMessage(Message.makeBroadcastMessage(senderId, users.toString()));
 				break;
 			case "/dm":
 
