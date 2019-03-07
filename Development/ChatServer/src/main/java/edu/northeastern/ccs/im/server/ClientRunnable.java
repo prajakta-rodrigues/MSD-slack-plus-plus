@@ -301,6 +301,15 @@ public class ClientRunnable implements Runnable {
 		runnableMe.cancel(false);
 	}
 
+  /**
+   * Returns the id of this user's active channel.
+   *
+   * @return id of the current active channel of the user.
+   */
+	public int getChannelId() {
+	  return this.channelId;
+  }
+
 	@Override
   public boolean equals(Object other) {
 	  if (!(other instanceof ClientRunnable)) {

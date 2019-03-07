@@ -38,13 +38,21 @@ public abstract class Prattle {
 
 	/** Collection of threads that are currently being used. */
 	private static ConcurrentLinkedQueue<ClientRunnable> active;
-  // private static Map<Integer, ClientRunnable> active;
+
+  /**
+   * Collection of groups that are on the server.
+   */
+  private static ConcurrentLinkedQueue<SlackGroup> groups;
+
+	/** Factory for making instances of direct message sessions and groups */
+	private static ChannelFactory channelFactory;
 
 	/** All of the static initialization occurs in this "method" */
 	static {
 		// Create the new queue of active threads.
 		active = new ConcurrentLinkedQueue<>();
-    // active = new Hashtable<>();
+		groups = new ConcurrentLinkedQueue<>();
+		channelFactory = new ChannelFactory();
 	}
 
 	/**
@@ -72,7 +80,9 @@ public abstract class Prattle {
   public static void commandMessage(Message message) {
   	String[] messageContents = message.getText().split(" ");
   	String command = messageContents[0];
-  	String param = messageContents[1];
+  	String param = messageContents.length > 1 ? messageContents[1] : messageContents[0];
+  	String callbackContents = "";
+  	String sender = message.getName();
 
   	switch(command.toLowerCase()) {
 			case "/circle":
@@ -91,11 +101,43 @@ public abstract class Prattle {
 			case "/dm":
 
 				break;
+      case "/creategroup":
+        groups.add(channelFactory.makeGroup(sender, param));
+        callbackContents = String.format("Group %s created", param);
+        break;
+      case "/groups":
+        StringBuilder groupNames = new StringBuilder();
+        groupNames.append("Groups:");
+        for (SlackGroup group : groups) {
+          groupNames.append(String.format("%n%s", group.getGroupName()));
+        }
+        callbackContents = groupNames.toString();
+        break;
 			default:
-				throw new IllegalArgumentException("Your command type does not exist");
-				// let us determine a proper error handling system. I recommend some type of
-				// "Did you mean ... ?" or an automatic print out of all available commands
+				callbackContents = String.format("Command \'%s\' not recognized", command);
+				break;
 		}
+		// send callback message
+    ClientRunnable client = getClient(sender);
+  	if (client != null && client.isInitialized()) {
+  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+    }
+  }
+
+  /**
+   * get Client by senderId.  To be changed with database integration so not worrying about
+   * efficiency right now.
+   *
+   * @param senderId id of the sender
+   * @return Client associated with the senderID
+   */
+  private static ClientRunnable getClient(String senderId) {
+    for (ClientRunnable client : active) {
+      if (client.getName().equals(senderId)) {
+        return client;
+      }
+    }
+    return null;
   }
 
 	/**
