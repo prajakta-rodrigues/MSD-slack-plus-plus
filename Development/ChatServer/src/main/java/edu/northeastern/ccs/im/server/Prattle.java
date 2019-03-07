@@ -80,7 +80,7 @@ public abstract class Prattle {
    *
    * @param message Message containing the command being executed by the client.
    */
-  public static void commandMessage(Message message) {
+  static void commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
     String command = messageContents[0];
     String param = messageContents.length > 1 ? messageContents[1] : messageContents[0];
@@ -89,10 +89,10 @@ public abstract class Prattle {
 
     switch (command.toLowerCase()) {
       case "/circle":
-        StringBuilder users = new StringBuilder("Active Users:\n");
+        StringBuilder users = new StringBuilder("Active Users:");
         for (ClientRunnable activeUser : active) {
-          users.append(activeUser.getName());
           users.append("\n");
+          users.append(activeUser.getName());
         }
         callbackContents = users.toString();
         break;
