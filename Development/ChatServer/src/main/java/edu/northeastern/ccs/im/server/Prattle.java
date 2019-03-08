@@ -63,9 +63,10 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("group", Group.getInstance());
-    commands.put("groups", Groups.getInstance());
-    commands.put("createGroup", CreateGroup.getInstance());
+    commands.put("/group", Group.getInstance());
+    commands.put("/groups", Groups.getInstance());
+    commands.put("/createGroup", CreateGroup.getInstance());
+    commands.put("/circle", Circle.getInstance());
   }
 
   /**
@@ -91,19 +92,19 @@ public abstract class Prattle {
    * @param message Message containing the command being executed by the client.
    */
   public static void commandMessage(Message message) {
-  	String[] messageContents = message.getText().split(" ");
-  	String command = messageContents[0];
-  	String param = messageContents.length > 1 ? messageContents[1] : null;
-  	String senderId = message.getName();
+    String[] messageContents = message.getText().split(" ");
+    String command = messageContents[0];
+    String param = messageContents.length > 1 ? messageContents[1] : null;
+    String senderId = message.getName();
 
-  	String callbackContents = commands.keySet().contains(command)
-            ? commands.get(command).apply(param, senderId)
-            : String.format("Command %s not recognized", command);
+    String callbackContents = commands.keySet().contains(command)
+        ? commands.get(command).apply(param, senderId)
+        : String.format("Command %s not recognized", command);
 
-		// send callback message
+    // send callback message
     ClientRunnable client = getClient(senderId);
-  	if (client != null && client.isInitialized()) {
-  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+    if (client != null && client.isInitialized()) {
+      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
     }
   }
 
@@ -138,7 +139,7 @@ public abstract class Prattle {
     return null;
   }
 
-	/**
+  /**
    * Remove the given IM client from the list of active threads.
    *
    * @param dead Thread which had been handling all the I/O for a client who has since quit.
@@ -243,6 +244,7 @@ public abstract class Prattle {
    * Change sender's active channel to the specified Group.
    */
   private static class Group implements Command {
+
     private static Command singleton = null;
 
     static Command getInstance() {
@@ -282,6 +284,7 @@ public abstract class Prattle {
    * List all groups on the server.
    */
   private static class Groups implements Command {
+
     private static Command singleton = null;
 
     static Command getInstance() {
@@ -311,6 +314,7 @@ public abstract class Prattle {
    * Create a Group with the given name.
    */
   private static class CreateGroup implements Command {
+
     private static Command singleton = null;
 
     static Command getInstance() {
@@ -337,6 +341,49 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
+    }
+  }
+
+
+  /**
+   * List all active users on the server.
+   */
+  private static class Circle implements Command {
+
+    private static Circle singleton = null;
+
+    /**
+     * Gets the singleton instance of this Circle.
+     *
+     * @return The Circle singleton.
+     */
+    static Command getInstance() {
+      if (singleton == null) {
+        return new Circle();
+      } else {
+        return singleton;
+      }
+    }
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, String senderId) {
+      StringBuilder activeUsers = new StringBuilder("Active Users:");
+      for (ClientRunnable activeUser : active) {
+        activeUsers.append(String.format("%n%s", activeUser.getName()));
+      }
+      return activeUsers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the active users on the server";
     }
   }
 }
