@@ -61,6 +61,7 @@ public abstract class Prattle {
     groups = new ConcurrentLinkedQueue<>();
     channelFactory = ChannelFactory.makeFactory();
     groups.add(channelFactory.makeGroup(null, "general"));
+    // Populate the known commands
     commands = new Hashtable<>();
     commands.put("circle", Circle.getInstance());
     commands.put("group", Group.getInstance());
@@ -95,7 +96,7 @@ public abstract class Prattle {
   	String command = messageContents[0];
   	String param = messageContents.length > 1 ? messageContents[1] : null;
   	String senderId = message.getName();
-  	
+
   	String callbackContents = commands.keySet().contains(command)
             ? "Command not recognized"
             : commands.get(command).apply(param, senderId);
