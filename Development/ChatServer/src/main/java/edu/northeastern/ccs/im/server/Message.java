@@ -28,23 +28,42 @@ public class Message {
 	/** The second argument used in the message. */
 	private String msgText;
 
+	/** The channel this message was sent in. */
+	private int channelId;
+
 	/**
-	 * Create a new message that contains actual IM text. The type of distribution
+	 * Create a new message that contains actual IM text and a channelId. The type of distribution
 	 * is defined by the handle and we must also set the name of the message sender,
 	 * message recipient, and the text to send.
 	 * 
 	 * @param handle  Handle for the type of message being created.
 	 * @param srcName Name of the individual sending this message
 	 * @param text    Text of the instant message
+   * @param channelId id of the channel this message was sent in
 	 */
-	private Message(MessageType handle, String srcName, String text) {
+	private Message(MessageType handle, String srcName, String text, int channelId) {
 		msgType = handle;
 		// Save the properly formatted identifier for the user sending the
 		// message.
 		msgSender = srcName;
 		// Save the text of the message.
 		msgText = text;
+		// Save the id of the channel associated with this message
+    this.channelId = channelId;
 	}
+
+  /**
+   * Create a new message that contains actual IM text and a channelId. The type of distribution
+   * is defined by the handle and we must also set the name of the message sender,
+   * message recipient, and the text to send.
+   *
+   * @param handle  Handle for the type of message being created.
+   * @param srcName Name of the individual sending this message
+   * @param text    Text of the instant message
+   */
+	private Message(MessageType handle, String srcName, String text) {
+	  this(handle, srcName, text, -1);
+  }
 
 	/**
 	 * Create a new message that contains a command sent the server that requires a
@@ -56,7 +75,7 @@ public class Message {
 	 *                log-in to the IM server.
 	 */
 	private Message(MessageType handle, String srcName) {
-		this(handle, srcName, null);
+		this(handle, srcName, null, -1);
 	}
 
 	/**
@@ -74,11 +93,16 @@ public class Message {
 	 * 
 	 * @param myName Name of the sender of this very important missive.
 	 * @param text   Text of the message that will be sent to all users
+   * @param channelId The channel that this Message was sent in.
 	 * @return Instance of Message that transmits text to all logged in users.
 	 */
-	public static Message makeBroadcastMessage(String myName, String text) {
-		return new Message(MessageType.BROADCAST, myName, text);
+	public static Message makeBroadcastMessage(String myName, String text, int channelId) {
+		return new Message(MessageType.BROADCAST, myName, text, channelId);
 	}
+
+  public static Message makeBroadcastMessage(String myName, String text) {
+	  return makeBroadcastMessage(myName, text, -1);
+  }
 
   /**
    * Create a new command message to interact with the application.
@@ -119,7 +143,10 @@ public class Message {
 		} else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
 			result = makeSimpleLoginMessage(srcName);
 		} else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
-			result = makeBroadcastMessage(srcName, text);
+		  // to be replaced with static query
+      ClientRunnable sender = Prattle.getClient(srcName);
+      int channelId = sender != null ? sender.getActiveChannelId() : -1;
+			result = makeBroadcastMessage(srcName, text, channelId);
 		} else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
 			result = makeCommandMessage(srcName, text);
 		}
@@ -145,6 +172,13 @@ public class Message {
 	public String getName() {
 		return msgSender;
 	}
+
+  /**
+   * Return the channel id associated with this message.
+   *
+   * @return integer channel id.
+   */
+	public int getChannelId() { return channelId; }
 
 	/**
 	 * Return the text of this message.

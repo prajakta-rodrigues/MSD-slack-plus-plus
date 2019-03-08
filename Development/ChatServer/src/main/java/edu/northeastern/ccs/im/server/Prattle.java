@@ -7,7 +7,9 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -50,12 +52,20 @@ public abstract class Prattle {
    */
   private static ChannelFactory channelFactory;
 
+  private static final Map<String, Command> commands;
+
   /** All of the static initialization occurs in this "method" */
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     groups = new ConcurrentLinkedQueue<>();
-    channelFactory = new ChannelFactory();
+    channelFactory = ChannelFactory.makeFactory();
+    groups.add(channelFactory.makeGroup(null, "general"));
+    // Populate the known commands
+    commands = new Hashtable<>();
+    commands.put("group", Group.getInstance());
+    commands.put("groups", Groups.getInstance());
+    commands.put("createGroup", CreateGroup.getInstance());
   }
 
   /**
@@ -68,7 +78,7 @@ public abstract class Prattle {
     // Loop through all of our active threads
     for (ClientRunnable tt : active) {
       // Do not send the message to any clients that are not ready to receive it.
-      if (tt.isInitialized()) {
+      if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
         tt.enqueueMessage(message);
       }
     }
@@ -80,45 +90,20 @@ public abstract class Prattle {
    *
    * @param message Message containing the command being executed by the client.
    */
-  static void commandMessage(Message message) {
-    String[] messageContents = message.getText().split(" ");
-    String command = messageContents[0];
-    String param = messageContents.length > 1 ? messageContents[1] : messageContents[0];
-    String callbackContents = "";
-    String senderId = message.getName();
+  public static void commandMessage(Message message) {
+  	String[] messageContents = message.getText().split(" ");
+  	String command = messageContents[0];
+  	String param = messageContents.length > 1 ? messageContents[1] : null;
+  	String senderId = message.getName();
 
-    switch (command.toLowerCase()) {
-      case "/circle":
-        StringBuilder users = new StringBuilder("Active Users:");
-        for (ClientRunnable activeUser : active) {
-          users.append("\n");
-          users.append(activeUser.getName());
-        }
-        callbackContents = users.toString();
-        break;
-      case "/dm":
-        // direct message between two users
-        break;
-      case "/creategroup":
-        groups.add(channelFactory.makeGroup(senderId, param));
-        callbackContents = String.format("Group %s created", param);
-        break;
-      case "/groups":
-        StringBuilder groupNames = new StringBuilder();
-        groupNames.append("Groups:");
-        for (SlackGroup group : groups) {
-          groupNames.append(String.format("%n%s", group.getGroupName()));
-        }
-        callbackContents = groupNames.toString();
-        break;
-      default:
-        callbackContents = String.format("Command \'%s\' not recognized", command);
-        break;
-    }
-    // send callback message
+  	String callbackContents = commands.keySet().contains(command)
+            ? commands.get(command).apply(param, senderId)
+            : String.format("Command %s not recognized", command);
+
+		// send callback message
     ClientRunnable client = getClient(senderId);
-    if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+  	if (client != null && client.isInitialized()) {
+  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
     }
   }
 
@@ -129,7 +114,7 @@ public abstract class Prattle {
    * @param senderId id of the sender
    * @return Client associated with the senderID
    */
-  private static ClientRunnable getClient(String senderId) {
+  public static ClientRunnable getClient(String senderId) {
     for (ClientRunnable client : active) {
       if (client.getName().equals(senderId)) {
         return client;
@@ -139,6 +124,21 @@ public abstract class Prattle {
   }
 
   /**
+   * get Group by groupName.  To be changed with database integration.
+   *
+   * @param groupName name of the group
+   * @return Group associated with the groupName
+   */
+  private static SlackGroup getGroup(String groupName) {
+    for (SlackGroup group : groups) {
+      if (group.getGroupName().equals(groupName)) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+	/**
    * Remove the given IM client from the list of active threads.
    *
    * @param dead Thread which had been handling all the I/O for a client who has since quit.
@@ -236,6 +236,107 @@ public abstract class Prattle {
       ChatLogger.error("Caught Assertion: " + ae.toString());
     } catch (IOException e) {
       ChatLogger.error("Caught Exception: " + e.toString());
+    }
+  }
+
+  /**
+   * Change sender's active channel to the specified Group.
+   */
+  private static class Group implements Command {
+    private static Command singleton = null;
+
+    static Command getInstance() {
+      if (singleton == null) {
+        return new Group();
+      } else {
+        return singleton;
+      }
+    }
+
+    @Override
+    public String apply(String groupName, String senderId) {
+      if (groupName == null || groupName.length() < 1) {
+        return "No Group Name provided";
+      }
+      SlackGroup targetGroup = getGroup(groupName);
+      ClientRunnable sender = getClient(senderId);
+      if (targetGroup != null) {
+        if (sender != null) {
+          sender.setActiveChannelId(targetGroup.getChannelId());
+          return String.format("Active channel set to Group %s", groupName);
+        } else {
+          return "Sender not found";
+        }
+      } else {
+        return String.format("Group %s does not exist", groupName);
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Change your current chat room to the specified Group.\nParameters: group name";
+    }
+  }
+
+  /**
+   * List all groups on the server.
+   */
+  private static class Groups implements Command {
+    private static Command singleton = null;
+
+    static Command getInstance() {
+      if (singleton == null) {
+        return new Groups();
+      } else {
+        return singleton;
+      }
+    }
+
+    @Override
+    public String apply(String param, String senderId) {
+      StringBuilder groupNames = new StringBuilder();
+      for (SlackGroup group : groups) {
+        groupNames.append(String.format("%n%s", group.getGroupName()));
+      }
+      return groupNames.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the names of each available Group on the server";
+    }
+  }
+
+  /**
+   * Create a Group with the given name.
+   */
+  private static class CreateGroup implements Command {
+    private static Command singleton = null;
+
+    static Command getInstance() {
+      if (singleton == null) {
+        return new CreateGroup();
+      } else {
+        return singleton;
+      }
+    }
+
+    @Override
+    public String apply(String groupName, String senderId) {
+      if (groupName == null || groupName.length() < 1) {
+        return "No Group Name provided";
+      }
+      try {
+        groups.add(channelFactory.makeGroup(senderId, groupName));
+        return String.format("Group %s created", groupName);
+      } catch (IllegalArgumentException e) {
+        return e.getMessage();
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Create a group with the given name.\nParameters: Group name";
     }
   }
 }
