@@ -98,8 +98,8 @@ public abstract class Prattle {
   	String senderId = message.getName();
 
   	String callbackContents = commands.keySet().contains(command)
-            ? "Command not recognized"
-            : commands.get(command).apply(param, senderId);
+            ? commands.get(command).apply(param, senderId)
+            : String.format("Command %s not recognized", command);
 
 		// send callback message
     ClientRunnable client = getClient(senderId);
