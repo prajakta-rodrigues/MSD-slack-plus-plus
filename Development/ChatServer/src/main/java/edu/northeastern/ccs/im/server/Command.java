@@ -1,7 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-abstract class Command implements Function<String, String> {
-  protected abstract String description();
+interface Command extends BiFunction<String, String, String> {
+  String description();
 }

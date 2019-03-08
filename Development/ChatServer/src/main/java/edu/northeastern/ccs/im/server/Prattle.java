@@ -79,7 +79,7 @@ public abstract class Prattle {
   public static void commandMessage(Message message) {
   	String[] messageContents = message.getText().split(" ");
   	String command = messageContents[0];
-  	String param = messageContents.length > 1 ? messageContents[1] : messageContents[0];
+  	String param = messageContents.length > 1 ? messageContents[1] : null;
   	String callbackContents = "";
   	String senderId = message.getName();
 
@@ -270,4 +270,6 @@ public abstract class Prattle {
 			ChatLogger.error("Caught Exception: " + e.toString());
 		}
 	}
+
+	private static class createGroup
 }

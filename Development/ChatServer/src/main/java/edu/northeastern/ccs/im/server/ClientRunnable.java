@@ -319,19 +319,4 @@ public class ClientRunnable implements Runnable {
   public void setActiveChannelId(int channelId) {
 	  this.activeChannelId = channelId;
   }
-
-	@Override
-  public boolean equals(Object other) {
-	  if (!(other instanceof ClientRunnable)) {
-	    return false;
-    } else {
-	    ClientRunnable otherClient = (ClientRunnable)other;
-	    return otherClient.userId == this.userId;
-    }
-  }
-
-	@Override
-  public int hashCode() {
-	  return this.userId;
-  }
 }
