@@ -63,7 +63,6 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("circle", Circle.getInstance());
     commands.put("group", Group.getInstance());
     commands.put("groups", Groups.getInstance());
     commands.put("createGroup", CreateGroup.getInstance());
@@ -240,33 +239,9 @@ public abstract class Prattle {
     }
   }
 
-  private static class Circle implements Command {
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Circle();
-      } else {
-        return singleton;
-      }
-    }
-
-    @Override
-    public String apply(String param, String senderId) {
-      StringBuilder users = new StringBuilder("Active Users:");
-      for (ClientRunnable activeUser : active) {
-        users.append("\n");
-        users.append(activeUser.getName());
-      }
-      return users.toString();
-    }
-
-    @Override
-    public String description() {
-      return "Print out the handles of all active users on the server.";
-    }
-  }
-
+  /**
+   * Change sender's active channel to the specified Group.
+   */
   private static class Group implements Command {
     private static Command singleton = null;
 
@@ -303,6 +278,9 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * List all groups on the server.
+   */
   private static class Groups implements Command {
     private static Command singleton = null;
 
@@ -329,6 +307,9 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Create a Group with the given name.
+   */
   private static class CreateGroup implements Command {
     private static Command singleton = null;
 

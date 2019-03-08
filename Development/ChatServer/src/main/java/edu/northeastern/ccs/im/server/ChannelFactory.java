@@ -4,12 +4,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChannelFactory {
+/**
+ * Factory class used to make Groups (and direct messages). Will likely be thinned after
+ * delegating Object enforcing to database.
+ */
+class ChannelFactory {
   private static ChannelFactory singleton = null;
   private int channelId = -1;
+  // List of used group names.
   private Set<String> takenGroupNames = Collections.synchronizedSet(new HashSet<>());
 
-  public static ChannelFactory makeFactory() {
+  /**
+   * Get Singleton Factory
+   * @return Factory instance
+   */
+  static ChannelFactory makeFactory() {
     if (singleton == null) {
       return new ChannelFactory();
     } else {
@@ -17,7 +26,14 @@ public class ChannelFactory {
     }
   }
 
-  public SlackGroup makeGroup(String creatorId, String groupName) {
+  /**
+   * Create a group with the given attributes.
+   *
+   * @param creatorId identifier of Creator of the group.
+   * @param groupName name of the group.
+   * @return created Group.
+   */
+  SlackGroup makeGroup(String creatorId, String groupName) {
     if (takenGroupNames.contains(groupName)) { throw new IllegalArgumentException("Group name already taken"); }
     this.channelId++;
     takenGroupNames.add(creatorId);
