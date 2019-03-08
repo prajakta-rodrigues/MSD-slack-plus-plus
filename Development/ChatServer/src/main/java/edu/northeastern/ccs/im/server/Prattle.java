@@ -7,9 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -53,6 +51,7 @@ public abstract class Prattle {
 		active = new ConcurrentLinkedQueue<>();
 		groups = new ConcurrentLinkedQueue<>();
 		channelFactory = new ChannelFactory();
+		groups.add(channelFactory.makeGroup(null, "general"));
 	}
 
 	/**
@@ -65,7 +64,7 @@ public abstract class Prattle {
 		// Loop through all of our active threads
 		for (ClientRunnable tt : active) {
 			// Do not send the message to any clients that are not ready to receive it.
-			if (tt.isInitialized()) {
+			if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
 				tt.enqueueMessage(message);
 			}
 		}
@@ -82,37 +81,61 @@ public abstract class Prattle {
   	String command = messageContents[0];
   	String param = messageContents.length > 1 ? messageContents[1] : messageContents[0];
   	String callbackContents = "";
-  	String sender = message.getName();
+  	String senderId = message.getName();
 
   	switch(command.toLowerCase()) {
 			case "/circle":
 				for(ClientRunnable activeUser : active) {
-					System.out.println(activeUser.getName());
+
 				}
 				break;
 			case "/dm":
 
 				break;
       case "/creategroup":
-        groups.add(channelFactory.makeGroup(sender, param));
-        callbackContents = String.format("Group %s created", param);
+        if (param == null || param.length() < 1) {
+          callbackContents = "No Group Name provided";
+          break;
+        }
+        try {
+          groups.add(channelFactory.makeGroup(senderId, param));
+          callbackContents = String.format("Group %s created", param);
+        } catch (IllegalArgumentException e) {
+          callbackContents = e.getMessage();
+        }
         break;
       case "/groups":
         StringBuilder groupNames = new StringBuilder();
-        groupNames.append("Groups:");
         for (SlackGroup group : groups) {
           groupNames.append(String.format("%n%s", group.getGroupName()));
         }
         callbackContents = groupNames.toString();
         break;
+      case "/group":
+        if (param == null || param.length() < 1) {
+          callbackContents = "No Group Name provided";
+          break;
+        }
+        SlackGroup targetGroup = getGroup(param);
+        ClientRunnable sender = getClient(senderId);
+        if (targetGroup != null) {
+          if (sender != null) {
+            sender.setActiveChannelId(targetGroup.getChannelId());
+            callbackContents = String.format("Active channel set to Group %s", param);
+          } else {
+            callbackContents = "Sender not found";
+          }
+        } else {
+          callbackContents = String.format("Group %s does not exist", param);
+        }
+        break;
 			default:
 				callbackContents = String.format("Command \'%s\' not recognized", command);
-				break;
 		}
 		// send callback message
-    ClientRunnable client = getClient(sender);
+    ClientRunnable client = getClient(senderId);
   	if (client != null && client.isInitialized()) {
-  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents, -1));
     }
   }
 
@@ -123,7 +146,7 @@ public abstract class Prattle {
    * @param senderId id of the sender
    * @return Client associated with the senderID
    */
-  private static ClientRunnable getClient(String senderId) {
+  public static ClientRunnable getClient(String senderId) {
     for (ClientRunnable client : active) {
       if (client.getName().equals(senderId)) {
         return client;
@@ -132,7 +155,22 @@ public abstract class Prattle {
     return null;
   }
 
-	/**
+  /**
+   * get Group by groupName.  To be changed with database integration.
+   *
+   * @param groupName name of the group
+   * @return Group associated with the groupName
+   */
+  private static SlackGroup getGroup(String groupName) {
+    for (SlackGroup group : groups) {
+      if (group.getGroupName().equals(groupName)) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+  /**
 	 * Remove the given IM client from the list of active threads.
 	 * 
 	 * @param dead Thread which had been handling all the I/O for a client who has
