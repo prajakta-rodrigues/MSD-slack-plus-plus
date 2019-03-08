@@ -90,8 +90,9 @@ public abstract class Prattle {
    * client who originally sent it.
    *
    * @param message Message containing the command being executed by the client.
+   * @return The string message that is being broadcast due to the command, empty is command DNE.
    */
-  public static void commandMessage(Message message) {
+  public static String commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
     String command = messageContents[0];
     String param = messageContents.length > 1 ? messageContents[1] : null;
@@ -103,9 +104,12 @@ public abstract class Prattle {
 
     // send callback message
     ClientRunnable client = getClient(senderId);
+    Message broadcastCommand = null;
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+      broadcastCommand = Message.makeBroadcastMessage("SlackBot", callbackContents);
+      client.enqueueMessage(broadcastCommand);
     }
+    return broadcastCommand != null ? broadcastCommand.getText() : "";
   }
 
   /**
@@ -376,7 +380,8 @@ public abstract class Prattle {
     public String apply(String ignoredParam, String senderId) {
       StringBuilder activeUsers = new StringBuilder("Active Users:");
       for (ClientRunnable activeUser : active) {
-        activeUsers.append(String.format("%n%s", activeUser.getName()));
+        activeUsers.append("\n");
+        activeUsers.append(activeUser.getName());
       }
       return activeUsers.toString();
     }
