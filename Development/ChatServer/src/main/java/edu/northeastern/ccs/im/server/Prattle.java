@@ -90,52 +90,19 @@ public abstract class Prattle {
 
   	switch(command.toLowerCase()) {
       case "/circle":
-        StringBuilder users = new StringBuilder("Active Users:");
-        for (ClientRunnable activeUser : active) {
-          users.append("\n");
-          users.append(activeUser.getName());
-        }
-        callbackContents = users.toString();
+        callbackContents = circle();
         break;
       case "/dm":
         // direct message between two users
         break;
       case "/creategroup":
-        if (param == null || param.length() < 1) {
-          callbackContents = "No Group Name provided";
-          break;
-        }
-        try {
-          groups.add(channelFactory.makeGroup(senderId, param));
-          callbackContents = String.format("Group %s created", param);
-        } catch (IllegalArgumentException e) {
-          callbackContents = e.getMessage();
-        }
+        callbackContents = createGroup(param, senderId);
         break;
       case "/groups":
-        StringBuilder groupNames = new StringBuilder();
-        for (SlackGroup group : groups) {
-          groupNames.append(String.format("%n%s", group.getGroupName()));
-        }
-        callbackContents = groupNames.toString();
+        callbackContents = groups();
         break;
       case "/group":
-        if (param == null || param.length() < 1) {
-          callbackContents = "No Group Name provided";
-          break;
-        }
-        SlackGroup targetGroup = getGroup(param);
-        ClientRunnable sender = getClient(senderId);
-        if (targetGroup != null) {
-          if (sender != null) {
-            sender.setActiveChannelId(targetGroup.getChannelId());
-            callbackContents = String.format("Active channel set to Group %s", param);
-          } else {
-            callbackContents = "Sender not found";
-          }
-        } else {
-          callbackContents = String.format("Group %s does not exist", param);
-        }
+        callbackContents = group(param, senderId);
         break;
 			default:
 				callbackContents = String.format("Command \'%s\' not recognized", command);
@@ -145,6 +112,53 @@ public abstract class Prattle {
   	if (client != null && client.isInitialized()) {
   	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
     }
+  }
+
+  private static String circle() {
+    StringBuilder users = new StringBuilder("Active Users:");
+    for (ClientRunnable activeUser : active) {
+      users.append("\n");
+      users.append(activeUser.getName());
+    }
+    return users.toString();
+  }
+
+  private static String group(String groupName, String senderId) {
+    if (groupName == null || groupName.length() < 1) {
+      return "No Group Name provided";
+    }
+    SlackGroup targetGroup = getGroup(groupName);
+    ClientRunnable sender = getClient(senderId);
+    if (targetGroup != null) {
+      if (sender != null) {
+        sender.setActiveChannelId(targetGroup.getChannelId());
+        return String.format("Active channel set to Group %s", groupName);
+      } else {
+        return "Sender not found";
+      }
+    } else {
+      return String.format("Group %s does not exist", groupName);
+    }
+  }
+
+  private static String createGroup(String groupName, String senderId) {
+    if (groupName == null || groupName.length() < 1) {
+      return "No Group Name provided";
+    }
+    try {
+      groups.add(channelFactory.makeGroup(senderId, groupName));
+      return String.format("Group %s created", groupName);
+    } catch (IllegalArgumentException e) {
+      return e.getMessage();
+    }
+  }
+
+  private static String groups() {
+    StringBuilder groupNames = new StringBuilder();
+    for (SlackGroup group : groups) {
+      groupNames.append(String.format("%n%s", group.getGroupName()));
+    }
+    return groupNames.toString();
   }
 
   /**
