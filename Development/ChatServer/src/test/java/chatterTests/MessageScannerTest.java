@@ -21,7 +21,7 @@ import edu.northeastern.ccs.im.client.MessageScanner;
 public class MessageScannerTest {
 
   private static final String TESTING = "testing";
-  
+
   private static final String TEST_USER = "testing";
 
   /**
@@ -71,10 +71,20 @@ public class MessageScannerTest {
   @Test
   public void testIsBroadcastMessage() {
     Message messsage = Message.makeBroadcastMessage(TEST_USER, "u");
+    assertFalse(messsage.isCommandMessage());
     assertTrue(messsage.isBroadcastMessage());
 
   }
 
+  @Test
+  public void testIsCommandMessage() {
+    Message message = Message.makeCommandMessage(TEST_USER, "/circle");
+    assertEquals("CMD 7 testing 7 /circle", message.toString());
+    assertFalse(message.isDisplayMessage());
+    assertFalse(message.isBroadcastMessage());
+    assertTrue(message.isCommandMessage());
+
+  }
   /**
    * Test is not broadcast message.
    */
@@ -90,7 +100,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testNotBroadcastMessage() {
-    edu.northeastern.ccs.im.server.Message messsage = edu.northeastern.ccs.im.server.Message.makeQuitMessage("q");
+    edu.northeastern.ccs.im.server.Message messsage = edu.northeastern.ccs.im.server.Message
+        .makeQuitMessage("q");
     assertFalse(messsage.isBroadcastMessage());
 
   }
@@ -163,7 +174,7 @@ public class MessageScannerTest {
     Message messsage = Message.makeLoginMessage(null);
     assertEquals("HLO 2 -- 2 --", messsage.toString());
   }
-  
+
   /**
    * Test to string message sender not null.
    */
@@ -175,7 +186,7 @@ public class MessageScannerTest {
 
 
   /**
-   * Test make type broadcast message.
+   * Test make type broadcast message for server.
    *
    * @throws NoSuchMethodException the no such method exception
    * @throws ClassNotFoundException the class not found exception
@@ -186,9 +197,97 @@ public class MessageScannerTest {
   public void testMakeTypeBroadcastMessage() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, "test1", "testText");
+  }
+
+
+  /**
+   * Test make type broadcast message for client.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeBroadcastMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, "test2", "testing");
+  }
+
+
+  /**
+   * Test make type quit message.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeQuitMessage() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
         .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     makeMethod.setAccessible(true);
-    makeMethod.invoke(null, MessageType.BROADCAST.toString(), "test1", "testText");
+    makeMethod.invoke(null, MessageType.QUIT.toString(), "test1", "testText");
+  }
+
+  /**
+   * Test make type command message for server.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeCommandMessage() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.COMMAND.toString(), "test1", "testText");
+  }
+
+  /**
+   * Test make type command message for client.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeCommandMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.COMMAND.toString(), "test2", "testing");
+  }
+
+
+  /**
+   * Test make type hello message.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeHello() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.HELLO.toString(), "test1", "testText");
   }
 
   /**

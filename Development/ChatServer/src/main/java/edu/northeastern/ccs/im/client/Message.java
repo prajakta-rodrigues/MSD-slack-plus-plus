@@ -277,6 +277,15 @@ public class Message {
 	}
 
 	/**
+	 * Determine if this message is a command.
+	 *
+	 * @return True if the message is a command message; false otherwise.
+	 */
+	public boolean isCommandMessage() {
+		return (msgType == MessageType.COMMAND);
+	}
+
+	/**
 	 * Determine if this message is a message signing off from the IM server.
 	 * 
 	 * @return True if the message is sent when signing off; false otherwise
