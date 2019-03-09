@@ -30,7 +30,7 @@ public class ClientRunnable implements Runnable {
   /**
    * Id for the active channel that the client is sending messages to.
    */
-  private int channelId;
+  private int activeChannelId = 0;
 
 	/** Id for the user for whom we use this ClientRunnable to communicate. */
 	private int userId;
@@ -240,6 +240,7 @@ public class ClientRunnable implements Runnable {
 				if (messageChecks(msg)) {
 					// Check for our "special messages"
 					if (msg.isBroadcastMessage()) {
+					  System.out.println(msg.getChannelId());
 						// Check for our "special messages"
 						Prattle.broadcastMessage(msg);
 					} else if (msg.isCommandMessage()) {
@@ -301,18 +302,21 @@ public class ClientRunnable implements Runnable {
 		runnableMe.cancel(false);
 	}
 
-	@Override
-  public boolean equals(Object other) {
-	  if (!(other instanceof ClientRunnable)) {
-	    return false;
-    } else {
-	    ClientRunnable otherClient = (ClientRunnable)other;
-	    return otherClient.userId == this.userId;
-    }
+  /**
+   * Returns the id of this user's active channel.
+   *
+   * @return id of the current active channel of the user.
+   */
+	public int getActiveChannelId() {
+	  return this.activeChannelId;
   }
 
-	@Override
-  public int hashCode() {
-	  return this.userId;
+  /**
+   * Sets the active channel id to the given id.
+   *
+   * @param channelId id of the new active channel of this user.
+   */
+  public void setActiveChannelId(int channelId) {
+	  this.activeChannelId = channelId;
   }
 }
