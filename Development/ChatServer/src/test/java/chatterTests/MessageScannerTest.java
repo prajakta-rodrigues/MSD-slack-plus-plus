@@ -14,6 +14,7 @@ import org.junit.Test;
 import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
+import org.mockito.Mockito;
 
 /**
  * The Class MessageScannerTest.
@@ -50,8 +51,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsAcknowlegeMessage() {
-    Message messsage = Message.makeAcknowledgeMessage(TESTING);
-    assertTrue(messsage.isAcknowledge());
+    Message message = Message.makeAcknowledgeMessage(TESTING);
+    assertTrue(message.isAcknowledge());
 
   }
 
@@ -60,8 +61,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotAcknowlegeMessage() {
-    Message messsage = Message.makeQuitMessage(TESTING);
-    assertFalse(messsage.isAcknowledge());
+    Message message = Message.makeQuitMessage(TESTING);
+    assertFalse(message.isAcknowledge());
 
   }
 
@@ -70,29 +71,48 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsBroadcastMessage() {
-    Message messsage = Message.makeBroadcastMessage(TEST_USER, "u");
-    assertFalse(messsage.isCommandMessage());
-    assertTrue(messsage.isBroadcastMessage());
+    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    assertFalse(message.isCommandMessage());
+    assertTrue(message.isBroadcastMessage());
 
   }
 
+  /**
+   * Tests that command messages are command messages and get printed correctly.
+   */
   @Test
-  public void testIsCommandMessage() {
+  public void testCommandMessage() {
     Message message = Message.makeCommandMessage(TEST_USER, "/circle");
+    edu.northeastern.ccs.im.server.Message message2 = edu.northeastern.ccs.im.server.Message
+        .makeCommandMessage(TEST_USER, "/quit");
     assertEquals("CMD 7 testing 7 /circle", message.toString());
     assertFalse(message.isDisplayMessage());
     assertFalse(message.isBroadcastMessage());
     assertTrue(message.isCommandMessage());
 
+    assertEquals("CMD 7 testing 5 /quit", message2.toString());
+    assertFalse(message2.isBroadcastMessage());
+    assertTrue(message2.isCommandMessage());
+    assertEquals(-1, message2.getChannelId());
   }
+
   /**
    * Test is not broadcast message.
    */
   @Test
   public void testIsNotBroadcastMessage() {
-    Message messsage = Message.makeQuitMessage(TESTING);
-    assertFalse(messsage.isBroadcastMessage());
+    Message message = Message.makeQuitMessage(TESTING);
+    assertFalse(message.isBroadcastMessage());
+  }
 
+  /**
+   * Test is not command message.
+   */
+  @Test
+  public void testIsNotCommandMessage() {
+    edu.northeastern.ccs.im.server.Message message = edu.northeastern.ccs.im.server.Message
+        .makeQuitMessage(TEST_USER);
+    assertFalse(message.isCommandMessage());
   }
 
   /**
@@ -100,9 +120,9 @@ public class MessageScannerTest {
    */
   @Test
   public void testNotBroadcastMessage() {
-    edu.northeastern.ccs.im.server.Message messsage = edu.northeastern.ccs.im.server.Message
+    edu.northeastern.ccs.im.server.Message message = edu.northeastern.ccs.im.server.Message
         .makeQuitMessage("q");
-    assertFalse(messsage.isBroadcastMessage());
+    assertFalse(message.isBroadcastMessage());
 
   }
 
@@ -111,8 +131,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsDisplayMessage() {
-    Message messsage = Message.makeBroadcastMessage(TEST_USER, "u");
-    assertTrue(messsage.isDisplayMessage());
+    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    assertTrue(message.isDisplayMessage());
 
   }
 
@@ -121,8 +141,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotDisplayMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertFalse(messsage.isDisplayMessage());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertFalse(message.isDisplayMessage());
 
   }
 
@@ -131,8 +151,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsInitializationMessage() {
-    Message messsage = Message.makeLoginMessage("us");
-    assertTrue(messsage.isInitialization());
+    Message message = Message.makeLoginMessage("us");
+    assertTrue(message.isInitialization());
 
   }
 
@@ -141,8 +161,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotInitializationMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertFalse(messsage.isInitialization());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertFalse(message.isInitialization());
 
   }
 
@@ -151,8 +171,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotTerminationMessage() {
-    Message messsage = Message.makeLoginMessage("us");
-    assertFalse(messsage.terminate());
+    Message message = Message.makeLoginMessage("us");
+    assertFalse(message.terminate());
 
   }
 
@@ -161,8 +181,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsTerminationMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertTrue(messsage.terminate());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertTrue(message.terminate());
 
   }
 
@@ -171,8 +191,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testToStringMessageSenderNull() {
-    Message messsage = Message.makeLoginMessage(null);
-    assertEquals("HLO 2 -- 2 --", messsage.toString());
+    Message message = Message.makeLoginMessage(null);
+    assertEquals("HLO 2 -- 2 --", message.toString());
   }
 
   /**
@@ -180,8 +200,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testToStringMessageSenderNotNull() {
-    Message messsage = Message.makeLoginMessage("test12");
-    assertEquals("HLO 6 test12 2 --", messsage.toString());
+    Message message = Message.makeLoginMessage("test12");
+    assertEquals("HLO 6 test12 2 --", message.toString());
   }
 
 
@@ -307,5 +327,18 @@ public class MessageScannerTest {
     assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
   }
 
+  @Test
+  public void testMakeTypeNoneMessageClient()  throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
+  }
 
+  @Test
+  public void testMakeMessageBroadcast(){
+    Message m = Mockito.mock(Message.class);
+    m.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
+  }
 }
