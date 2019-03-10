@@ -242,7 +242,7 @@ public class MessageScannerTest {
 
 
   /**
-   * Test make type quit message.
+   * Test make type quit message for server.
    *
    * @throws NoSuchMethodException the no such method exception
    * @throws ClassNotFoundException the class not found exception
@@ -256,6 +256,23 @@ public class MessageScannerTest {
         .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     makeMethod.setAccessible(true);
     makeMethod.invoke(null, MessageType.QUIT.toString(), "test1", "testText");
+  }
+
+  /**
+   * Test make type quit message for client
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeQuitMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.QUIT.toString(), "tester", "testingText");
   }
 
   /**
@@ -338,7 +355,6 @@ public class MessageScannerTest {
 
   @Test
   public void testMakeMessageBroadcast(){
-    Message m = Mockito.mock(Message.class);
-    m.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
+    Message.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
   }
 }

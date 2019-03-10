@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import edu.northeastern.ccs.im.server.ServerConstants;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -24,6 +25,8 @@ import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.client.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -221,7 +224,6 @@ public class IMConnectionTest {
     iMConnection = new IMConnection(localhost, 4545, "sean");
     iMConnection.connect();
     iMConnection.sendMessage("hey I am testing");
-    assert true;
   }
 
   /**
@@ -771,6 +773,29 @@ public class IMConnectionTest {
     Mockito.when(networkConnection.iterator()).thenReturn(value);
     Mockito.when(value.hasNext()).thenReturn(true);
     Message message = Message.makeBroadcastMessage(null, "test51");
+    Mockito.when(value.next()).thenReturn(message);
+    clientRunnable.run();
+  }
+
+  /**
+   * Test client runnable broadcast message different name.
+   */
+  @Test
+  public void testClientRunnableBroadcastMessageDifferentName3()
+      throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+    NetworkConnection networkConnection = Mockito.mock(NetworkConnection.class);
+    ClientRunnable clientRunnable = new ClientRunnable(networkConnection);
+    clientRunnable.setName("tuffaha");
+    @SuppressWarnings("unchecked")
+    Iterator<Message> value = Mockito.mock(Iterator.class);
+    Mockito.when(networkConnection.iterator()).thenReturn(value);
+    Mockito.when(value.hasNext()).thenReturn(true);
+    Message message = Message.makeSimpleLoginMessage("tuffaha");
+    Mockito.when(value.next()).thenReturn(message);
+    Field initialized = Class.forName(client).getDeclaredField("initialized");
+    initialized.setAccessible(true);
+    initialized.set(clientRunnable, true);
+    Mockito.when(value.hasNext()).thenReturn(true);
     Mockito.when(value.next()).thenReturn(message);
     clientRunnable.run();
   }

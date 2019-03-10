@@ -47,10 +47,10 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<SlackGroup> groups;
 
-  /**
-   * Factory for making instances of direct message sessions and groups
-   */
-  private static ChannelFactory channelFactory;
+//  /**
+//   * Factory for making instances of direct message sessions and groups
+//   */
+//  private static ChannelFactory channelFactory;
 
   private static final Map<String, Command> commands;
 
@@ -59,14 +59,15 @@ public abstract class Prattle {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     groups = new ConcurrentLinkedQueue<>();
-    channelFactory = ChannelFactory.makeFactory();
-    groups.add(channelFactory.makeGroup(null, "general"));
+    // channelFactory = ChannelFactory.makeFactory();
+    //  groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("/group", Group.getInstance());
-    commands.put("/groups", Groups.getInstance());
-    commands.put("/createGroup", CreateGroup.getInstance());
+    //   commands.put("/group", Group.getInstance());
+//    commands.put("/groups", Groups.getInstance());
+//    commands.put("/createGroup", CreateGroup.getInstance());
     commands.put("/circle", Circle.getInstance());
+    commands.put("/help", Help.getInstance());
   }
 
   /**
@@ -128,20 +129,20 @@ public abstract class Prattle {
     return null;
   }
 
-  /**
-   * get Group by groupName.  To be changed with database integration.
-   *
-   * @param groupName name of the group
-   * @return Group associated with the groupName
-   */
-  private static SlackGroup getGroup(String groupName) {
-    for (SlackGroup group : groups) {
-      if (group.getGroupName().equals(groupName)) {
-        return group;
-      }
-    }
-    return null;
-  }
+//  /**
+//   * get Group by groupName.  To be changed with database integration.
+//   *
+//   * @param groupName name of the group
+//   * @return Group associated with the groupName
+//   */
+//  private static SlackGroup getGroup(String groupName) {
+//    for (SlackGroup group : groups) {
+//      if (group.getGroupName().equals(groupName)) {
+//        return group;
+//      }
+//    }
+//    return null;
+//  }
 
   /**
    * Remove the given IM client from the list of active threads.
@@ -244,109 +245,112 @@ public abstract class Prattle {
     }
   }
 
-  /**
-   * Change sender's active channel to the specified Group.
-   */
-  private static class Group implements Command {
+//  /**
+//   * Change sender's active channel to the specified Group.
+//   */
+//  private static class Group implements Command {
+//
+//    private static Command singleton = null;
+//
+//    static Command getInstance() {
+//      if (singleton == null) {
+//        return new Group();
+//      } else {
+//        return singleton;
+//      }
+//    }
+//
+//    @Override
+//    public String apply(String groupName, String senderId) {
+//      if (groupName == null || groupName.length() < 1) {
+//        return "No Group Name provided";
+//      }
+//      SlackGroup targetGroup = getGroup(groupName);
+//      ClientRunnable sender = getClient(senderId);
+//        if(groupName.substring(0, 3).equals("DM::") && !groupName.contains(senderId)) {
+//          return "You are not authorized to use this DM.";
+//  }
+//      if (targetGroup != null) {
+//        if (sender != null) {
+//          sender.setActiveChannelId(targetGroup.getChannelId());
+//          return String.format("Active channel set to Group %s", groupName);
+//        } else {
+//          return "Sender not found";
+//        }
+//      } else {
+//        return String.format("Group %s does not exist", groupName);
+//      }
+//    }
+//
+//    @Override
+//    public String description() {
+//      return "Change your current chat room to the specified Group.\nParameters: group name";
+//    }
+//  }
 
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Group();
-      } else {
-        return singleton;
-      }
-    }
-
-    @Override
-    public String apply(String groupName, String senderId) {
-      if (groupName == null || groupName.length() < 1) {
-        return "No Group Name provided";
-      }
-      SlackGroup targetGroup = getGroup(groupName);
-      ClientRunnable sender = getClient(senderId);
-      if (targetGroup != null) {
-        if (sender != null) {
-          sender.setActiveChannelId(targetGroup.getChannelId());
-          return String.format("Active channel set to Group %s", groupName);
-        } else {
-          return "Sender not found";
-        }
-      } else {
-        return String.format("Group %s does not exist", groupName);
-      }
-    }
-
-    @Override
-    public String description() {
-      return "Change your current chat room to the specified Group.\nParameters: group name";
-    }
-  }
-
-  /**
-   * List all groups on the server.
-   */
-  private static class Groups implements Command {
-
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Groups();
-      } else {
-        return singleton;
-      }
-    }
-
-    @Override
-    public String apply(String param, String senderId) {
-      StringBuilder groupNames = new StringBuilder();
-      for (SlackGroup group : groups) {
-        groupNames.append(String.format("%n%s", group.getGroupName()));
-      }
-      return groupNames.toString();
-    }
-
-    @Override
-    public String description() {
-      return "Print out the names of each available Group on the server";
-    }
-  }
-
-  /**
-   * Create a Group with the given name.
-   */
-  private static class CreateGroup implements Command {
-
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new CreateGroup();
-      } else {
-        return singleton;
-      }
-    }
-
-    @Override
-    public String apply(String groupName, String senderId) {
-      if (groupName == null || groupName.length() < 1) {
-        return "No Group Name provided";
-      }
-      try {
-        groups.add(channelFactory.makeGroup(senderId, groupName));
-        return String.format("Group %s created", groupName);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
-      }
-    }
-
-    @Override
-    public String description() {
-      return "Create a group with the given name.\nParameters: Group name";
-    }
-  }
+//  /**
+//   * List all groups on the server.
+//   */
+//  private static class Groups implements Command {
+//
+//    private static Command singleton = null;
+//
+//    static Command getInstance() {
+//      if (singleton == null) {
+//        return new Groups();
+//      } else {
+//        return singleton;
+//      }
+//    }
+//
+//    @Override
+//    public String apply(String param, String senderId) {
+//      StringBuilder groupNames = new StringBuilder();
+//      for (SlackGroup group : groups) {
+//        groupNames.append(String.format("%n%s", group.getGroupName()));
+//      }
+//      return groupNames.toString();
+//    }
+//
+//    @Override
+//    public String description() {
+//      return "Print out the names of each available Group on the server";
+//    }
+//  }
+//
+//  /**
+//   * Create a Group with the given name.
+//   */
+//  private static class CreateGroup implements Command {
+//
+//    private static Command singleton = null;
+//
+//    static Command getInstance() {
+//      if (singleton == null) {
+//        return new CreateGroup();
+//      } else {
+//        return singleton;
+//      }
+//    }
+//
+//    @Override
+//    public String apply(String groupName, String senderId) {
+//      if (groupName == null || groupName.length() < 1) {
+//        return "No Group Name provided";
+//      }
+//      try {
+//        groups.add(channelFactory.makeGroup(senderId, groupName));
+//        return String.format("Group %s created", groupName);
+//      } catch (IllegalArgumentException e) {
+//        return e.getMessage();
+//      }
+//    }
+//
+//    @Override
+//    public String description() {
+//      return "Create a group with the given name.\nParameters: Group name";
+//    }
+//  }
 
 
   /**
@@ -354,19 +358,13 @@ public abstract class Prattle {
    */
   private static class Circle implements Command {
 
-    private static Circle singleton = null;
-
     /**
      * Gets the singleton instance of this Circle.
      *
      * @return The Circle singleton.
      */
     static Command getInstance() {
-      if (singleton == null) {
         return new Circle();
-      } else {
-        return singleton;
-      }
     }
 
     /**
@@ -384,6 +382,43 @@ public abstract class Prattle {
         activeUsers.append(activeUser.getName());
       }
       return activeUsers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the active users on the server";
+    }
+  }
+
+  /**
+   * List all available commands to use.
+   */
+  private static class Help implements Command {
+
+    /**
+     * Gets the singleton instance of this Circle.
+     *
+     * @return The Circle singleton.
+     */
+    static Command getInstance() {
+        return new Help();
+    }
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, String senderId) {
+      StringBuilder availableCommands = new StringBuilder("Available Commands:");
+      for (Map.Entry<String, Command> command : commands.entrySet()) {
+          String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
+          availableCommands.append(nextLine);
+      }
+      return availableCommands.toString();
     }
 
     @Override

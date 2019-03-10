@@ -144,9 +144,13 @@ public class Message {
 			result = makeSimpleLoginMessage(srcName);
 		} else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
 		  // to be replaced with static query
-      ClientRunnable sender = Prattle.getClient(srcName);
-      int channelId = sender != null ? sender.getActiveChannelId() : -1;
-			result = makeBroadcastMessage(srcName, text, channelId);
+			try {
+				ClientRunnable sender = Prattle.getClient(srcName);
+				result = makeBroadcastMessage(srcName, text, sender.getActiveChannelId());
+			}
+			catch (NullPointerException e) {
+				result = makeBroadcastMessage(srcName, text, -1);
+			}
 		} else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
 			result = makeCommandMessage(srcName, text);
 		}

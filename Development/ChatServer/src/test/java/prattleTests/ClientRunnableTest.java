@@ -71,4 +71,10 @@ public class ClientRunnableTest {
     assertEquals("Franklin", client.getName());
   }
 
+  @Test
+  public void testSetClientRunnable() {
+    ClientRunnable cr = Mockito.mock(ClientRunnable.class);
+    cr.setActiveChannelId(-1);
+    cr.setActiveChannelId(10);
+  }
 }

@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,6 +26,7 @@ import org.mockito.Mockito;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 
@@ -242,87 +241,113 @@ public class PrattleTest {
     assert true;
   }
 
-//  /**
-//   * Tests that the /circle command works by listing all active users.
-//   *
-//   * @throws NoSuchFieldException no such field exception.
-//   * @throws ClassNotFoundException class not found exception.
-//   * @throws IllegalAccessException illegal access exception.
-//   */
-//  @Test
-//  public void testCircleListsAllActiveUsers()
-//      throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-//    initCommandData();
-//    cr1.run();
-//    cr2.run();
-//    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-//        .getDeclaredField("active");
-//    activeClient.setAccessible(true);
-//    @SuppressWarnings("unchecked")
-//    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-//        .get(null);
-//    active.add(cr1);
-//    active.add(cr2);
-//    assertEquals("Active Users:\nomar\ntuffaha",
-//        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle")));
-//    resetData();
-//  }
-//
-//  /**
-//   * Tests that a non-recognized command outputs the correct message.
-//   *
-//   * @throws ClassNotFoundException class not found exception.
-//   * @throws NoSuchFieldException no such field exception.
-//   * @throws IllegalAccessException illegal state exception.
-//   */
-//  @Test
-//  public void testNonRecognizedCommand()
-//      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-//    initCommandData();
-//    cr1.run();
-//    cr2.run();
-//    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-//        .getDeclaredField("active");
-//    activeClient.setAccessible(true);
-//    @SuppressWarnings("unchecked")
-//    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-//        .get(null);
-//    active.add(cr1);
-//    active.add(cr2);
-//    assertEquals("Command /circles not recognized",
-//        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles")));
-//    resetData();
-//  }
-//
-//  /**
-//   * Tests that a non initialized client will not get the broadcasted command
-//   *
-//   * @throws ClassNotFoundException class not found exception.
-//   * @throws NoSuchFieldException no such file exception.
-//   * @throws IllegalAccessException illegal access exception.
-//   */
-//  @Test
-//  public void testNotInitialized()
-//      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-//    initCommandData();
-//    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-//        .getDeclaredField("active");
-//    activeClient.setAccessible(true);
-//    @SuppressWarnings("unchecked")
-//    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-//        .get(null);
-//    active.add(cr1);
-//    active.add(cr2);
-//    assertEquals("",
-//        Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle")));
-//    resetData();
-//  }
-//
-//  /**
-//   * Tests that retrieving a client that doesn't exist returns null.
-//   */
-//  @Test
-//  public void getNullClient() {
-//    assertNull(Prattle.getClient("james franco"));
-//  }
+  /**
+   * Tests that the /circle command works by listing all active users.
+   *
+   * @throws NoSuchFieldException no such field exception.
+   * @throws ClassNotFoundException class not found exception.
+   * @throws IllegalAccessException illegal access exception.
+   */
+  @Test
+  public void testCircleListsAllActiveUsers()
+      throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
+    initCommandData();
+    cr1.run();
+    cr2.run();
+    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("active");
+    activeClient.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+        .get(null);
+    active.add(cr1);
+    active.add(cr2);
+    assertEquals("Active Users:\nomar\ntuffaha",
+        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle")));
+    resetData();
+  }
+
+  /**
+   * Tests that a non-recognized command outputs the correct message.
+   *
+   * @throws ClassNotFoundException class not found exception.
+   * @throws NoSuchFieldException no such field exception.
+   * @throws IllegalAccessException illegal state exception.
+   */
+  @Test
+  public void testNonRecognizedCommand()
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    initCommandData();
+    cr1.run();
+    cr2.run();
+    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("active");
+    activeClient.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+        .get(null);
+    active.add(cr1);
+    active.add(cr2);
+    assertEquals("Command /circles not recognized",
+        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles")));
+    resetData();
+  }
+
+  /**
+   * Tests that a non initialized client will not get the broadcasted command
+   *
+   * @throws ClassNotFoundException class not found exception.
+   * @throws NoSuchFieldException no such file exception.
+   * @throws IllegalAccessException illegal access exception.
+   */
+  @Test
+  public void testNotInitialized()
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    initCommandData();
+    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("active");
+    activeClient.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+        .get(null);
+    active.add(cr1);
+    active.add(cr2);
+    assertEquals("",
+        Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle")));
+    resetData();
+  }
+
+  /**
+   * Tests that retrieving a client that doesn't exist returns null.
+   */
+  @Test
+  public void getNullClient() {
+    assertNull(Prattle.getClient("james franco"));
+  }
+
+  @Test
+  public void testBroadcastMessage() {
+    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle everybody"));
+  }
+
+  @Test
+  public void testDescriptionCircle() throws ClassNotFoundException, NoSuchMethodException {
+    Class<?> prattle = Class.forName("edu.northeastern.ccs.im.server.Prattle");
+  for(Class<?> c: prattle.getClasses()) {
+    System.out.println("oar" + c);
+    c.getDeclaredMethod("description");
+    c.getDeclaredMethod("getInstance");
+    c.getDeclaredMethod("getInstance");
+    }
+  }
+
+  @Test
+  public void testHelp() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+  }
+
+  @Test
+  public void testCommandMessageWithMultipleInputs() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle aroundTheCampFire"));
+  }
 }

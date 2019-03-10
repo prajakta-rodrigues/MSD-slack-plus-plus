@@ -2,6 +2,9 @@ package prattleTests;
 
 import static org.junit.Assert.assertTrue;
 
+import edu.northeastern.ccs.im.client.CommandLineMain;
+import edu.northeastern.ccs.im.client.IMConnection;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,10 +18,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
+import org.mockito.junit.MockitoJUnit;
 
 /**
  * The Class NetworkConnectionTest.
@@ -26,9 +31,11 @@ import edu.northeastern.ccs.im.server.NetworkConnection;
 public class NetworkConnectionTest {
 
   private NetworkConnection networkConnection;
-  
+
   private String prattle = "edu.northeastern.ccs.im.server.Prattle";
-  
+
+  private String commandLine = "edu.northeastern.ccs.im.client.CommandLineMain";
+
   private String ct = "createClientThread";
 
   /**
@@ -59,7 +66,7 @@ public class NetworkConnectionTest {
     networkConnection = new NetworkConnection(socketChannel);
 
   }
-  
+
   /**
    * Test network connection null exception.
    */
@@ -82,7 +89,7 @@ public class NetworkConnectionTest {
     networkConnection.sendMessage(msg);
 
   }
-  
+
   /**
    * Test send empty message.
    *
@@ -215,5 +222,27 @@ public class NetworkConnectionTest {
     assertTrue(message.isInitialization());
   }
 
+//  @Test
+//  public void testCommandLineMain() throws IOException {
+//    try (SocketChannel socketChannel = SocketChannel.open()) {
+//      socketChannel.configureBlocking(false);
+//      socketChannel.connect(new InetSocketAddress("localhost", 4545));
+//      networkConnection = new NetworkConnection(socketChannel);
+//    }
+//    IMConnection imc = Mockito.mock(IMConnection.class);
+//
+//    CommandLineMain mockMain = Mockito.mock(CommandLineMain.class);
+//    ByteArrayInputStream in = new ByteArrayInputStream("Omar\n/quit".getBytes());
+//    System.setIn(in);
+//    String[] args = new String[2];
+//    args[0] = "localhost";
+//    args[1] = "4545";
+//    mockMain.main(args);
+//  }
 
+  @Test
+  public void testCommandLineMain() throws IOException {
+    CommandLineMain mockMain = Mockito.mock(CommandLineMain.class);
+
+  }
 }
