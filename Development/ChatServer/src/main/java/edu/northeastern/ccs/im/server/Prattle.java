@@ -63,9 +63,9 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("group", Group.getInstance());
-    commands.put("groups", Groups.getInstance());
-    commands.put("createGroup", CreateGroup.getInstance());
+    commands.put("/group", Group.getInstance());
+    commands.put("/groups", Groups.getInstance());
+    commands.put("/createGroup", CreateGroup.getInstance());
   }
 
   /**
