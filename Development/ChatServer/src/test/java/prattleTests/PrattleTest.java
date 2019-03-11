@@ -7,7 +7,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,6 +29,7 @@ import org.mockito.Mockito;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 
@@ -40,7 +44,8 @@ public class PrattleTest {
   /**
    * Initialize the command data before each test
    */
-  private void initCommandData() {
+  @Before
+  public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
@@ -61,12 +66,24 @@ public class PrattleTest {
     Iterator<Message> mockIterator2 = messageQueue2.iterator();
     when(networkConnection1.iterator()).thenReturn(mockIterator1);
     when(networkConnection2.iterator()).thenReturn(mockIterator2);
+
+    cr1.run();
+    cr2.run();
+    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("active");
+    activeClient.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+            .get(null);
+    active.add(cr1);
+    active.add(cr2);
   }
 
   /**
    * Reset command data after each test
    */
-  private void resetData() {
+  @After
+  public void resetData() {
     Prattle.removeClient(cr1);
     Prattle.removeClient(cr2);
   }
@@ -242,75 +259,28 @@ public class PrattleTest {
 
   /**
    * Tests that the /circle command works by listing all active users.
-   *
-   * @throws NoSuchFieldException no such field exception.
-   * @throws ClassNotFoundException class not found exception.
-   * @throws IllegalAccessException illegal access exception.
    */
   @Test
-  public void testCircleListsAllActiveUsers()
-      throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-    initCommandData();
-    cr1.run();
-    cr2.run();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testCircleListsAllActiveUsers() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
     resetData();
   }
 
   /**
    * Tests that a non-recognized command outputs the correct message.
-   *
-   * @throws ClassNotFoundException class not found exception.
-   * @throws NoSuchFieldException no such field exception.
-   * @throws IllegalAccessException illegal state exception.
-   */
+   * */
   @Test
-  public void testNonRecognizedCommand()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    initCommandData();
-    cr1.run();
-    cr2.run();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testNonRecognizedCommand() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
-    resetData();
   }
 
   /**
    * Tests that a non initialized client will not get the broadcasted command
    *
-   * @throws ClassNotFoundException class not found exception.
-   * @throws NoSuchFieldException no such file exception.
-   * @throws IllegalAccessException illegal access exception.
    */
   @Test
-  public void testNotInitialized()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    initCommandData();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testNotInitialized() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
-    resetData();
   }
 
   /**
@@ -334,5 +304,30 @@ public class PrattleTest {
   @Test
   public void testCommandMessageWithMultipleInputs() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle aroundTheCampFire"));
+  }
+
+  @Test
+  public void testMakeBroadcastMessageInheritsChannelId() {
+    Message msg = Message.makeMessage("BCT", "omar", "hello world");
+    assertTrue(msg.isBroadcastMessage());
+    assertEquals(msg.getChannelId(), cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testMakeBroadcastMessageDefaultChannelId() {
+    Message msg = Message.makeMessage("BCT", "sean", "hello world");
+    assertTrue(msg.isBroadcastMessage());
+    assertEquals(msg.getChannelId(), -1);
+  }
+
+  @Test
+  public void testMakeCommandMessage() {
+    Message msg = Message.makeMessage("CMD", "omar", "/hello");
+    assertTrue(msg.isCommandMessage());
+  }
+
+  @Test
+  public void testShowGroupsDefault() {
+    
   }
 }
