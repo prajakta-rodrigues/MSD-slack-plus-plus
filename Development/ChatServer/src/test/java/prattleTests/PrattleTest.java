@@ -327,17 +327,6 @@ public class PrattleTest {
   }
 
   @Test
-  public void testDescriptionCircle() throws ClassNotFoundException, NoSuchMethodException {
-    Class<?> prattle = Class.forName("edu.northeastern.ccs.im.server.Prattle");
-    for (Class<?> c : prattle.getClasses()) {
-      System.out.println("oar" + c);
-      c.getDeclaredMethod("description");
-      c.getDeclaredMethod("getInstance");
-      c.getDeclaredMethod("getInstance");
-    }
-  }
-
-  @Test
   public void testHelp() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
   }
