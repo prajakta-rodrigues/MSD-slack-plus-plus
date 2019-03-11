@@ -63,9 +63,9 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("/group", Group.getInstance());
-    commands.put("/groups", Groups.getInstance());
-    commands.put("/createGroup", CreateGroup.getInstance());
+    commands.put("/group", new Group());
+    commands.put("/groups", new Groups());
+    commands.put("/createGroup", new CreateGroup());
   }
 
   /**
@@ -243,16 +243,6 @@ public abstract class Prattle {
    * Change sender's active channel to the specified Group.
    */
   private static class Group implements Command {
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Group();
-      } else {
-        return singleton;
-      }
-    }
-
     @Override
     public String apply(String groupName, String senderId) {
       if (groupName == null || groupName.length() < 1) {
@@ -282,16 +272,6 @@ public abstract class Prattle {
    * List all groups on the server.
    */
   private static class Groups implements Command {
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Groups();
-      } else {
-        return singleton;
-      }
-    }
-
     @Override
     public String apply(String param, String senderId) {
       StringBuilder groupNames = new StringBuilder();
@@ -311,15 +291,6 @@ public abstract class Prattle {
    * Create a Group with the given name.
    */
   private static class CreateGroup implements Command {
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new CreateGroup();
-      } else {
-        return singleton;
-      }
-    }
 
     @Override
     public String apply(String groupName, String senderId) {
