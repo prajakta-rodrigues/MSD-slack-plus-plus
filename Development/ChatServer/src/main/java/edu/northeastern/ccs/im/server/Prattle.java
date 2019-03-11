@@ -66,6 +66,7 @@ public abstract class Prattle {
     commands.put("/group", new Group());
     commands.put("/groups", new Groups());
     commands.put("/createGroup", new CreateGroup());
+    commands.put("/help", new Help());
   }
 
   /**
@@ -307,6 +308,33 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
+    }
+  }
+
+  /**
+   * List all available commands to use.
+   */
+  private static class Help implements Command {
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, String senderId) {
+      StringBuilder availableCommands = new StringBuilder("Available Commands:");
+      for (Map.Entry<String, Command> command : commands.entrySet()) {
+        String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
+        availableCommands.append(nextLine);
+      }
+      return availableCommands.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the active users on the server";
     }
   }
 }
