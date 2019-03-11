@@ -68,7 +68,7 @@ public abstract class Prattle {
     commands.put("/creategroup", new CreateGroup());
     commands.put("/circle", new Circle());
     commands.put("/help", new Help());
-    commands.put("/dm", Dm.getInstance());
+    commands.put("/dm", new Dm());
   }
 
   /**
@@ -96,12 +96,13 @@ public abstract class Prattle {
    */
   public static String commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
-    String command = messageContents[0].toLowerCase();
+    String command = messageContents[0];
+    String commandLower = command.toLowerCase();
     String param = messageContents.length > 1 ? messageContents[1] : null;
     String senderId = message.getName();
 
-    String callbackContents = commands.keySet().contains(command)
-        ? commands.get(command).apply(param, senderId)
+    String callbackContents = commands.keySet().contains(commandLower)
+        ? commands.get(commandLower).apply(param, senderId)
         : String.format("Command %s not recognized", command);
 
     // send callback message
