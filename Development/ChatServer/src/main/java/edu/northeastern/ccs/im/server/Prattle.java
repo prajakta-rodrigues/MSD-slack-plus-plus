@@ -63,11 +63,11 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("/group", Group.getInstance());
-    commands.put("/groups", Groups.getInstance());
-    commands.put("/createGroup", CreateGroup.getInstance());
-    commands.put("/circle", Circle.getInstance());
-    commands.put("/help", Help.getInstance());
+    commands.put("/group", new Group());
+    commands.put("/groups", new Groups());
+    commands.put("/creategroup", new CreateGroup());
+    commands.put("/circle", new Circle());
+    commands.put("/help", new Help());
   }
 
   /**
@@ -95,7 +95,7 @@ public abstract class Prattle {
    */
   public static String commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
-    String command = messageContents[0];
+    String command = messageContents[0].toLowerCase();
     String param = messageContents.length > 1 ? messageContents[1] : null;
     String senderId = message.getName();
 
@@ -233,10 +233,6 @@ public abstract class Prattle {
    */
   private static class Group implements Command {
 
-    static Command getInstance() {
-      return new Group();
-    }
-
     @Override
     public String apply(String groupName, String senderId) {
       if (groupName == null || groupName.length() < 1) {
@@ -285,10 +281,6 @@ public abstract class Prattle {
    */
   private static class Groups implements Command {
 
-    static Command getInstance() {
-      return new Groups();
-    }
-
     @Override
     public String apply(String param, String senderId) {
       StringBuilder groupNames = new StringBuilder();
@@ -308,10 +300,6 @@ public abstract class Prattle {
    * Create a Group with the given name.
    */
   private static class CreateGroup implements Command {
-
-    static Command getInstance() {
-      return new CreateGroup();
-    }
 
     @Override
     public String apply(String groupName, String senderId) {
@@ -337,15 +325,6 @@ public abstract class Prattle {
    * List all active users on the server.
    */
   private static class Circle implements Command {
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      return new Circle();
-    }
 
     /**
      * Lists all of the active users on the server.
@@ -374,15 +353,6 @@ public abstract class Prattle {
    * List all available commands to use.
    */
   private static class Help implements Command {
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      return new Help();
-    }
 
     /**
      * Lists all of the active users on the server.
