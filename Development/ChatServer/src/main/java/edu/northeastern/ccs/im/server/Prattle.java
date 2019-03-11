@@ -54,7 +54,7 @@ public abstract class Prattle {
 
   private static final Map<String, Command> commands;
 
-  /** All of the static initialization occurs in this "method" */
+  // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
@@ -166,8 +166,6 @@ public abstract class Prattle {
    *
    * @param args String arguments to the server from the command line. At present the only legal
    * (and required) argument is the port on which this server should list.
-   * @throws IOException Exception thrown if the server cannot connect to the port to which it is
-   * supposed to listen.
    */
   public static void main(String[] args) {
     // Connect to the socket on the appropriate port to which this server connects.
