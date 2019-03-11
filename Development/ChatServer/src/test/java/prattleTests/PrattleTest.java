@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 
@@ -262,8 +261,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("Active Users:\nomar\ntuffaha",
-        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle")));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
     resetData();
   }
 
@@ -288,8 +286,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("Command /circles not recognized",
-        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles")));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
     resetData();
   }
 
@@ -312,8 +309,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("",
-        Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle")));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
     resetData();
   }
 
