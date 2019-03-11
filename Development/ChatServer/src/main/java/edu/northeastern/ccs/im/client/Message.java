@@ -163,7 +163,7 @@ public class Message {
 	 * @return Instance of Message (or its subclasses) representing the handle,
 	 *         name, & text.
 	 */
-	protected static Message makeMessage(String handle, String srcName, String text) {
+	public static Message makeMessage(String handle, String srcName, String text) {
 		Message result = null;
 		if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
 			result = makeQuitMessage(srcName);
@@ -274,6 +274,15 @@ public class Message {
 	 */
 	public boolean isInitialization() {
 		return (msgType == MessageType.HELLO);
+	}
+
+	/**
+	 * Determine if this message is a command.
+	 *
+	 * @return True if the message is a command message; false otherwise.
+	 */
+	public boolean isCommandMessage() {
+		return (msgType == MessageType.COMMAND);
 	}
 
 	/**

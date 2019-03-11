@@ -54,7 +54,7 @@ public abstract class Prattle {
 
   private static final Map<String, Command> commands;
 
-  /** All of the static initialization occurs in this "method" */
+  // All of the static initialization occurs in this "method" .
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
@@ -63,11 +63,11 @@ public abstract class Prattle {
     groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
-    commands.put("/group", Group.getInstance());
-    commands.put("/groups", Groups.getInstance());
-    commands.put("/createGroup", CreateGroup.getInstance());
-    commands.put("/circle", Circle.getInstance());
-    commands.put("/help", Help.getInstance());
+    commands.put("/group", new Group());
+    commands.put("/groups", new Groups());
+    commands.put("/creategroup", new CreateGroup());
+    commands.put("/circle", new Circle());
+    commands.put("/help", new Help());
     commands.put("/dm", Dm.getInstance());
   }
 
@@ -96,7 +96,7 @@ public abstract class Prattle {
    */
   public static String commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
-    String command = messageContents[0];
+    String command = messageContents[0].toLowerCase();
     String param = messageContents.length > 1 ? messageContents[1] : null;
     String senderId = message.getName();
 
@@ -131,21 +131,6 @@ public abstract class Prattle {
   }
 
   /**
-   * get Group by groupName.  To be changed with database integration.
-   *
-   * @param groupName name of the group
-   * @return Group associated with the groupName
-   */
-  private static SlackGroup getGroup(String groupName) {
-    for (SlackGroup group : groups) {
-      if (group.getGroupName().equals(groupName)) {
-        return group;
-      }
-    }
-    return null;
-  }
-
-  /**
    * Remove the given IM client from the list of active threads.
    *
    * @param dead Thread which had been handling all the I/O for a client who has since quit.
@@ -173,8 +158,6 @@ public abstract class Prattle {
    *
    * @param args String arguments to the server from the command line. At present the only legal
    * (and required) argument is the port on which this server should list.
-   * @throws IOException Exception thrown if the server cannot connect to the port to which it is
-   * supposed to listen.
    */
   public static void main(String[] args) {
     // Connect to the socket on the appropriate port to which this server connects.
@@ -251,16 +234,6 @@ public abstract class Prattle {
    */
   private static class Group implements Command {
 
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Group();
-      } else {
-        return singleton;
-      }
-    }
-
     @Override
     public String apply(String groupName, String senderId) {
       if (groupName == null || groupName.length() < 1) {
@@ -268,7 +241,7 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if(groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
+      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
         return "You are not authorized to use this DM";
       }
       if (targetGroup != null) {
@@ -283,9 +256,24 @@ public abstract class Prattle {
       }
     }
 
+    /**
+     * get Group by groupName.  To be changed with database integration.
+     *
+     * @param groupName name of the group
+     * @return Group associated with the groupName
+     */
+    private static SlackGroup getGroup(String groupName) {
+      for (SlackGroup group : groups) {
+        if (group.getGroupName().equals(groupName)) {
+          return group;
+        }
+      }
+      return null;
+    }
+
     @Override
     public String description() {
-      return "Change your current chat room to the specified Group.\nParameters: group name";
+      return "Change your current chat room to the specified Group.\nParameters: group name.";
     }
   }
 
@@ -293,16 +281,6 @@ public abstract class Prattle {
    * List all groups on the server.
    */
   private static class Groups implements Command {
-
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Groups();
-      } else {
-        return singleton;
-      }
-    }
 
     @Override
     public String apply(String param, String senderId) {
@@ -315,7 +293,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the names of each available Group on the server";
+      return "Print out the names of each available Group on the server.";
     }
   }
 
@@ -323,16 +301,6 @@ public abstract class Prattle {
    * Create a Group with the given name.
    */
   private static class CreateGroup implements Command {
-
-    private static Command singleton = null;
-
-    static Command getInstance() {
-      if (singleton == null) {
-        return new CreateGroup();
-      } else {
-        return singleton;
-      }
-    }
 
     @Override
     public String apply(String groupName, String senderId) {
@@ -349,7 +317,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Create a group with the given name.\nParameters: Group name";
+      return "Create a group with the given name.\nParameters: Group name.";
     }
   }
 
@@ -358,21 +326,6 @@ public abstract class Prattle {
    * List all active users on the server.
    */
   private static class Circle implements Command {
-
-    private static Circle singleton = null;
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Circle();
-      } else {
-        return singleton;
-      }
-    }
 
     /**
      * Lists all of the active users on the server.
@@ -393,32 +346,17 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Print out the handles of the active users on the server.";
     }
   }
 
   /**
-   * List all active users on the server.
+   * List all available commands to use.
    */
   private static class Help implements Command {
 
-    private static Help singleton = null;
-
     /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Help();
-      } else {
-        return singleton;
-      }
-    }
-
-    /**
-     * Lists all of the available commands to use.
+     * Lists all of the active users on the server.
      *
      * @param ignoredParam Ignored parameter.
      * @param senderId the id of the sender.
@@ -428,17 +366,15 @@ public abstract class Prattle {
     public String apply(String ignoredParam, String senderId) {
       StringBuilder availableCommands = new StringBuilder("Available Commands:");
       for (Map.Entry<String, Command> command : commands.entrySet()) {
-        if (!command.getKey().equals("/help")) {
-          availableCommands.append("\n");
-          availableCommands.append(command.getKey());
-        }
+        String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
+        availableCommands.append(nextLine);
       }
       return availableCommands.toString();
     }
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Print out the available commands to use.";
     }
   }
 
@@ -446,21 +382,6 @@ public abstract class Prattle {
    * Starts a Dm
    */
   private static class Dm implements Command {
-
-    private static Dm singleton = null;
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Dm();
-      } else {
-        return singleton;
-      }
-    }
 
     /**
      * Starts a Dm with the given users
@@ -472,10 +393,10 @@ public abstract class Prattle {
     @Override
     public String apply(String userId, String senderId) {
       if (userId == null || userId.length() < 1) {
-        return "No user provided to direct message";
+        return "No user provided to direct message.";
       }
-      if(!active.contains(getClient(userId))) {
-        return "The provided user is not active"; // this will need to change to become any user in database
+      if (!active.contains(getClient(userId))) {
+        return "The provided user is not active."; // this will need to change to become any user in database
       }
       try {
         String groupName = "DM:" + senderId + "-" + userId;

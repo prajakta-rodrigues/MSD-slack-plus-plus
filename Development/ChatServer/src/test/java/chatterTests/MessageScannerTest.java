@@ -14,6 +14,7 @@ import org.junit.Test;
 import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
+import org.mockito.Mockito;
 
 /**
  * The Class MessageScannerTest.
@@ -21,7 +22,7 @@ import edu.northeastern.ccs.im.client.MessageScanner;
 public class MessageScannerTest {
 
   private static final String TESTING = "testing";
-  
+
   private static final String TEST_USER = "testing";
 
   /**
@@ -50,8 +51,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsAcknowlegeMessage() {
-    Message messsage = Message.makeAcknowledgeMessage(TESTING);
-    assertTrue(messsage.isAcknowledge());
+    Message message = Message.makeAcknowledgeMessage(TESTING);
+    assertTrue(message.isAcknowledge());
 
   }
 
@@ -60,8 +61,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotAcknowlegeMessage() {
-    Message messsage = Message.makeQuitMessage(TESTING);
-    assertFalse(messsage.isAcknowledge());
+    Message message = Message.makeQuitMessage(TESTING);
+    assertFalse(message.isAcknowledge());
 
   }
 
@@ -70,9 +71,29 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsBroadcastMessage() {
-    Message messsage = Message.makeBroadcastMessage(TEST_USER, "u");
-    assertTrue(messsage.isBroadcastMessage());
+    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    assertFalse(message.isCommandMessage());
+    assertTrue(message.isBroadcastMessage());
 
+  }
+
+  /**
+   * Tests that command messages are command messages and get printed correctly.
+   */
+  @Test
+  public void testCommandMessage() {
+    Message message = Message.makeCommandMessage(TEST_USER, "/circle");
+    edu.northeastern.ccs.im.server.Message message2 = edu.northeastern.ccs.im.server.Message
+        .makeCommandMessage(TEST_USER, "/quit");
+    assertEquals("CMD 7 testing 7 /circle", message.toString());
+    assertFalse(message.isDisplayMessage());
+    assertFalse(message.isBroadcastMessage());
+    assertTrue(message.isCommandMessage());
+
+    assertEquals("CMD 7 testing 5 /quit", message2.toString());
+    assertFalse(message2.isBroadcastMessage());
+    assertTrue(message2.isCommandMessage());
+    assertEquals(-1, message2.getChannelId());
   }
 
   /**
@@ -80,9 +101,18 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotBroadcastMessage() {
-    Message messsage = Message.makeQuitMessage(TESTING);
-    assertFalse(messsage.isBroadcastMessage());
+    Message message = Message.makeQuitMessage(TESTING);
+    assertFalse(message.isBroadcastMessage());
+  }
 
+  /**
+   * Test is not command message.
+   */
+  @Test
+  public void testIsNotCommandMessage() {
+    edu.northeastern.ccs.im.server.Message message = edu.northeastern.ccs.im.server.Message
+        .makeQuitMessage(TEST_USER);
+    assertFalse(message.isCommandMessage());
   }
 
   /**
@@ -90,8 +120,9 @@ public class MessageScannerTest {
    */
   @Test
   public void testNotBroadcastMessage() {
-    edu.northeastern.ccs.im.server.Message messsage = edu.northeastern.ccs.im.server.Message.makeQuitMessage("q");
-    assertFalse(messsage.isBroadcastMessage());
+    edu.northeastern.ccs.im.server.Message message = edu.northeastern.ccs.im.server.Message
+        .makeQuitMessage("q");
+    assertFalse(message.isBroadcastMessage());
 
   }
 
@@ -100,8 +131,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsDisplayMessage() {
-    Message messsage = Message.makeBroadcastMessage(TEST_USER, "u");
-    assertTrue(messsage.isDisplayMessage());
+    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    assertTrue(message.isDisplayMessage());
 
   }
 
@@ -110,8 +141,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotDisplayMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertFalse(messsage.isDisplayMessage());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertFalse(message.isDisplayMessage());
 
   }
 
@@ -120,8 +151,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsInitializationMessage() {
-    Message messsage = Message.makeLoginMessage("us");
-    assertTrue(messsage.isInitialization());
+    Message message = Message.makeLoginMessage("us");
+    assertTrue(message.isInitialization());
 
   }
 
@@ -130,8 +161,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotInitializationMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertFalse(messsage.isInitialization());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertFalse(message.isInitialization());
 
   }
 
@@ -140,8 +171,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotTerminationMessage() {
-    Message messsage = Message.makeLoginMessage("us");
-    assertFalse(messsage.terminate());
+    Message message = Message.makeLoginMessage("us");
+    assertFalse(message.terminate());
 
   }
 
@@ -150,8 +181,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsTerminationMessage() {
-    Message messsage = Message.makeQuitMessage(TEST_USER);
-    assertTrue(messsage.terminate());
+    Message message = Message.makeQuitMessage(TEST_USER);
+    assertTrue(message.terminate());
 
   }
 
@@ -160,22 +191,22 @@ public class MessageScannerTest {
    */
   @Test
   public void testToStringMessageSenderNull() {
-    Message messsage = Message.makeLoginMessage(null);
-    assertEquals("HLO 2 -- 2 --", messsage.toString());
+    Message message = Message.makeLoginMessage(null);
+    assertEquals("HLO 2 -- 2 --", message.toString());
   }
-  
+
   /**
    * Test to string message sender not null.
    */
   @Test
   public void testToStringMessageSenderNotNull() {
-    Message messsage = Message.makeLoginMessage("test12");
-    assertEquals("HLO 6 test12 2 --", messsage.toString());
+    Message message = Message.makeLoginMessage("test12");
+    assertEquals("HLO 6 test12 2 --", message.toString());
   }
 
 
   /**
-   * Test make type broadcast message.
+   * Test make type broadcast message for server.
    *
    * @throws NoSuchMethodException the no such method exception
    * @throws ClassNotFoundException the class not found exception
@@ -186,9 +217,114 @@ public class MessageScannerTest {
   public void testMakeTypeBroadcastMessage() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, "test1", "testText");
+  }
+
+
+  /**
+   * Test make type broadcast message for client.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeBroadcastMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, "test2", "testing");
+  }
+
+
+  /**
+   * Test make type quit message for server.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeQuitMessage() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
         .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     makeMethod.setAccessible(true);
-    makeMethod.invoke(null, MessageType.BROADCAST.toString(), "test1", "testText");
+    makeMethod.invoke(null, MessageType.QUIT.toString(), "test1", "testText");
+  }
+
+  /**
+   * Test make type quit message for client
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeQuitMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.QUIT.toString(), "tester", "testingText");
+  }
+
+  /**
+   * Test make type command message for server.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeCommandMessage() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.COMMAND.toString(), "test1", "testText");
+  }
+
+  /**
+   * Test make type command message for client.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeCommandMessage2() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.COMMAND.toString(), "test2", "testing");
+  }
+
+
+  /**
+   * Test make type hello message.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
+  @Test
+  public void testMakeTypeHello() throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    makeMethod.invoke(null, MessageType.HELLO.toString(), "test1", "testText");
   }
 
   /**
@@ -208,5 +344,17 @@ public class MessageScannerTest {
     assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
   }
 
+  @Test
+  public void testMakeTypeNoneMessageClient()  throws NoSuchMethodException, ClassNotFoundException,
+      IllegalAccessException, InvocationTargetException {
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
+        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+    makeMethod.setAccessible(true);
+    assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
+  }
 
+  @Test
+  public void testMakeMessageBroadcast(){
+    Message.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
+  }
 }

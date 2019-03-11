@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,6 +26,7 @@ import org.mockito.Mockito;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 
@@ -42,7 +41,7 @@ public class PrattleTest {
   /**
    * Initialize the command data before each test
    */
-  public void initCommandData() {
+  private void initCommandData() {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
@@ -68,7 +67,7 @@ public class PrattleTest {
   /**
    * Reset command data after each test
    */
-  public void resetData() {
+  private void resetData() {
     Prattle.removeClient(cr1);
     Prattle.removeClient(cr2);
   }
@@ -324,5 +323,31 @@ public class PrattleTest {
   @Test
   public void getNullClient() {
     assertNull(Prattle.getClient("james franco"));
+  }
+
+  @Test
+  public void testBroadcastMessage() {
+    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle everybody"));
+  }
+
+  @Test
+  public void testDescriptionCircle() throws ClassNotFoundException, NoSuchMethodException {
+    Class<?> prattle = Class.forName("edu.northeastern.ccs.im.server.Prattle");
+  for(Class<?> c: prattle.getClasses()) {
+    System.out.println("oar" + c);
+    c.getDeclaredMethod("description");
+    c.getDeclaredMethod("getInstance");
+    c.getDeclaredMethod("getInstance");
+    }
+  }
+
+  @Test
+  public void testHelp() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+  }
+
+  @Test
+  public void testCommandMessageWithMultipleInputs() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle aroundTheCampFire"));
   }
 }
