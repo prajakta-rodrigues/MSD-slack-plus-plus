@@ -90,7 +90,7 @@ public abstract class Prattle {
    *
    * @param message Message containing the command being executed by the client.
    */
-  public static void commandMessage(Message message) {
+  public static String commandMessage(Message message) {
   	String[] messageContents = message.getText().split(" ");
   	String command = messageContents[0];
   	String param = messageContents.length > 1 ? messageContents[1] : null;
@@ -105,6 +105,7 @@ public abstract class Prattle {
   	if (client != null && client.isInitialized()) {
   	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
     }
+    return callbackContents;
   }
 
   /**
