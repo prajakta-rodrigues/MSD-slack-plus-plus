@@ -92,22 +92,21 @@ public abstract class Prattle {
    *
    * @param message Message containing the command being executed by the client.
    */
-  public static String commandMessage(Message message) {
-  	String[] messageContents = message.getText().split(" ");
-  	String command = messageContents[0];
-  	String param = messageContents.length > 1 ? messageContents[1] : null;
-  	String senderId = message.getName();
+  public static void commandMessage(Message message) {
+    String[] messageContents = message.getText().split(" ");
+    String command = messageContents[0];
+    String param = messageContents.length > 1 ? messageContents[1] : null;
+    String senderId = message.getName();
 
-  	String callbackContents = commands.keySet().contains(command)
+    String callbackContents = commands.keySet().contains(command)
             ? commands.get(command).apply(param, senderId)
             : String.format("Command %s not recognized", command);
 
-		// send callback message
+    // send callback message
     ClientRunnable client = getClient(senderId);
-  	if (client != null && client.isInitialized()) {
-  	  client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+    if (client != null && client.isInitialized()) {
+      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
     }
-    return callbackContents;
   }
 
   /**
@@ -141,7 +140,7 @@ public abstract class Prattle {
     return null;
   }
 
-	/**
+  /**
    * Remove the given IM client from the list of active threads.
    *
    * @param dead Thread which had been handling all the I/O for a client who has since quit.
@@ -181,7 +180,7 @@ public abstract class Prattle {
       serverSocket.register(selector, SelectionKey.OP_ACCEPT);
       // Create our pool of threads on which we will execute.
       ScheduledExecutorService threadPool = Executors
-          .newScheduledThreadPool(ServerConstants.THREAD_POOL_SIZE);
+              .newScheduledThreadPool(ServerConstants.THREAD_POOL_SIZE);
       // If we get this far than the server is initialized correctly
       isReady = true;
       // Now listen on this port as long as the server is ready
@@ -217,7 +216,7 @@ public abstract class Prattle {
    * @param threadPool The thread pool to add client to.
    */
   private static void createClientThread(ServerSocketChannel serverSocket,
-      ScheduledExecutorService threadPool) {
+                                         ScheduledExecutorService threadPool) {
     try {
       // Accept the connection and create a new thread to handle this client.
       SocketChannel socket = serverSocket.accept();
@@ -229,8 +228,8 @@ public abstract class Prattle {
         active.add(tt);
         // Have the client executed by our pool of threads.
         ScheduledFuture<?> clientFuture = threadPool
-            .scheduleAtFixedRate(tt, ServerConstants.CLIENT_CHECK_DELAY,
-                ServerConstants.CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS);
+                .scheduleAtFixedRate(tt, ServerConstants.CLIENT_CHECK_DELAY,
+                        ServerConstants.CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS);
         tt.setFuture(clientFuture);
       }
     } catch (AssertionError ae) {
