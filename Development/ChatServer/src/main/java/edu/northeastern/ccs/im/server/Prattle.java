@@ -68,7 +68,7 @@ public abstract class Prattle {
     commands.put("/creategroup", new CreateGroup());
     commands.put("/circle", new Circle());
     commands.put("/help", new Help());
-    commands.put("/dm", Dm.getInstance());
+    commands.put("/dm", new Dm());
   }
 
   /**
