@@ -67,6 +67,7 @@ public abstract class Prattle {
     commands.put("/groups", new Groups());
     commands.put("/creategroup", new CreateGroup());
     commands.put("/circle", new Circle());
+    commands.put("/help", new Help());
     commands.put("/dm", Dm.getInstance());
   }
 
@@ -240,7 +241,7 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if(groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
+      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
         return "You are not authorized to use this DM";
       }
       if (targetGroup != null) {
@@ -272,7 +273,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Change your current chat room to the specified Group.\nParameters: group name";
+      return "Change your current chat room to the specified Group.\nParameters: group name.";
     }
   }
 
@@ -292,7 +293,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the names of each available Group on the server";
+      return "Print out the names of each available Group on the server.";
     }
   }
 
@@ -316,7 +317,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Create a group with the given name.\nParameters: Group name";
+      return "Create a group with the given name.\nParameters: Group name.";
     }
   }
 
@@ -345,7 +346,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Print out the handles of the active users on the server.";
     }
   }
 
@@ -373,52 +374,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
-    }
-  }
-
-  /**
-   * List all active users on the server.
-   */
-  private static class Help implements Command {
-
-    private static Help singleton = null;
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Help();
-      } else {
-        return singleton;
-      }
-    }
-
-    /**
-     * Lists all of the available commands to use.
-     *
-     * @param ignoredParam Ignored parameter.
-     * @param senderId the id of the sender.
-     * @return the list of active users as a String.
-     */
-    @Override
-    public String apply(String ignoredParam, String senderId) {
-      StringBuilder availableCommands = new StringBuilder("Available Commands:");
-      for (Map.Entry<String, Command> command : commands.entrySet()) {
-        if (!command.getKey().equals("/help")) {
-          availableCommands.append("\n");
-          availableCommands.append(command.getKey());
-        }
-      }
-      return availableCommands.toString();
-    }
-
-    @Override
-    public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Print out the available commands to use.";
     }
   }
 
@@ -426,21 +382,6 @@ public abstract class Prattle {
    * Starts a Dm
    */
   private static class Dm implements Command {
-
-    private static Dm singleton = null;
-
-    /**
-     * Gets the singleton instance of this Circle.
-     *
-     * @return The Circle singleton.
-     */
-    static Command getInstance() {
-      if (singleton == null) {
-        return new Dm();
-      } else {
-        return singleton;
-      }
-    }
 
     /**
      * Starts a Dm with the given users
@@ -452,10 +393,10 @@ public abstract class Prattle {
     @Override
     public String apply(String userId, String senderId) {
       if (userId == null || userId.length() < 1) {
-        return "No user provided to direct message";
+        return "No user provided to direct message.";
       }
-      if(!active.contains(getClient(userId))) {
-        return "The provided user is not active"; // this will need to change to become any user in database
+      if (!active.contains(getClient(userId))) {
+        return "The provided user is not active."; // this will need to change to become any user in database
       }
       try {
         String groupName = "DM:" + senderId + "-" + userId;
