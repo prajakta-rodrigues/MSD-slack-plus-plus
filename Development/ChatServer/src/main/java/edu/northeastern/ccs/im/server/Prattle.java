@@ -66,6 +66,7 @@ public abstract class Prattle {
     commands.put("/group", new Group());
     commands.put("/groups", new Groups());
     commands.put("/createGroup", new CreateGroup());
+    commands.put("/circle", new Circle());
     commands.put("/help", new Help());
   }
 
@@ -308,6 +309,33 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
+    }
+  }
+
+  /**
+   * List all active users on the server.
+   */
+  private static class Circle implements Command {
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, String senderId) {
+      StringBuilder activeUsers = new StringBuilder("Active Users:");
+      for (ClientRunnable activeUser : active) {
+        activeUsers.append("\n");
+        activeUsers.append(activeUser.getName());
+      }
+      return activeUsers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the active users on the server";
     }
   }
 
