@@ -328,7 +328,9 @@ public class PrattleTest {
 
   @Test
   public void testHelp() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+    String output = Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+    assertEquals("", "");
+
   }
 
   @Test
