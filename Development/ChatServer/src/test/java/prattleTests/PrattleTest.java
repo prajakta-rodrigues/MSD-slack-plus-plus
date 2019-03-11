@@ -261,8 +261,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("Active Users:\nomar\ntuffaha",
-        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle")));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
     resetData();
   }
 
@@ -287,8 +286,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("Command /circles not recognized",
-        Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles")));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
     resetData();
   }
 
@@ -311,8 +309,7 @@ public class PrattleTest {
         .get(null);
     active.add(cr1);
     active.add(cr2);
-    assertEquals("",
-        Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle")));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
     resetData();
   }
 
@@ -332,11 +329,11 @@ public class PrattleTest {
   @Test
   public void testDescriptionCircle() throws ClassNotFoundException, NoSuchMethodException {
     Class<?> prattle = Class.forName("edu.northeastern.ccs.im.server.Prattle");
-  for(Class<?> c: prattle.getClasses()) {
-    System.out.println("oar" + c);
-    c.getDeclaredMethod("description");
-    c.getDeclaredMethod("getInstance");
-    c.getDeclaredMethod("getInstance");
+    for (Class<?> c : prattle.getClasses()) {
+      System.out.println("oar" + c);
+      c.getDeclaredMethod("description");
+      c.getDeclaredMethod("getInstance");
+      c.getDeclaredMethod("getInstance");
     }
   }
 
