@@ -300,7 +300,9 @@ public class PrattleTest {
    */
   @Test
   public void testNotInitialized() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("mike", "/circle"));
+    assertEquals(0, waitingList1.size());
+    assertEquals(0, waitingList2.size());
   }
 
   /**
@@ -356,7 +358,28 @@ public class PrattleTest {
     assertEquals(0, waitingList1.size());
     Message removed = waitingList2.remove();
     assertEquals(bot, removed.getName());
+    assertEquals(0, waitingList2.size());
     assertEquals(-1, removed.getChannelId());
     assertEquals("Active Users:\nomar\ntuffaha", removed.getText());
+  }
+
+  /**
+   * Tests that users online get updated after leaving
+   */
+  @Test
+  public void testNoneOnline() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    assertEquals(1, waitingList2.size());
+    Message callback = waitingList2.remove();
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
+    Prattle.removeClient(cr1);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    assertEquals(1, waitingList2.size());
+    Message removed = waitingList2.remove();
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    assertEquals("Active Users:\ntuffaha", removed.getText());
   }
 }
