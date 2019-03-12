@@ -407,10 +407,57 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup myGroup"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
     Message callback = waitingList1.remove();
-    System.out.println(callback.getText() + " omar");
     assertTrue(callback.getText().contains("myGroup"));
     assertEquals(bot, callback.getName());
     assertTrue(callback.getText().contains("general"));
+  }
+
+  @Test
+  public void testDm() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList2.remove();
+    System.out.println(callback.getText());
+    assertTrue(callback.getText().contains("DM:tuffaha-omar"));
+  }
+
+  @Test
+  public void testDmUserNotActive() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm jacobe"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("The provided user is not active"));
+  }
+
+  @Test
+  public void testDmWithoutUser() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList1.remove();
+    Message callback2 = waitingList2.remove();
+    assertTrue(callback2.getText().contains("No user provided to direct message."));
+    assertEquals(bot, callback.getName());
+    assertTrue(callback.getText().contains("general"));
+  }
+
+  @Test
+  public void testDmWithoutUser2() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm  "));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList1.remove();
+    Message callback2 = waitingList2.remove();
+    assertTrue(callback2.getText().contains("No user provided to direct message."));
+    assertEquals(bot, callback.getName());
+    assertTrue(callback.getText().contains("general"));
+  }
+
+  @Test
+  public void testDmChannelNotAccessible() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group DM:tuffaha-tuffaha"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("You are not authorized to use this DM"));
+    assertEquals(bot, callback.getName());
   }
 
   @Test
