@@ -120,7 +120,6 @@ public class PrattleTest {
    * @throws NoSuchMethodException the no such method exception
    * @throws InvocationTargetException the invocation target exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws InstantiationException the instantiation exception
    */
   @Test
   public void testClientMessageClass()
@@ -328,9 +327,7 @@ public class PrattleTest {
 
   @Test
   public void testHelp() {
-    String output = Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
-    assertEquals("", "");
-
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
   }
 
   @Test
