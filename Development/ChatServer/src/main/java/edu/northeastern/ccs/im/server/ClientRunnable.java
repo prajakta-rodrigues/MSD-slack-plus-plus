@@ -5,10 +5,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
-import edu.northeastern.ccs.im.ChatLogger;
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
-
 /**
  * Instances of this class handle all of the incoming communication from a
  * single IM client. Instances are created when the client signs-on with the
@@ -30,6 +26,11 @@ public class ClientRunnable implements Runnable {
 	 * client.
 	 */
 	private NetworkConnection connection;
+
+  /**
+   * Id for the active channel that the client is sending messages to.
+   */
+  private int activeChannelId = 0;
 
 	/** Id for the user for whom we use this ClientRunnable to communicate. */
 	private int userId;
@@ -239,8 +240,11 @@ public class ClientRunnable implements Runnable {
 				if (messageChecks(msg)) {
 					// Check for our "special messages"
 					if (msg.isBroadcastMessage()) {
+					  System.out.println(msg.getChannelId());
 						// Check for our "special messages"
 						Prattle.broadcastMessage(msg);
+					} else if (msg.isCommandMessage()) {
+						Prattle.commandMessage(msg);
 					}
 				} else {
 					Message sendMsg;
@@ -297,4 +301,22 @@ public class ClientRunnable implements Runnable {
 		// And remove the client from our client pool.
 		runnableMe.cancel(false);
 	}
+
+  /**
+   * Returns the id of this user's active channel.
+   *
+   * @return id of the current active channel of the user.
+   */
+	public int getActiveChannelId() {
+	  return this.activeChannelId;
+  }
+
+  /**
+   * Sets the active channel id to the given id.
+   *
+   * @param channelId id of the new active channel of this user.
+   */
+  public void setActiveChannelId(int channelId) {
+	  this.activeChannelId = channelId;
+  }
 }

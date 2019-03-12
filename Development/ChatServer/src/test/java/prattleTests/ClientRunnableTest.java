@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 
 import static junit.framework.Assert.assertFalse;
@@ -71,4 +71,10 @@ public class ClientRunnableTest {
     assertEquals("Franklin", client.getName());
   }
 
+  @Test
+  public void testSetClientRunnable() {
+    ClientRunnable cr = Mockito.mock(ClientRunnable.class);
+    cr.setActiveChannelId(-1);
+    cr.setActiveChannelId(10);
+  }
 }

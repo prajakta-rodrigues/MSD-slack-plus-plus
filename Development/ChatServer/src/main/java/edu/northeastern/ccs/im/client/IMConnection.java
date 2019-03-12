@@ -193,8 +193,13 @@ public class IMConnection {
 		if (!connectionActive()) {
 			throw new IllegalOperationException("Cannot send a message if you are not connected to a server!\n");
 		}
-		Message bctMessage = Message.makeBroadcastMessage(userName, message);
-		socketConnection.print(bctMessage);
+		Message sentMessage;
+		if (message.charAt(0) == '/') {
+		  sentMessage = Message.makeCommandMessage(userName, message);
+    } else {
+      sentMessage = Message.makeBroadcastMessage(userName, message);
+    }
+		socketConnection.print(sentMessage);
 	}
 
 	/**
