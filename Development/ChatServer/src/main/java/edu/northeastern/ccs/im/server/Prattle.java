@@ -351,7 +351,7 @@ public abstract class Prattle {
   private static class Help implements Command {
 
     /**
-     * Lists all of the active users on the server.
+     * Lists all of the available commands.
      *
      * @param ignoredParam Ignored parameter.
      * @param senderId the id of the sender.
@@ -369,7 +369,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Lists all of the available commands.";
     }
   }
 
