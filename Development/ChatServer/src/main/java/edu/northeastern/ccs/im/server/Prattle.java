@@ -65,10 +65,10 @@ public abstract class Prattle {
     commands = new Hashtable<>();
     commands.put("/group", new Group());
     commands.put("/groups", new Groups());
-    commands.put("/createGroup", new CreateGroup());
+    commands.put("/creategroup", new CreateGroup());
     commands.put("/circle", new Circle());
     commands.put("/help", new Help());
-    commands.put("/dm", new Dm());
+    // commands.put("/dm", new Dm());
   }
 
   /**
@@ -252,9 +252,9 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
-        return "You are not authorized to use this DM";
-      }
+//      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
+//        return "You are not authorized to use this DM";
+//      }
       if (targetGroup != null) {
         if (sender != null) {
           sender.setActiveChannelId(targetGroup.getChannelId());
@@ -373,38 +373,38 @@ public abstract class Prattle {
     }
   }
 
-  /**
-   * Starts a Dm.
-   */
-  private static class Dm implements Command {
-
-    /**
-     * Lists all of the active users on the server.
-     *
-     * @param userId Ignored parameter.
-     * @param senderId the id of the sender.
-     * @return the list of active users as a String.
-     */
-    @Override
-    public String apply(String userId, String senderId) {
-      if (userId == null || userId.length() < 1) {
-        return "No user provided to direct message.";
-      }
-      if (!active.contains(getClient(userId))) {
-        return "The provided user is not active";
-      }
-      try {
-        String groupName = "DM:" + senderId + "-" + userId;
-        groups.add(channelFactory.makeGroup(senderId, groupName));
-        return String.format("%s created", groupName);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
-      }
-    }
-
-    @Override
-    public String description() {
-      return "Start a DM with the given user.\nParameters: user id";
-    }
-  }
+//  /**
+//   * Starts a Dm.
+//   */
+//  private static class Dm implements Command {
+//
+//    /**
+//     * Lists all of the active users on the server.
+//     *
+//     * @param userId Ignored parameter.
+//     * @param senderId the id of the sender.
+//     * @return the list of active users as a String.
+//     */
+//    @Override
+//    public String apply(String userId, String senderId) {
+//      if (userId == null || userId.length() < 1) {
+//        return "No user provided to direct message.";
+//      }
+//      if (!active.contains(getClient(userId))) {
+//        return "The provided user is not active";
+//      }
+//      try {
+//        String groupName = "DM:" + senderId + "-" + userId;
+//        groups.add(channelFactory.makeGroup(senderId, groupName));
+//        return String.format("%s created", groupName);
+//      } catch (IllegalArgumentException e) {
+//        return e.getMessage();
+//      }
+//    }
+//
+//    @Override
+//    public String description() {
+//      return "Start a DM with the given user.\nParameters: user id";
+//    }
+//  }
 }
