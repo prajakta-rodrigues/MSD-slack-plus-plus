@@ -1,53 +1,73 @@
 package chatterTests;
 
-import java.io.StringReader;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
+import java.io.StringReader;
+import java.util.NoSuchElementException;
 import edu.northeastern.ccs.im.client.CommandLineMain;
 import edu.northeastern.ccs.im.client.IMConnection;
 import edu.northeastern.ccs.im.client.KeyboardScanner;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 
-@RunWith(PowerMockRunner.class) 
-@PrepareForTest({CommandLineMain.class, KeyboardScanner.class, MessageScanner.class})
+
 public class CommandLineMainTest {
   
+  private CommandLineMain commandLineMain;
+  
   @Test
-  public void testGetUserNameAndConnectSuccess() {
+  public void testGetConnection() {
+    commandLineMain = new CommandLineMain();
     String[] args = new String[2];
     args[0] = "localhost";
     args[1] = "4545";    
-    StringReader reader = new StringReader("praj");
-    IMConnection value = Mockito.mock(IMConnection.class);
-    PowerMockito.mockStatic(CommandLineMain.class);
-    PowerMockito.when(CommandLineMain.getConnection("praj" , "localhost", "4545"))
-    .thenReturn(value);      
-    Mockito.when(value.connect()).thenReturn(true);
-    Mockito.when(value.connectionActive()).thenReturn(true);
-    try {
-    CommandLineMain.getUserNameAndConnect(args, reader);
-    }
-    catch(Exception e) {
-      assert false;
-    }
+    StringReader reader = new StringReader("testUser1");
+    IMConnection imConnection = commandLineMain.getConnection(args, reader);
+    assertEquals("testUser1" , imConnection.getUserName());
+    
+  }
+  
+  @Test
+  public void testGetUserNameAndConnect() {
+
+    String[] args = new String[2];
+    args[0] = "localhost";
+    args[1] = "4545";    
+    StringReader reader = new StringReader("testUser1");
+    commandLineMain = new CommandLineMain() {
+      @Override
+      protected boolean checkIfConnected(IMConnection connect) {
+        return true;        
+      }
+    };
+    commandLineMain.getUserNameAndConnect(args, reader);
+    
+  }
+  
+  @Test(expected = NoSuchElementException.class)
+  public void testGetUserNameAndNotConnected() {
+
+    String[] args = new String[2];
+    args[0] = "localhost";
+    args[1] = "4545";    
+    StringReader reader = new StringReader("testUser1");
+    commandLineMain = new CommandLineMain();
+    commandLineMain.getUserNameAndConnect(args, reader);
   }
   
   @Test
   public void testStartMessagingNotActiveConnection() {
+    commandLineMain = new CommandLineMain();
     IMConnection connect = Mockito.mock(IMConnection.class);
-    KeyboardScanner scan = PowerMockito.mock(KeyboardScanner.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
     MessageScanner mess = Mockito.mock(MessageScanner.class);
     Mockito.when(connect.connectionActive()).thenReturn(false);
     
     try {
-    CommandLineMain.startMessaging(connect, scan, mess);
+    commandLineMain.startMessaging(connect, scan, mess);
     }
     catch(Exception e) {
       assert false;
@@ -56,8 +76,9 @@ public class CommandLineMainTest {
   
   @Test
   public void testStartMessagingActiveConnectionMessageToScan() {
+    commandLineMain = new CommandLineMain();
     IMConnection connect = Mockito.mock(IMConnection.class);
-    KeyboardScanner scan = PowerMockito.mock(KeyboardScanner.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
     MessageScanner mess = Mockito.mock(MessageScanner.class);
     Message msg = Mockito.mock(Message.class);
     Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
@@ -70,7 +91,7 @@ public class CommandLineMainTest {
     Mockito.when(connect.getUserName()).thenReturn("testUser");
     Mockito.when(msg.getText()).thenReturn("Testing message");
     try {
-    CommandLineMain.startMessaging(connect, scan, mess);
+    commandLineMain.startMessaging(connect, scan, mess);
     }
     catch(Exception e) {
       assert false;
@@ -79,8 +100,9 @@ public class CommandLineMainTest {
   
   @Test
   public void testStartMessagingActiveConnectionNoMessageToScan() {
+    commandLineMain = new CommandLineMain();
     IMConnection connect = Mockito.mock(IMConnection.class);
-    KeyboardScanner scan = PowerMockito.mock(KeyboardScanner.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
     MessageScanner mess = Mockito.mock(MessageScanner.class);
     Message msg = Mockito.mock(Message.class);
     Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
@@ -91,7 +113,7 @@ public class CommandLineMainTest {
     Mockito.when(connect.getUserName()).thenReturn("testUser");
     Mockito.when(msg.getText()).thenReturn("Testing message");
     try {
-    CommandLineMain.startMessaging(connect, scan, mess);
+    commandLineMain.startMessaging(connect, scan, mess);
     }
     catch(Exception e) {
       assert false;
@@ -100,8 +122,9 @@ public class CommandLineMainTest {
   
   @Test
   public void testStartMessagingActiveConnectionMessageRecieved() {
+    commandLineMain = new CommandLineMain();
     IMConnection connect = Mockito.mock(IMConnection.class);
-    KeyboardScanner scan = PowerMockito.mock(KeyboardScanner.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
     MessageScanner mess = Mockito.mock(MessageScanner.class);
     Message msg = Mockito.mock(Message.class);
     Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
@@ -112,7 +135,44 @@ public class CommandLineMainTest {
     Mockito.when(connect.getUserName()).thenReturn("testUser2");
     Mockito.when(msg.getText()).thenReturn("Testing message");
     try {
-    CommandLineMain.startMessaging(connect, scan, mess);
+    commandLineMain.startMessaging(connect, scan, mess);
+    }
+    catch(Exception e) {
+      assert false;
+    }
+  }
+  
+  @Test
+  public void testStartMessagingActiveConnectionNoMessageRecieved() {
+    commandLineMain = new CommandLineMain();
+    IMConnection connect = Mockito.mock(IMConnection.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
+    MessageScanner mess = Mockito.mock(MessageScanner.class);
+    Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
+    Mockito.when(scan.hasNext()).thenReturn(false);
+    Mockito.when(mess.hasNext()).thenReturn(false);
+    try {
+    commandLineMain.startMessaging(connect, scan, mess);
+    }
+    catch(Exception e) {
+      assert false;
+    }
+  }
+  
+  @Test
+  public void testStartMessagingActiveConnectionQuitMessage() {
+    commandLineMain = new CommandLineMain();
+    IMConnection connect = Mockito.mock(IMConnection.class);
+    KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
+    MessageScanner mess = Mockito.mock(MessageScanner.class);
+    Message msg = Mockito.mock(Message.class);
+    Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
+    Mockito.when(scan.hasNext()).thenReturn(true);
+    Mockito.when(scan.nextLine()).thenReturn("/quit");
+    Mockito.when(mess.hasNext()).thenReturn(false);
+  
+    try {
+    commandLineMain.startMessaging(connect, scan, mess);
     }
     catch(Exception e) {
       assert false;
