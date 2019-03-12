@@ -25,6 +25,8 @@ import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.client.Buddy;
+import edu.northeastern.ccs.im.server.SlackGroup;
+
 import org.mockito.Mockito;
 
 import static junit.framework.Assert.assertNull;
@@ -92,9 +94,19 @@ public class PrattleTest {
    * Reset command data after each test
    */
   @After
-  public void resetData() {
+  @SuppressWarnings("unchecked")
+  public void resetData() throws NoSuchFieldException, IllegalAccessException {
     Prattle.removeClient(cr1);
     Prattle.removeClient(cr2);
+    Field groups = Prattle.class.getDeclaredField("groups");
+    groups.setAccessible(true);
+    ConcurrentLinkedQueue<SlackGroup> g = (ConcurrentLinkedQueue<SlackGroup>) groups
+            .get(null);
+    SlackGroup general = g.remove();
+    while(!g.isEmpty()) {
+      g.remove();
+    }
+    g.add(general);
   }
 
   /**
@@ -146,7 +158,6 @@ public class PrattleTest {
    * @throws NoSuchMethodException the no such method exception
    * @throws InvocationTargetException the invocation target exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws InstantiationException the instantiation exception
    */
   @Test
   public void testClientMessageClass()
@@ -272,7 +283,6 @@ public class PrattleTest {
   @Test
   public void testCircleListsAllActiveUsers() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
-    resetData();
   }
 
   /**
@@ -331,17 +341,47 @@ public class PrattleTest {
 
   @Test
   public void testCreateGroup() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "myGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup myGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("myGroup"));
+    assertEquals(bot, callback.getName());
+    assertTrue(callback.getText().contains("general"));
   }
 
   @Test
   public void testCreateGroupSpecialCharacters() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup !@578"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("!@578"));
+    assertTrue(callback.getText().contains("general"));
+  }
 
+  @Test
+  public void testCreateGroupSpaces() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup My Group"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("My"));
+    assertFalse(callback.getText().contains("Group"));
+    assertTrue(callback.getText().contains("general"));
   }
 
   @Test
   public void testCreateGroupNoInput() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup"));
+    Message callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("No Group Name provided"));
+    assertEquals(bot, callback.getName());
+  }
 
+  @Test
+  public void testCreateGroupNameTaken() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup general"));
+    Message callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("Group name already taken"));
+    assertEquals(bot, callback.getName());
   }
 
   @Test
@@ -361,31 +401,67 @@ public class PrattleTest {
 
   @Test
   public void testShowMultipleGroups() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup omarGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup TSeries"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup coolbeans"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
-  }
-
-  @Test
-  public void testCreateGroupNameTaken() {
-
+    waitingList1.remove();
+    Message callback = waitingList1.remove();
+    assertEquals(bot, callback.getName());
+    String text = callback.getText();
+    assertTrue(text.contains("omarGroup"));
+    assertTrue(text.contains("TSeries"));
+    assertTrue(text.contains("coolbeans"));
+    assertTrue(text.contains("general"));
   }
 
   @Test
   public void testChangeGroup() {
-
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup o"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group o"));
+    Message callback = waitingList1.remove();
+    assertEquals("Active channel set to Group o", callback.getText());
   }
 
   @Test
   public void testChangeGroupNoInput() {
-
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("No Group Name provided"));
   }
 
   @Test
   public void testChangeGroupNotFound() {
-
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group a"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("Group a does not exist"));
   }
 
   @Test
-  public void testExtraParametersIgnored() {
+  public void testMessagesReceivedGeneral() {
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    Message callback = waitingList2.remove();
+    assertEquals("omar", callback.getName());
+    assertEquals("Hey T", callback.getText());
+  }
 
+  @Test
+  public void testMessagesReceivedSameGroup() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup grp"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group grp"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/group grp"));
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    waitingList2.remove();
+    Message callback = waitingList2.remove();
+    assertEquals("omar", callback.getName());
+    assertEquals("Hey T", callback.getText());
+  }
+
+  @Test
+  public void testMessagesNotReceivedDifferentGroup() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup ogrp"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group ogrp"));
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    assertTrue(waitingList2.isEmpty());
   }
 }
