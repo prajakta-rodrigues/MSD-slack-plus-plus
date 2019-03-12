@@ -214,7 +214,7 @@ public class Message {
   /**
    * Determine if this message is sent by a new client to log-in to the server.
    *
-   * @return True if the message is an initialization message; false otherwise
+   * @return True if the message is an initialization message; false otherwise.
    */
   public boolean isInitialization() {
     return (msgType == MessageType.HELLO);
