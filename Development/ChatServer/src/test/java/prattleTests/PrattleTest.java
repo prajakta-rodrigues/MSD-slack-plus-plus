@@ -52,7 +52,8 @@ public class PrattleTest {
    */
   @Before
   @SuppressWarnings("unchecked")
-  public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+  public void initCommandData()
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
@@ -282,24 +283,36 @@ public class PrattleTest {
    */
   @Test
   public void testCircleListsAllActiveUsers() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message callback = waitingList2.remove();
+    assertEquals(bot, callback.getName());
+    assertEquals(-1, callback.getChannelId());
+    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
   }
 
   /**
    * Tests that a non-recognized command outputs the correct message.
-   * */
+   */
   @Test
   public void testNonRecognizedCommand() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message callback = waitingList2.remove();
+    assertEquals(bot, callback.getName());
+    assertEquals(-1, callback.getChannelId());
+    assertEquals("Command /circles not recognized", callback.getText());
   }
 
   /**
    * Tests that a non initialized client will not get the broadcasted command
-   *
    */
   @Test
   public void testNotInitialized() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("mike", "/circle"));
+    assertEquals(0, waitingList1.size());
+    assertEquals(0, waitingList2.size());
   }
 
   /**
@@ -310,19 +323,74 @@ public class PrattleTest {
     assertNull(Prattle.getClient("james franco"));
   }
 
+  /**
+   * Tests broadcast message with circle command.
+   */
   @Test
   public void testBroadcastMessage() {
-    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle everybody"));
+    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle"));
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
   }
 
+  /**
+   * Tests help works
+   */
   @Test
   public void testHelp() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+    assertEquals(0, waitingList2.size());
+    assertEquals(1, waitingList1.size());
+    Message callback = waitingList1.remove();
+    assertEquals(
+        "Available Commands:\n" +
+            "/groups Print out the names of each available Group on the server\n" +
+            "/dm Start a DM with the given user.\n" +
+            "Parameters: user id\n" +
+            "/createGroup Create a group with the given name.\n" +
+            "Parameters: Group name\n" +
+            "/group Change your current chat room to the specified Group.\n" +
+            "Parameters: group name\n" +
+            "/circle Print out the handles of the active users on the server\n" +
+            "/help Lists all of the available commands.",
+        callback.getText());
+    assertEquals(bot, callback.getName());
+
   }
 
+  /**
+   * Tests commands with extra params.
+   */
   @Test
   public void testCommandMessageWithMultipleInputs() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle aroundTheCampFire"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle aroundTheCampFire"));
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message removed = waitingList2.remove();
+    assertEquals(bot, removed.getName());
+    assertEquals(0, waitingList2.size());
+    assertEquals(-1, removed.getChannelId());
+    assertEquals("Active Users:\nomar\ntuffaha", removed.getText());
+  }
+
+  /**
+   * Tests that users online get updated after leaving
+   */
+  @Test
+  public void testNoneOnline() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    assertEquals(1, waitingList2.size());
+    Message callback = waitingList2.remove();
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
+    Prattle.removeClient(cr1);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    assertEquals(1, waitingList2.size());
+    Message removed = waitingList2.remove();
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    assertEquals("Active Users:\ntuffaha", removed.getText());
   }
 
   @Test

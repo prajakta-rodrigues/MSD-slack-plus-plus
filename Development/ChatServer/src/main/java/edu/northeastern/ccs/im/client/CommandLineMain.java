@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.client;
 
+import java.io.InputStreamReader;
 import java.util.Scanner;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Scanner;
  *
  * @version 1.3
  */
-public class CommandLineMain {
+public class CommandLineMain { 
 
   /**
    * This main method will perform all of the necessary actions for this phase of
@@ -22,24 +23,15 @@ public class CommandLineMain {
    * @param args Command-line arguments which we ignore
    */
   public static void main(String[] args) {
-    IMConnection connect;
-    @SuppressWarnings("resource")
-    Scanner in = new Scanner(System.in);
-
-    do {
-      // Prompt the user to type in a username.
-      System.out.println("What username would you like?");
-
-      String username = in.nextLine();
-
-      // Create a Connection to the IM server.
-      connect = new IMConnection(args[0], Integer.parseInt(args[1]), username);
-    } while (!connect.connect());
-
+    CommandLineMain commandLineMain = new CommandLineMain();
+    IMConnection connect = commandLineMain.getUserNameAndConnect(args, new InputStreamReader(System.in));
     // Create the objects needed to read & write IM messages.
-    KeyboardScanner scan = connect.getKeyboardScanner();
-    MessageScanner mess = connect.getMessageScanner();
-
+    commandLineMain.startMessaging(connect, connect.getKeyboardScanner() , connect.getMessageScanner());
+    System.exit(0);
+  } 
+ 
+  public void startMessaging(IMConnection connect, KeyboardScanner scan,
+      MessageScanner mess) {
     // Repeat the following loop
     while (connect.connectionActive()) {
       // Check if the user has typed in a line of text to broadcast to the IM server.
@@ -67,7 +59,33 @@ public class CommandLineMain {
         }
       }
     }
-    System.out.println("Program complete.");
-    System.exit(0);
+  } 
+
+  public IMConnection getConnection(String[] args, Readable input) {
+    @SuppressWarnings("resource")
+    Scanner in = new Scanner(input);
+    // Prompt the user to type in a username.
+    System.out.println("What username would you like?");
+    String username = in.nextLine();
+    return new IMConnection(args[0], Integer.parseInt(args[1]), username);
+    
   }
+  
+  
+  public IMConnection getUserNameAndConnect(String[] args, Readable input) {
+    IMConnection connect;
+    do {
+      // Create a Connection to the IM server.
+      connect = getConnection(args, input);
+    } while (!checkIfConnected(connect));
+    return connect;
+    
+  }  
+
+  protected boolean checkIfConnected(IMConnection connect) {
+    return connect.connect();
+  }
+  
+  
+  
 }

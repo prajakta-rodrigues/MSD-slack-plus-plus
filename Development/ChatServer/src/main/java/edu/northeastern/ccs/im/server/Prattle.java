@@ -68,6 +68,7 @@ public abstract class Prattle {
     commands.put("/createGroup", new CreateGroup());
     commands.put("/circle", new Circle());
     commands.put("/help", new Help());
+    commands.put("/dm", new Dm());
   }
 
   /**
@@ -95,13 +96,13 @@ public abstract class Prattle {
   public static void commandMessage(Message message) {
     String[] messageContents = message.getText().split(" ");
     String command = messageContents[0];
+    String commandLower = command.toLowerCase();
     String param = messageContents.length > 1 ? messageContents[1] : null;
     String senderId = message.getName();
 
-    String callbackContents = commands.keySet().contains(command)
-            ? commands.get(command).apply(param, senderId)
-            : String.format("Command %s not recognized", command);
-
+    String callbackContents = commands.keySet().contains(commandLower)
+        ? commands.get(commandLower).apply(param, senderId)
+        : String.format("Command %s not recognized", command);
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
@@ -180,7 +181,7 @@ public abstract class Prattle {
       serverSocket.register(selector, SelectionKey.OP_ACCEPT);
       // Create our pool of threads on which we will execute.
       ScheduledExecutorService threadPool = Executors
-              .newScheduledThreadPool(ServerConstants.THREAD_POOL_SIZE);
+          .newScheduledThreadPool(ServerConstants.THREAD_POOL_SIZE);
       // If we get this far than the server is initialized correctly
       isReady = true;
       // Now listen on this port as long as the server is ready
@@ -216,7 +217,7 @@ public abstract class Prattle {
    * @param threadPool The thread pool to add client to.
    */
   private static void createClientThread(ServerSocketChannel serverSocket,
-                                         ScheduledExecutorService threadPool) {
+      ScheduledExecutorService threadPool) {
     try {
       // Accept the connection and create a new thread to handle this client.
       SocketChannel socket = serverSocket.accept();
@@ -228,8 +229,8 @@ public abstract class Prattle {
         active.add(tt);
         // Have the client executed by our pool of threads.
         ScheduledFuture<?> clientFuture = threadPool
-                .scheduleAtFixedRate(tt, ServerConstants.CLIENT_CHECK_DELAY,
-                        ServerConstants.CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS);
+            .scheduleAtFixedRate(tt, ServerConstants.CLIENT_CHECK_DELAY,
+                ServerConstants.CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS);
         tt.setFuture(clientFuture);
       }
     } catch (AssertionError ae) {
@@ -243,6 +244,7 @@ public abstract class Prattle {
    * Change sender's active channel to the specified Group.
    */
   private static class Group implements Command {
+
     @Override
     public String apply(String groupName, String senderId) {
       if (groupName == null || groupName.length() < 1) {
@@ -250,6 +252,9 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
+      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
+        return "You are not authorized to use this DM";
+      }
       if (targetGroup != null) {
         if (sender != null) {
           sender.setActiveChannelId(targetGroup.getChannelId());
@@ -272,6 +277,7 @@ public abstract class Prattle {
    * List all groups on the server.
    */
   private static class Groups implements Command {
+
     @Override
     public String apply(String param, String senderId) {
       StringBuilder groupNames = new StringBuilder();
@@ -315,6 +321,7 @@ public abstract class Prattle {
    * List all active users on the server.
    */
   private static class Circle implements Command {
+
     /**
      * Lists all of the active users on the server.
      *
@@ -342,8 +349,9 @@ public abstract class Prattle {
    * List all available commands to use.
    */
   private static class Help implements Command {
+
     /**
-     * Lists all of the active users on the server.
+     * Lists all of the available commands.
      *
      * @param ignoredParam Ignored parameter.
      * @param senderId the id of the sender.
@@ -361,7 +369,42 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Lists all of the available commands.";
+    }
+  }
+
+  /**
+   * Starts a Dm.
+   */
+  private static class Dm implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param userId Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String userId, String senderId) {
+      if (userId == null || userId.length() < 1) {
+        return "No user provided to direct message.";
+      }
+      if (!active.contains(getClient(userId))) {
+        return "The provided user is not active";
+      }
+      try {
+        String groupName = "DM:" + senderId + "-" + userId;
+        groups.add(channelFactory.makeGroup(senderId, groupName));
+        return String.format("%s created", groupName);
+      } catch (IllegalArgumentException e) {
+        return e.getMessage();
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Start a DM with the given user.\nParameters: user id";
     }
   }
 }
