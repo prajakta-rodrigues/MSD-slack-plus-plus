@@ -36,7 +36,7 @@ class ChannelFactory {
   SlackGroup makeGroup(String creatorId, String groupName) {
     if (takenGroupNames.contains(groupName)) { throw new IllegalArgumentException("Group name already taken"); }
     this.channelId++;
-    takenGroupNames.add(creatorId);
+    takenGroupNames.add(groupName);
     return new SlackGroup(creatorId, groupName, this.channelId);
   }
 }

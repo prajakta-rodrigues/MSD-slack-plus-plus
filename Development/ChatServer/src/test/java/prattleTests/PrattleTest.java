@@ -6,6 +6,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.After;
@@ -40,11 +41,15 @@ public class PrattleTest {
 
   private ClientRunnable cr1;
   private ClientRunnable cr2;
+  private Queue<Message> waitingList1;
+  private Queue<Message> waitingList2;
+  private String bot = "SlackBot";
 
   /**
    * Initialize the command data before each test
    */
   @Before
+  @SuppressWarnings("unchecked")
   public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
@@ -72,11 +77,15 @@ public class PrattleTest {
     Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
             .getDeclaredField("active");
     activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
             .get(null);
     active.add(cr1);
     active.add(cr2);
+
+    Field wl = cr1.getClass().getDeclaredField("waitingList");
+    wl.setAccessible(true);
+    waitingList1 = (ConcurrentLinkedQueue<Message>)wl.get(cr1);
+    waitingList2 = (ConcurrentLinkedQueue<Message>)wl.get(cr2);
   }
 
   /**
@@ -321,6 +330,21 @@ public class PrattleTest {
   }
 
   @Test
+  public void testCreateGroup() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "myGroup"));
+  }
+
+  @Test
+  public void testCreateGroupSpecialCharacters() {
+
+  }
+
+  @Test
+  public void testCreateGroupNoInput() {
+
+  }
+
+  @Test
   public void testMakeCommandMessage() {
     Message msg = Message.makeMessage("CMD", "omar", "/hello");
     assertTrue(msg.isCommandMessage());
@@ -328,6 +352,40 @@ public class PrattleTest {
 
   @Test
   public void testShowGroupsDefault() {
-    
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    assertEquals(0, waitingList2.size());
+    Message callback = waitingList1.remove();
+    assertEquals(callback.getName(), bot);
+    assertTrue(callback.getText().contains("general"));
+  }
+
+  @Test
+  public void testShowMultipleGroups() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+  }
+
+  @Test
+  public void testCreateGroupNameTaken() {
+
+  }
+
+  @Test
+  public void testChangeGroup() {
+
+  }
+
+  @Test
+  public void testChangeGroupNoInput() {
+
+  }
+
+  @Test
+  public void testChangeGroupNotFound() {
+
+  }
+
+  @Test
+  public void testExtraParametersIgnored() {
+
   }
 }
