@@ -252,7 +252,7 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if (groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
+      if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
         return "You are not authorized to use this DM";
       }
       if (targetGroup != null) {

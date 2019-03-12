@@ -283,6 +283,7 @@ public class PrattleTest {
    */
   @Test
   public void testCircleListsAllActiveUsers() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
     Message callback = waitingList2.remove();
@@ -412,6 +413,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup myGroup"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
     Message callback = waitingList1.remove();
+    System.out.println(callback.getText() + " omar");
     assertTrue(callback.getText().contains("myGroup"));
     assertEquals(bot, callback.getName());
     assertTrue(callback.getText().contains("general"));
