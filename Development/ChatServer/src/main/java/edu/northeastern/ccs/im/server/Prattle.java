@@ -126,20 +126,6 @@ public abstract class Prattle {
     return null;
   }
 
-  /**
-   * get Group by groupName.  To be changed with database integration.
-   *
-   * @param groupName name of the group
-   * @return Group associated with the groupName
-   */
-  private static SlackGroup getGroup(String groupName) {
-    for (SlackGroup group : groups) {
-      if (group.getGroupName().equals(groupName)) {
-        return group;
-      }
-    }
-    return null;
-  }
 
   /**
    * Remove the given IM client from the list of active threads.
@@ -252,23 +238,39 @@ public abstract class Prattle {
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if (groupName.length() > 3) {
-        if (groupName.substring(0, 3).equals("DM:")) {
-          if (!groupName.contains(senderId)) {
-            return "You are not authorized to use this DM";
-          }
-        }
+      if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName
+          .contains(senderId)) {
+        return "You are not authorized to use this DM";
       }
-      if (targetGroup != null) {
+      if (targetGroup != null)
+
+      {
         if (sender != null) {
           sender.setActiveChannelId(targetGroup.getChannelId());
           return String.format("Active channel set to Group %s", groupName);
         } else {
           return "Sender not found";
         }
-      } else {
+      } else
+
+      {
         return String.format("Group %s does not exist", groupName);
       }
+    }
+
+    /**
+     * get Group by groupName.  To be changed with database integration.
+     *
+     * @param groupName name of the group
+     * @return Group associated with the groupName
+     */
+    private static SlackGroup getGroup(String groupName) {
+      for (SlackGroup group : groups) {
+        if (group.getGroupName().equals(groupName)) {
+          return group;
+        }
+      }
+      return null;
     }
 
     @Override

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import edu.northeastern.ccs.im.server.ServerConstants;
 import java.lang.Thread.State;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -25,8 +24,6 @@ import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.client.*;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -841,4 +838,5 @@ public class IMConnectionTest {
     msgChecksMethod.setAccessible(true);
     msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
   }
+
 }
