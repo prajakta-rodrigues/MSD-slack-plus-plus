@@ -6,8 +6,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,11 +39,17 @@ public class PrattleTest {
 
   private ClientRunnable cr1;
   private ClientRunnable cr2;
+  private Queue<Message> waitingList1;
+  private Queue<Message> waitingList2;
+  private String bot = "SlackBot";
 
   /**
    * Initialize the command data before each test
    */
-  private void initCommandData() {
+  @Before
+  @SuppressWarnings("unchecked")
+  public void initCommandData()
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
@@ -61,12 +70,29 @@ public class PrattleTest {
     Iterator<Message> mockIterator2 = messageQueue2.iterator();
     when(networkConnection1.iterator()).thenReturn(mockIterator1);
     when(networkConnection2.iterator()).thenReturn(mockIterator2);
+
+    cr1.run();
+    cr2.run();
+    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("active");
+    activeClient.setAccessible(true);
+    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
+        .get(null);
+    active.add(cr1);
+    active.add(cr2);
+
+    Field w1 = cr1.getClass().getDeclaredField("waitingList");
+    w1.setAccessible(true);
+    waitingList1 = (ConcurrentLinkedQueue<Message>) w1.get(cr1);
+    waitingList2 = (ConcurrentLinkedQueue<Message>) w1.get(cr2);
+
   }
 
   /**
    * Reset command data after each test
    */
-  private void resetData() {
+  @After
+  public void resetData() {
     Prattle.removeClient(cr1);
     Prattle.removeClient(cr2);
   }
@@ -242,74 +268,39 @@ public class PrattleTest {
   /**
    * Tests that the /circle command works by listing all active users.
    *
-   * @throws NoSuchFieldException no such field exception.
-   * @throws ClassNotFoundException class not found exception.
-   * @throws IllegalAccessException illegal access exception.
    */
   @Test
-  public void testCircleListsAllActiveUsers()
-      throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-    initCommandData();
-    cr1.run();
-    cr2.run();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testCircleListsAllActiveUsers() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
-    resetData();
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message callback = waitingList2.remove();
+    assertEquals(bot, callback.getName());
+    assertEquals(-1, callback.getChannelId());
+    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
   }
 
   /**
    * Tests that a non-recognized command outputs the correct message.
    *
-   * @throws ClassNotFoundException class not found exception.
-   * @throws NoSuchFieldException no such field exception.
-   * @throws IllegalAccessException illegal state exception.
    */
   @Test
-  public void testNonRecognizedCommand()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    initCommandData();
-    cr1.run();
-    cr2.run();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testNonRecognizedCommand() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
-    resetData();
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message callback = waitingList2.remove();
+    assertEquals(bot, callback.getName());
+    assertEquals(-1, callback.getChannelId());
+    assertEquals("Command /circles not recognized", callback.getText());
   }
 
   /**
    * Tests that a non initialized client will not get the broadcasted command
-   *
-   * @throws ClassNotFoundException class not found exception.
-   * @throws NoSuchFieldException no such file exception.
-   * @throws IllegalAccessException illegal access exception.
    */
   @Test
-  public void testNotInitialized()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    initCommandData();
-    Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("active");
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    active.add(cr1);
-    active.add(cr2);
+  public void testNotInitialized() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle"));
-    resetData();
   }
 
   /**
@@ -320,18 +311,52 @@ public class PrattleTest {
     assertNull(Prattle.getClient("james franco"));
   }
 
+  /**
+   * Tests broadcast message with circle command.
+   */
   @Test
   public void testBroadcastMessage() {
-    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle everybody"));
+    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle"));
+    assertEquals(0, waitingList2.size());
+    assertEquals(0, waitingList1.size());
   }
 
+  /**
+   * Tests help works
+   */
   @Test
   public void testHelp() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+    assertEquals(0, waitingList2.size());
+    assertEquals(1, waitingList1.size());
+    Message callback = waitingList1.remove();
+    assertEquals(
+        "Available Commands:\n" +
+            "/groups Print out the names of each available Group on the server\n" +
+            "/dm Start a DM with the given user.\n" +
+            "Parameters: user id\n" +
+            "/createGroup Create a group with the given name.\n" +
+            "Parameters: Group name\n" +
+            "/group Change your current chat room to the specified Group.\n" +
+            "Parameters: group name\n" +
+            "/circle Print out the handles of the active users on the server\n" +
+            "/help Lists all of the available commands.",
+        callback.getText());
+    assertEquals(bot, callback.getName());
+
   }
 
+  /**
+   * Tests commands with extra params.
+   */
   @Test
   public void testCommandMessageWithMultipleInputs() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/circle aroundTheCampFire"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle aroundTheCampFire"));
+    assertEquals(1, waitingList2.size());
+    assertEquals(0, waitingList1.size());
+    Message removed = waitingList2.remove();
+    assertEquals(bot, removed.getName());
+    assertEquals(-1, removed.getChannelId());
+    assertEquals("Active Users:\nomar\ntuffaha", removed.getText());
   }
 }
