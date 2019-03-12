@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,8 +51,7 @@ public class PrattleTest {
    */
   @Before
   @SuppressWarnings("unchecked")
-  public void initCommandData()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+  public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1);
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
@@ -121,9 +119,9 @@ public class PrattleTest {
    */
   @Test
   public void testChatloggerTypes()
-      throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+          throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.ServerConstants")
-        .getDeclaredConstructor();
+            .getDeclaredConstructor();
     constructor.setAccessible(true);
     constructor.newInstance();
   }
@@ -138,9 +136,9 @@ public class PrattleTest {
    */
   @Test
   public void testMessageClass()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
-        .getDeclaredMethod("makeHelloMessage", String.class);
+            .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "mike");
     Message msd1 = Message.makeBroadcastMessage("koka", "Hello There");
@@ -162,13 +160,13 @@ public class PrattleTest {
    */
   @Test
   public void testClientMessageClass()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String jaffa = "jaffa";
     String hello = "hello";
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+            .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
     Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeHelloMessage", String.class);
+            .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeHelloMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "HLO", jaffa, hello);
@@ -176,7 +174,7 @@ public class PrattleTest {
     makeMessageMethod.invoke(null, "NAK", jaffa, hello);
     makeHelloMessageMethod.invoke(null, jaffa);
     edu.northeastern.ccs.im.client.Message sc = edu.northeastern.ccs.im.client.Message
-        .makeLoginMessage("jaffa");
+            .makeLoginMessage("jaffa");
     sc.isAcknowledge();
     sc.isBroadcastMessage();
     sc.isDisplayMessage();
@@ -243,7 +241,7 @@ public class PrattleTest {
    */
   @Test
   public void testBuddy()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String bud = "edu.northeastern.ccs.im.client.Buddy";
     String daffa = "daffa";
     String jaffa = "jaffa";
@@ -280,6 +278,7 @@ public class PrattleTest {
 
   /**
    * Tests that the /circle command works by listing all active users.
+   *
    */
   @Test
   public void testCircleListsAllActiveUsers() {
@@ -294,6 +293,7 @@ public class PrattleTest {
 
   /**
    * Tests that a non-recognized command outputs the correct message.
+   *
    */
   @Test
   public void testNonRecognizedCommand() {
@@ -343,20 +343,14 @@ public class PrattleTest {
     assertEquals(0, waitingList2.size());
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
-    assertEquals(
-        "Available Commands:\n" +
-            "/groups Print out the names of each available Group on the server\n" +
-            "/dm Start a DM with the given user.\n" +
-            "Parameters: user id\n" +
-            "/createGroup Create a group with the given name.\n" +
-            "Parameters: Group name\n" +
-            "/group Change your current chat room to the specified Group.\n" +
-            "Parameters: group name\n" +
-            "/circle Print out the handles of the active users on the server\n" +
-            "/help Lists all of the available commands.",
-        callback.getText());
+    assertTrue(callback.getText().contains("/groups Print out the names of each available Group on the server"));
+    assertTrue(callback.getText().contains("/creategroup Create a group with the given name.\n" +
+            "Parameters: Group name"));
+    assertTrue(callback.getText().contains("/group Change your current chat room to the specified Group.\n" +
+            "Parameters: group name"));
+    assertTrue(callback.getText().contains("/circle Print out the handles of the active users on the server"));
+    assertTrue(callback.getText().contains("/help Lists all of the available commands."));
     assertEquals(bot, callback.getName());
-
   }
 
   /**
