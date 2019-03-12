@@ -414,11 +414,10 @@ public class PrattleTest {
 
   @Test
   public void testDm() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
-    Message callback = waitingList2.remove();
-    System.out.println(callback.getText());
-    assertTrue(callback.getText().contains("DM:tuffaha-omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/dm tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/groups"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("DM:omar-tuffaha"));
   }
 
   @Test
@@ -450,13 +449,27 @@ public class PrattleTest {
     assertEquals(bot, callback.getName());
     assertTrue(callback.getText().contains("general"));
   }
+  @Test
+  public void testDMTaken() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
+    Message callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("DM:tuffaha-omar create"));
+    callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("Group name already taken"));
+    assertEquals(bot, callback.getName());
+  }
+
 
   @Test
-  public void testDmChannelNotAccessible() {
+  public void testDmChannelAccessibility() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm tuffaha"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/group DM:tuffaha-tuffaha"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("You are not authorized to use this DM"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/group DM:tuffaha-tuffaha"));
+    callback = waitingList2.remove();
+    assertTrue(callback.getText().contains("DM:tuffaha-tuffaha created"));
     assertEquals(bot, callback.getName());
   }
 
@@ -546,6 +559,13 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", "/group a"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("Group a does not exist"));
+  }
+
+  @Test
+  public void testClientIdDoesntMatch() {
+    Prattle.commandMessage(Message.makeCommandMessage("nonexistent", "/group general"));
+    //Message callback = waitingList1.remove();
+    //assertTrue(callback.getText().contains("Group a does not exist"));
   }
 
   @Test

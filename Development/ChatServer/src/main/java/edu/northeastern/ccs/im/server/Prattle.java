@@ -247,13 +247,17 @@ public abstract class Prattle {
 
     @Override
     public String apply(String groupName, String senderId) {
-      if (groupName == null || groupName.length() < 1) {
+      if (groupName == null) {
         return "No Group Name provided";
       }
       SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName.contains(senderId)) {
-        return "You are not authorized to use this DM";
+      if (groupName.length() > 3) {
+        if (groupName.substring(0, 3).equals("DM:")) {
+          if (!groupName.contains(senderId)) {
+            return "You are not authorized to use this DM";
+          }
+        }
       }
       if (targetGroup != null) {
         if (sender != null) {
@@ -300,7 +304,7 @@ public abstract class Prattle {
 
     @Override
     public String apply(String groupName, String senderId) {
-      if (groupName == null || groupName.length() < 1) {
+      if (groupName == null) {
         return "No Group Name provided";
       }
       try {
@@ -372,6 +376,7 @@ public abstract class Prattle {
       return "Lists all of the available commands.";
     }
   }
+
   /**
    * Starts a Dm.
    */
@@ -386,7 +391,7 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String userId, String senderId) {
-      if (userId == null || userId.length() < 1) {
+      if (userId == null) {
         return "No user provided to direct message.";
       }
       if (!active.contains(getClient(userId))) {
