@@ -165,7 +165,6 @@ public class CommandLineMainTest {
     IMConnection connect = Mockito.mock(IMConnection.class);
     KeyboardScanner scan = Mockito.mock(KeyboardScanner.class);
     MessageScanner mess = Mockito.mock(MessageScanner.class);
-    Message msg = Mockito.mock(Message.class);
     Mockito.when(connect.connectionActive()).thenReturn(true).thenReturn(false);
     Mockito.when(scan.hasNext()).thenReturn(true);
     Mockito.when(scan.nextLine()).thenReturn("/quit");

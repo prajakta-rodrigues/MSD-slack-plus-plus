@@ -14,7 +14,6 @@ import org.junit.Test;
 import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.client.Message;
 import edu.northeastern.ccs.im.client.MessageScanner;
-import org.mockito.Mockito;
 
 /**
  * The Class MessageScannerTest.

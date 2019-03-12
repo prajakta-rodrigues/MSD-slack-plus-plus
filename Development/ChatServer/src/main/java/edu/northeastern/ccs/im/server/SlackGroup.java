@@ -5,12 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Class representing a SlackGroup.  This class is subject to a lot of change once the database
- * is integrated.
+ * Class representing a SlackGroup.  This class is subject to a lot of change once the database is
+ * integrated.
  */
 public class SlackGroup {
+
   /**
-   * TODO: change String name to userId instead
    * Collection of moderators of this Group
    */
   private Set<String> moderators = Collections.synchronizedSet(new HashSet<>());
@@ -23,6 +23,7 @@ public class SlackGroup {
    * Constructs a group for the first time, instantiating the creator, the name of the group, and
    * the channelId. Meant to be constructed using the ChannelFactory to enforce validity of
    * attributes.
+   *
    * @param creatorId Identifier of the User who created this Group
    * @param groupName name of the group
    * @param channelId integer channel Id
@@ -33,11 +34,11 @@ public class SlackGroup {
     this.moderators.add(creatorId);
   }
 
-  public String getGroupName() {
+  String getGroupName() {
     return groupName;
   }
 
-  public int getChannelId() {
+  int getChannelId() {
     return channelId;
   }
 }
