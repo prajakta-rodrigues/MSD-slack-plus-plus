@@ -404,7 +404,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Create a group with the given name.\nParameters: Group name";
+      return "Start a DM with the given user.\nParameters: user id";
     }
   }
 }
