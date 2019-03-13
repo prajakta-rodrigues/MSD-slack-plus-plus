@@ -62,12 +62,12 @@ public class CommandLineMain {
   } 
 
   public IMConnection getConnection(String[] args, Readable input) {
-    try(Scanner in = new Scanner(input)) {
+	@SuppressWarnings("all")
+    Scanner in = new Scanner(input); 
     // Prompt the user to type in a username.
     System.out.println("What username would you like?");
     String username = in.nextLine();
     return new IMConnection(args[0], Integer.parseInt(args[1]), username);
-    }
     
   }
   
