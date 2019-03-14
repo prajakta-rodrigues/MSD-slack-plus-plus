@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.client;
+package edu.northeastern.ccs.im.server;
 
 /**
  * Each instance of this class represents a single transmission by our IM clients.
@@ -11,60 +11,6 @@ package edu.northeastern.ccs.im.client;
  * @version 1.3
  */
 public class Message {
-
-  /**
-   * List of the different possible message types.
-   */
-  protected enum MessageType {
-    /**
-     * Message sent by the user attempting to login using a specified username.
-     */
-    HELLO("HLO"),
-    /**
-     * Message sent by the server acknowledging a successful log in.
-     */
-    ACKNOWLEDGE("ACK"),
-    /**
-     * Message sent by the server rejecting a login attempt.
-     */
-    NO_ACKNOWLEDGE("NAK"),
-    /**
-     * Message sent by the user to start the logging out process and sent by the server once the
-     * logout process completes.
-     */
-    QUIT("BYE"),
-    /**
-     * Message whose contents is broadcast to all connected users.
-     */
-    BROADCAST("BCT"),
-    /**
-     * Message whose contents is a command to control the console.
-     */
-    COMMAND("CMD");
-    /**
-     * Store the short name of this message type.
-     */
-    private String tla;
-
-    /**
-     * Define the message type and specify its short name.
-     *
-     * @param abbrev Short name of this message type, as a String.
-     */
-    MessageType(String abbrev) {
-      tla = abbrev;
-    }
-
-    /**
-     * Return a representation of this Message as a String.
-     *
-     * @return Three letter abbreviation for this type of message.
-     */
-    @Override
-    public String toString() {
-      return tla;
-    }
-  }
 
   /**
    * The string sent when a field is null.
@@ -87,30 +33,42 @@ public class Message {
   private String msgText;
 
   /**
-   * Create a new message that contains actual IM text. The type of distribution is defined by the
-   * handle and we must also set the name of the message sender, message recipient, and the text to
-   * send.
+   * The channel this message was sent in.
+   */
+  private int channelId;
+
+  /**
+   * Create a new message that contains actual IM text and a channelId. The type of distribution is
+   * defined by the handle and we must also set the name of the message sender, message recipient,
+   * and the text to send.
    *
    * @param handle Handle for the type of message being created.
    * @param srcName Name of the individual sending this message
    * @param text Text of the instant message
+   * @param channelId id of the channel this message was sent in
    */
-  private Message(MessageType handle, String srcName, String text) {
+  private Message(MessageType handle, String srcName, String text, int channelId) {
     msgType = handle;
     // Save the properly formatted identifier for the user sending the
     // message.
     msgSender = srcName;
     // Save the text of the message.
     msgText = text;
+    // Save the id of the channel associated with this message
+    this.channelId = channelId;
   }
 
   /**
-   * Create simple command type message that does not include any data.
+   * Create a new message that contains actual IM text and a channelId. The type of distribution is
+   * defined by the handle and we must also set the name of the message sender, message recipient,
+   * and the text to send.
    *
    * @param handle Handle for the type of message being created.
+   * @param srcName Name of the individual sending this message
+   * @param text Text of the instant message
    */
-  private Message(MessageType handle) {
-    this(handle, null, null);
+  private Message(MessageType handle, String srcName, String text) {
+    this(handle, srcName, text, -1);
   }
 
   /**
@@ -122,12 +80,13 @@ public class Message {
    * server.
    */
   private Message(MessageType handle, String srcName) {
-    this(handle, srcName, null);
+    this(handle, srcName, null, -1);
   }
 
   /**
    * Create a new message to continue the logout process.
    *
+   * @param myName The name of the client that sent the quit message.
    * @return Instance of Message that specifies the process is logging out.
    */
   public static Message makeQuitMessage(String myName) {
@@ -139,10 +98,15 @@ public class Message {
    *
    * @param myName Name of the sender of this very important missive.
    * @param text Text of the message that will be sent to all users
+   * @param channelId The channel that this Message was sent in.
    * @return Instance of Message that transmits text to all logged in users.
    */
+  private static Message makeBroadcastMessage(String myName, String text, int channelId) {
+    return new Message(MessageType.BROADCAST, myName, text, channelId);
+  }
+
   public static Message makeBroadcastMessage(String myName, String text) {
-    return new Message(MessageType.BROADCAST, myName, text);
+    return makeBroadcastMessage(myName, text, -1);
   }
 
   /**
@@ -180,37 +144,16 @@ public class Message {
     if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
       result = makeQuitMessage(srcName);
     } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
-      result = makeLoginMessage(srcName);
+      result = makeSimpleLoginMessage(srcName);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
-      result = makeBroadcastMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.ACKNOWLEDGE.toString()) == 0) {
-      result = makeAcknowledgeMessage(srcName);
-    } else if (handle.compareTo(MessageType.NO_ACKNOWLEDGE.toString()) == 0) {
-      result = makeNoAcknowledgeMessage();
+      // to be replaced with static query
+      ClientRunnable sender = Prattle.getClient(srcName);
+      int activeChannelId = sender != null ? sender.getActiveChannelId() : -1;
+      result = makeBroadcastMessage(srcName, text, activeChannelId);
     } else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
       result = makeCommandMessage(srcName, text);
     }
     return result;
-  }
-
-  /**
-   * Create a new message to reject the bad login attempt.
-   *
-   * @return Instance of Message that rejects the bad login attempt.
-   */
-  public static Message makeNoAcknowledgeMessage() {
-    return new Message(MessageType.NO_ACKNOWLEDGE);
-  }
-
-  /**
-   * Create a new message to acknowledge that the user successfully logged as the name
-   * <code>srcName</code>.
-   *
-   * @param srcName Name the user was able to use to log in.
-   * @return Instance of Message that acknowledges the successful login.
-   */
-  public static Message makeAcknowledgeMessage(String srcName) {
-    return new Message(MessageType.ACKNOWLEDGE, srcName);
   }
 
   /**
@@ -219,17 +162,8 @@ public class Message {
    * @param myName Name of the user who has just logged in.
    * @return Instance of Message specifying a new friend has just logged in.
    */
-  public static Message makeLoginMessage(String myName) {
+  public static Message makeSimpleLoginMessage(String myName) {
     return new Message(MessageType.HELLO, myName);
-  }
-
-  /**
-   * Return the type of this message.
-   *
-   * @return MessageType for this message.
-   */
-  MessageType getType() {
-    return msgType;
   }
 
   /**
@@ -237,8 +171,17 @@ public class Message {
    *
    * @return String specifying the name of the message originator.
    */
-  public String getSender() {
+  public String getName() {
     return msgSender;
+  }
+
+  /**
+   * Return the channel id associated with this message.
+   *
+   * @return integer channel id.
+   */
+  public int getChannelId() {
+    return channelId;
   }
 
   /**
@@ -251,39 +194,12 @@ public class Message {
   }
 
   /**
-   * Determine if this message is an acknowledgement message.
-   *
-   * @return True if the message is an acknowledgement message; false otherwise.
-   */
-  public boolean isAcknowledge() {
-    return (msgType == MessageType.ACKNOWLEDGE);
-  }
-
-  /**
    * Determine if this message is broadcasting text to everyone.
    *
    * @return True if the message is a broadcast message; false otherwise.
    */
   public boolean isBroadcastMessage() {
     return (msgType == MessageType.BROADCAST);
-  }
-
-  /**
-   * Determine if this message contains text which the recipient should display.
-   *
-   * @return True if the message is an actual instant message; false if the message contains data
-   */
-  public boolean isDisplayMessage() {
-    return (msgType == MessageType.BROADCAST);
-  }
-
-  /**
-   * Determine if this message is sent by a new client to log-in to the server.
-   *
-   * @return True if the message is an initialization message; false otherwise
-   */
-  public boolean isInitialization() {
-    return (msgType == MessageType.HELLO);
   }
 
   /**
@@ -296,11 +212,20 @@ public class Message {
   }
 
   /**
+   * Determine if this message is sent by a new client to log-in to the server.
+   *
+   * @return True if the message is an initialization message; false otherwise.
+   */
+  public boolean isInitialization() {
+    return (msgType == MessageType.HELLO);
+  }
+
+  /**
    * Determine if this message is a message signing off from the IM server.
    *
    * @return True if the message is sent when signing off; false otherwise
    */
-  public boolean terminate() {
+  boolean terminate() {
     return (msgType == MessageType.QUIT);
   }
 

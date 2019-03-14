@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 
  * @version 1.3
  */
-public final class KeyboardScanner {
+public class KeyboardScanner {
 	/**
 	 * To make this class "non-blocking", we open the scanner instance in
 	 * another thread. As a result, any blocking will occur in the other class.

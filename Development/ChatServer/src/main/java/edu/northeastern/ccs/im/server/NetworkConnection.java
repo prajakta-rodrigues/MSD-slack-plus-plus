@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im;
+package edu.northeastern.ccs.im.server;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

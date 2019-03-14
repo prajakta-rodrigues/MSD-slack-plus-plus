@@ -17,8 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import edu.northeastern.ccs.im.Message;
-import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.NetworkConnection;
 
 /**
  * The Class NetworkConnectionTest.
@@ -26,9 +26,10 @@ import edu.northeastern.ccs.im.NetworkConnection;
 public class NetworkConnectionTest {
 
   private NetworkConnection networkConnection;
-  
+
   private String prattle = "edu.northeastern.ccs.im.server.Prattle";
-  
+
+
   private String ct = "createClientThread";
 
   /**
@@ -59,7 +60,7 @@ public class NetworkConnectionTest {
     networkConnection = new NetworkConnection(socketChannel);
 
   }
-  
+
   /**
    * Test network connection null exception.
    */
@@ -82,7 +83,7 @@ public class NetworkConnectionTest {
     networkConnection.sendMessage(msg);
 
   }
-  
+
   /**
    * Test send empty message.
    *
@@ -214,6 +215,4 @@ public class NetworkConnectionTest {
     Message message = Message.makeSimpleLoginMessage("myName");
     assertTrue(message.isInitialization());
   }
-
-
 }
