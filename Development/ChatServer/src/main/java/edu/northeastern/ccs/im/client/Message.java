@@ -40,7 +40,19 @@ public class Message {
     /**
      * Message whose contents is a command to control the console.
      */
-    COMMAND("CMD");
+    COMMAND("CMD"),
+
+    /**
+     * Message whose contents is the password for the user trying to login
+     */
+    AUTHENTICATE("AUT"),
+
+    /**
+     * Message whose contents is the user details for user trying to register
+     */
+    REGISTER("REG");
+
+
     /**
      * Store the short name of this message type.
      */
@@ -119,7 +131,7 @@ public class Message {
    *
    * @param handle Handle for the type of message being created.
    * @param srcName Argument for the message; at present this is the name used to log-in to the IM
-   * server.
+   *        server.
    */
   private Message(MessageType handle, String srcName) {
     this(handle, srcName, null);
@@ -157,6 +169,28 @@ public class Message {
   }
 
   /**
+   * Create a new authenticate message to interact with the application.
+   *
+   * @param myName Name of the sender of the sender of this command.
+   * @param text Text of the command.
+   * @return Instance of Message that is a command.
+   */
+  public static Message makeAuthenticateMessage(String myName, String text) {
+    return new Message(MessageType.AUTHENTICATE, myName, text);
+  }
+
+  /**
+   * Create a new register message to interact with the application.
+   *
+   * @param myName Name of the sender of the sender of this command.
+   * @param text Text of the command.
+   * @return Instance of Message that is a command.
+   */
+  public static Message makeRegisterMessage(String myName, String text) {
+    return new Message(MessageType.REGISTER, myName, text);
+  }
+
+  /**
    * Create a new message stating the name with which the user would like to login.
    *
    * @param text Name the user wishes to use as their screen name.
@@ -189,6 +223,10 @@ public class Message {
       result = makeNoAcknowledgeMessage();
     } else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
       result = makeCommandMessage(srcName, text);
+    } else if(handle.compareTo(MessageType.AUTHENTICATE.toString()) == 0) {
+      result = makeAuthenticateMessage(srcName, text);
+    } else if(handle.compareTo(MessageType.REGISTER.toString()) == 0) {
+      result = makeRegisterMessage(srcName, text);
     }
     return result;
   }
@@ -295,6 +333,24 @@ public class Message {
     return (msgType == MessageType.COMMAND);
   }
 
+  /**
+   * Determine if this message is a register message.
+   *
+   * @return True if the message is a register message; false otherwise.
+   */
+  public boolean isRegisterMessage() {
+    return (msgType == MessageType.REGISTER);
+  }
+
+  /**
+   * Determine if this message is a authentication message.
+   *
+   * @return True if the message is a authentication message; false otherwise.
+   */  
+  public boolean isAuthenticateMessage() {
+    return (msgType == MessageType.AUTHENTICATE);
+  }
+  
   /**
    * Determine if this message is a message signing off from the IM server.
    *

@@ -493,34 +493,6 @@ public class IMConnectionTest {
     }
   }
 
-  /**
-   * Test client user id.
-   *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws ClassNotFoundException the class not found exception
-   * @throws IllegalAccessException the illegal access exception
-   */
-  @Test
-  public void testClientUserId()
-      throws NoSuchFieldException, ClassNotFoundException, IllegalAccessException {
-    iMConnection = new IMConnection(localhost, 4545, "testingUser1");
-    iMConnection.connect();
-    Field activeClient = Class.forName(clientServerPrattle)
-        .getDeclaredField(actives);
-    activeClient.setAccessible(true);
-    @SuppressWarnings("unchecked")
-    ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
-        .get(null);
-    ClientRunnable clientRunnable = active.peek();
-
-    Field field = Class.forName(client)
-        .getDeclaredField("userId");
-    field.setAccessible(true);
-    field.set(clientRunnable, 123);
-    assert clientRunnable != null;
-    assertEquals(123, clientRunnable.getUserId());
-    iMConnection.disconnect();
-  }
 
   /**
    * Test client user name null.
