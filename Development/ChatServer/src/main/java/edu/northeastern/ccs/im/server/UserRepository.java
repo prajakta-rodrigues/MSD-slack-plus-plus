@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
-import org.mindrot.jbcrypt.BCrypt;
 
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
@@ -23,31 +22,6 @@ public class UserRepository {
 
 	public UserRepository(DataSource ds) {
 		this.dataSource = ds;
-	}
-
-	public User getUserById(int userId) {
-		User user = null;
-
-		try {
-			connection = dataSource.getConnection();
-			String query = "select * from slack.user where id = ?";
-			try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-				preparedStmt.setInt(1, userId);
-				try (ResultSet rs = preparedStmt.executeQuery()) {
-
-					List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-
-					for (Map<String, Object> result : results) {
-						user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-								String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
-					}
-					connection.close();
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return user;
 	}
 
 	public User getUserByUserName(String userName) {
@@ -93,10 +67,5 @@ public class UserRepository {
 		}
 		return result == 1;
 	}
-
-//  public static void main(String args[]) {
-//    UserRepository userRepository = new UserRepository(DatabaseConnection.getDataSource());
-//    System.out.println(BCrypt.hashpw("any", BCrypt.gensalt(8)));
-//  }
 
 }

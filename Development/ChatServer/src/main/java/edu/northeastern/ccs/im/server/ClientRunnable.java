@@ -133,7 +133,7 @@ public class ClientRunnable implements Runnable {
     Message sendMsg; 
     User user = userRepository.getUserByUserName(msg.getName());
     if(user == null) {
-    	sendMsg = Message.makeBroadcastMessage("Slackbot",
+    	sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
     	          "Illegal Message");
         enqueueMessage(sendMsg);
         return;
@@ -143,7 +143,7 @@ public class ClientRunnable implements Runnable {
       userId = user.getUserId();
       // Set that the client is initialized.
       authenticated = true;
-      sendMsg = Message.makeBroadcastMessage("Slackbot",
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
           "Succesful login. Continue to message");
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
@@ -177,7 +177,7 @@ public class ClientRunnable implements Runnable {
    * @param message Message to be sent immediately.
    * @return True if we sent the message successfully; false otherwise.
    */
-  private boolean sendMessage(Message message) {
+  protected boolean sendMessage(Message message) {
     ChatLogger.info("\t" + message);
     return connection.sendMessage(message);
   }
@@ -259,7 +259,7 @@ public class ClientRunnable implements Runnable {
     if (!initialized) {
       checkForInitialization();
     } else {
-      handleIncomingMessages();
+      handleIncomingMessages(); 
       handleOutgoingMessages();
     }
     // Finally, check if this client have been inactive for too long and,
@@ -280,7 +280,7 @@ public class ClientRunnable implements Runnable {
     // Client has already been initialized, so we should first check
     // if there are any input
     // messages.
-    Iterator<Message> messageIter = connection.iterator();
+    Iterator<Message> messageIter = connection.iterator(); 
     if (messageIter.hasNext()) {
       // Get the next message
       Message msg = messageIter.next();
@@ -324,13 +324,13 @@ private void registerUser(Message msg) {
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
     if (result) {
-      sendMsg = Message.makeBroadcastMessage("Slackbot", "Registration done. Continue to message.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
       authenticated = true;
  
     } else {
-      sendMsg = Message.makeBroadcastMessage("Slackbot", "Registration failed. Try connecting after some time.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration failed. Try connecting after some time.");
     }
     
     enqueueMessage(sendMsg);

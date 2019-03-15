@@ -15,7 +15,7 @@ import java.util.Scanner;
  * @version 1.3
  */
 public class CommandLineMain { 
-
+ 
   /**
    * This main method will perform all of the necessary actions for this phase of
    * the course project.
@@ -28,7 +28,9 @@ public class CommandLineMain {
     // Create the objects needed to read & write IM messages.
     commandLineMain.startMessaging(connect, connect.getKeyboardScanner() , connect.getMessageScanner());
     System.exit(0);
-  } 
+  }
+
+private static final String BOUNCER = "Bouncer"; 
  
   public void startMessaging(IMConnection connect, KeyboardScanner scan,
       MessageScanner mess) {
@@ -61,16 +63,16 @@ public class CommandLineMain {
 
 	private void handleMessage(Message message, IMConnection connect) {
 	  if (message.getText().equals("Wrong password for given username. Try again.") 
-	            && message.getSender().equals("Bouncer")) {
+	            && message.getSender().equals(BOUNCER)) {
 	          System.out.println(message.getText());
 	          System.out.println("Enter :authenticate your_password.");
 	        }
 	        else if (message.getText().equals("Enter Password for user") 
-	            && message.getSender().equals("Bouncer")) {
+	            && message.getSender().equals(BOUNCER )) {
 	          System.out.println("Enter :authenticate your_password.");
 	        }
 	        else if(message.getText().equals("User is not registered with system. Enter Password for user")
-	            && message.getSender().equals("Bouncer")) {
+	            && message.getSender().equals(BOUNCER)) {
 	          System.out.println("Enter :register your_password.");
 	        }
 	        else if (!message.getSender().equals(connect.getUserName())) {

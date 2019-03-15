@@ -14,7 +14,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<!-- Build an executable JAR -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.1.0</version>
@@ -42,11 +41,6 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version> 0.7.9</version>
-
-				<!--<configuration> -->
-				<!--<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile> -->
-				<!--<dataFile>${basedir}/target/coverage-reports/Jacoco-unit.exec</dataFile> -->
-				<!--</configuration> -->
 				<configuration>
 					<destFile>target/jacoco.exec</destFile>
 				</configuration>
@@ -71,25 +65,14 @@
 							<goal>report</goal>
 						</goals>
 						<configuration>
-							<!-- Sets the path to the file which contains the execution data. -->
+
 
 							<dataFile>target/jacoco.exec</dataFile>
-							<!-- Sets the output directory for the code coverage report. -->
+
 							<outputDirectory>target/jacoco-ut</outputDirectory>
 						</configuration>
 					</execution>
-					<!--<execution> -->
-					<!--<id>jacoco-initialize</id> -->
-					<!--<goals> -->
-					<!--<goal> prepare-agent </goal> -->
-					<!--</goals> -->
-					<!--</execution> -->
-					<!--<execution> -->
-					<!--<id>jacoco-site</id> -->
-					<!--<phase> package</phase> -->
-					<!--<goals> -->
-					<!--<goal>report</goal></goals> -->
-					<!--</execution> -->
+
 				</executions>
 			</plugin>
 			<plugin>
@@ -106,7 +89,6 @@
 
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

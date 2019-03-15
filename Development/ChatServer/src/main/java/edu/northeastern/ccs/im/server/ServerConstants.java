@@ -34,6 +34,8 @@ public class ServerConstants {
 	/** Name of the private user who handles bad requests. */
 	protected static final String BOUNCER_ID = "Bouncer";
 
+	public static final String SLACKBOT = "Slackbot";
+
 	/** Private constructor to prevent anyone from creating one of these. */
 	private ServerConstants() {
 		/* does nothing. */
