@@ -133,7 +133,7 @@ public class Message {
   
   
   /**
-   * Create a new authenticate message to register with the application.
+   * Create a new register message to register with the application.
    *
    * @param myName Name of the sender of the sender of this command.
    * @param text Text of the command.
@@ -262,7 +262,7 @@ public class Message {
    *
    * @return True if the message is sent when trying to authenticate; false otherwise
    */
-  boolean isAuthenticate() {
+  public boolean isAuthenticate() {
     return (msgType == MessageType.AUTHENTICATE);
   }
   
@@ -271,7 +271,7 @@ public class Message {
    *
    * @return True if the message is sent when trying to register; false otherwise
    */
-  boolean isRegister() {
+  public boolean isRegister() {
     return (msgType == MessageType.REGISTER);
   }
 

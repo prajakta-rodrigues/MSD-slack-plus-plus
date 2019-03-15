@@ -54,14 +54,14 @@ private static final String BOUNCER = "Bouncer";
         }
       }
       // Get any recent messages received from the IM server.
-      if (mess.hasNext()) {
+      if (mess.hasNext()) { 
         Message message = mess.next();
         handleMessage(message, connect);
       }
     }
   } 
 
-	private void handleMessage(Message message, IMConnection connect) {
+	public void handleMessage(Message message, IMConnection connect) {
 	  if (message.getText().equals("Wrong password for given username. Try again.") 
 	            && message.getSender().equals(BOUNCER)) {
 	          System.out.println(message.getText());

@@ -2,6 +2,7 @@ package prattleTests;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -65,6 +66,17 @@ public class UserRepositoryTest {
 		assertEquals(false, userRepository.addUser(new User(0 , "test" , "pwd")));
 	}
 	
+	
+	@Test
+	public void testGetUserByIdException() throws SQLException {
+		DataSource ds = Mockito.mock(DataSource.class);
+		userRepository = new UserRepository(ds);
+		Connection connection = Mockito.mock(Connection.class);
+		Mockito.when(ds.getConnection()).thenReturn(connection);
+		PreparedStatement value = Mockito.mock(PreparedStatement.class); 
+		Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+		assertNull(userRepository.getUserByUserName("tets"));
+	}
 	
 	
 }

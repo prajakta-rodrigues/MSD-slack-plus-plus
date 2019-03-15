@@ -356,4 +356,32 @@ public class MessageScannerTest {
   public void testMakeMessageBroadcast(){
     Message.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
   }
+  
+  @Test
+  public void testMakeAuthMessage() {
+	  Message msg = Message.makeAuthenticateMessage("this", "user");
+	  assertEquals("user", msg.getText());
+  }
+  
+  @Test
+  public void testMakeRegisterMessage() {
+	  Message msg = Message.makeRegisterMessage("this", "user");
+	  assertEquals("user", msg.getText());
+  }
+  
+  @Test
+  public void makeAuthMessage() {
+	  Message msg = Message.makeMessage(MessageType.AUTHENTICATE.toString(), "test", "test1");
+	  assertEquals("test", msg.getSender());
+	  assertEquals(true, msg.isAuthenticateMessage());
+	  assertEquals(false, msg.isRegisterMessage());
+  }
+  
+  @Test
+  public void makeRegisterMessage() {
+	  Message msg = Message.makeMessage(MessageType.REGISTER.toString(), "test", "test1");
+	  assertEquals("test", msg.getSender());
+	  assertEquals(true, msg.isRegisterMessage());
+	  assertEquals(false, msg.isAuthenticateMessage());
+  }
 }
