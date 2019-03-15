@@ -20,8 +20,10 @@ import edu.northeastern.ccs.im.client.MessageScanner;
  */
 public class MessageScannerTest {
 
+  /** The Constant TESTING. */
   private static final String TESTING = "testing";
 
+  /** The Constant TEST_USER. */
   private static final String TEST_USER = "testing";
 
   /**
@@ -258,7 +260,7 @@ public class MessageScannerTest {
   }
 
   /**
-   * Test make type quit message for client
+   * Test make type quit message for client.
    *
    * @throws NoSuchMethodException the no such method exception
    * @throws ClassNotFoundException the class not found exception
@@ -343,6 +345,14 @@ public class MessageScannerTest {
     assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
   }
 
+  /**
+   * Test make type none message client.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws InvocationTargetException the invocation target exception
+   */
   @Test
   public void testMakeTypeNoneMessageClient()  throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
@@ -352,23 +362,35 @@ public class MessageScannerTest {
     assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
   }
 
+  /**
+   * Test make message broadcast.
+   */
   @Test
   public void testMakeMessageBroadcast(){
     Message.makeMessage(MessageType.BROADCAST.toString(), "test", "text");
   }
   
+  /**
+   * Test make auth message.
+   */
   @Test
   public void testMakeAuthMessage() {
 	  Message msg = Message.makeAuthenticateMessage("this", "user");
 	  assertEquals("user", msg.getText());
   }
   
+  /**
+   * Test make register message.
+   */
   @Test
   public void testMakeRegisterMessage() {
 	  Message msg = Message.makeRegisterMessage("this", "user");
 	  assertEquals("user", msg.getText());
   }
   
+  /**
+   * Make auth message.
+   */
   @Test
   public void makeAuthMessage() {
 	  Message msg = Message.makeMessage(MessageType.AUTHENTICATE.toString(), "test", "test1");
@@ -377,6 +399,9 @@ public class MessageScannerTest {
 	  assertEquals(false, msg.isRegisterMessage());
   }
   
+  /**
+   * Make register message.
+   */
   @Test
   public void makeRegisterMessage() {
 	  Message msg = Message.makeMessage(MessageType.REGISTER.toString(), "test", "test1");

@@ -14,18 +14,37 @@ import javax.sql.DataSource;
 
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class UserRepository.
+ */
 public class UserRepository {
 
+	/** The data source. */
 	private DataSource dataSource;
+	
+	/** The connection. */
 	private Connection connection;
+	
+	/** The Constant LOGGER. */
 	private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
 
+	/**
+	 * Instantiates a new user repository.
+	 *
+	 * @param ds the datasource
+	 */
 	public UserRepository(DataSource ds) {
 		this.dataSource = ds;
 	}
 
+	/**
+	 * Gets the user by user name.
+	 *
+	 * @param userName the user name
+	 * @return the user by user name
+	 */
 	public User getUserByUserName(String userName) {
-		User user = null;
+		User user = null; 
 		try {
 			connection = dataSource.getConnection();
 			String query = "select * from slack.user where handle = ?";
@@ -48,6 +67,12 @@ public class UserRepository {
 		return user;
 	}
 
+	/**
+	 * Adds the user.
+	 *
+	 * @param user the user
+	 * @return true, if successful
+	 */
 	public boolean addUser(User user) {
 		int result = 0;
 		try {

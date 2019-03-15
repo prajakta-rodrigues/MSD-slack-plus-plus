@@ -17,11 +17,20 @@ import com.mysql.jdbc.Connection;
 import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.UserRepository;
 
+/**
+ * The Class UserRepositoryTest.
+ */
 public class UserRepositoryTest {
 
 	
+	/** The user repository. */
 	private UserRepository userRepository;
 	
+	/**
+	 * Test add user success.
+	 *
+	 * @throws SQLException the SQL exception
+	 */
 	@Test
 	public void testAddUserSuccess() throws SQLException {
 		DataSource ds = Mockito.mock(DataSource.class);
@@ -38,6 +47,11 @@ public class UserRepositoryTest {
 		assertEquals(true, userRepository.addUser(new User(0 , "test" , "pwd")));
 	}
 	
+	/**
+	 * Test add user fail.
+	 *
+	 * @throws SQLException the SQL exception
+	 */
 	@Test
 	public void testAddUserFail() throws SQLException {
 		DataSource ds = Mockito.mock(DataSource.class);
@@ -55,6 +69,11 @@ public class UserRepositoryTest {
 	}
 	
 	
+	/**
+	 * Test add user exception.
+	 *
+	 * @throws SQLException the SQL exception
+	 */
 	@Test
 	public void testAddUserException() throws SQLException {
 		DataSource ds = Mockito.mock(DataSource.class);
@@ -67,6 +86,11 @@ public class UserRepositoryTest {
 	}
 	
 	
+	/**
+	 * Test get user by id exception.
+	 *
+	 * @throws SQLException the SQL exception
+	 */
 	@Test
 	public void testGetUserByIdException() throws SQLException {
 		DataSource ds = Mockito.mock(DataSource.class);
