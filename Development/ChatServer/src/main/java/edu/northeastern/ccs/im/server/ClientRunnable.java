@@ -5,6 +5,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
+import org.mindrot.jbcrypt.BCrypt;
+
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
  * Instances are created when the client signs-on with the server. After instantiation, it is
@@ -46,8 +50,7 @@ public class ClientRunnable implements Runnable {
   private boolean initialized;
 
   /**
-   * Whether this client has been terminated, either because he quit or due to prolonged
-   * inactivity.
+   * Whether this client has been terminated, either because he quit or due to prolonged inactivity.
    */
   private boolean terminate;
 
@@ -66,6 +69,13 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
+  private UserRepository userRepository;
+
+  /**
+   * Whether this client has been authenticated to send messages to other users
+   */
+  private boolean authenticated;
+
   /**
    * Create a new thread with which we will communicate with this single client.
    *
@@ -83,26 +93,69 @@ public class ClientRunnable implements Runnable {
     // Mark that the client is active now and start the timer until we
     // terminate for inactivity.
     timer = new ClientTimer();
+
+    authenticated = false;
+
+    userRepository = new UserRepository(DatabaseConnection.getDataSource());
   }
 
   /**
    * Check to see for an initialization attempt and process the message sent.
    */
-  private void checkForInitialization() {
+  protected void checkForInitialization() {
     // Check if there are any input messages to read
     Iterator<Message> messageIter = connection.iterator();
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
-      if (setUserName(msg.getName())) {
-        // Update the time until we terminate this client due to inactivity.
-        timer.updateAfterInitialization();
-        // Set that the client is initialized.
-        initialized = true;
-      } else {
-        initialized = false;
+      Message sendMsg;
+      if (null == msg.getName()) {
+        return;
       }
+      if (userExists(msg.getName())) {
+        sendMsg =
+            Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID, "Enter Password for user");
+      } else {
+        sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
+            "User is not registered with system. Enter Password for user");
+      }
+      
+      initialized = true;
+      // Update the time until we terminate this client due to inactivity.
+      timer.updateAfterInitialization();
+      enqueueMessage(sendMsg);
+      setName(msg.getName());
+      authenticated = false;
     }
+  }
+
+  private void authenticateUser(Message msg) {
+    Message sendMsg; 
+    User user = userRepository.getUserByUserName(msg.getName());
+    if(user == null) {
+    	sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+    	          "Illegal Message");
+        enqueueMessage(sendMsg);
+        return;
+    }
+    if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
+      setName(user.getUserName());
+      userId = user.getUserId();
+      // Set that the client is initialized.
+      authenticated = true;
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "Succesful login. Continue to message");
+    } else {
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
+          "Wrong password for given username. Try again.");
+      authenticated = false;
+    }
+    enqueueMessage(sendMsg);
+
+  }
+
+  private boolean userExists(String userName) {
+    return null != userRepository.getUserByUserName(userName);
   }
 
   /**
@@ -124,7 +177,7 @@ public class ClientRunnable implements Runnable {
    * @param message Message to be sent immediately.
    * @return True if we sent the message successfully; false otherwise.
    */
-  private boolean sendMessage(Message message) {
+  protected boolean sendMessage(Message message) {
     ChatLogger.info("\t" + message);
     return connection.sendMessage(message);
   }
@@ -206,7 +259,7 @@ public class ClientRunnable implements Runnable {
     if (!initialized) {
       checkForInitialization();
     } else {
-      handleIncomingMessages();
+      handleIncomingMessages(); 
       handleOutgoingMessages();
     }
     // Finally, check if this client have been inactive for too long and,
@@ -227,7 +280,7 @@ public class ClientRunnable implements Runnable {
     // Client has already been initialized, so we should first check
     // if there are any input
     // messages.
-    Iterator<Message> messageIter = connection.iterator();
+    Iterator<Message> messageIter = connection.iterator(); 
     if (messageIter.hasNext()) {
       // Get the next message
       Message msg = messageIter.next();
@@ -240,13 +293,7 @@ public class ClientRunnable implements Runnable {
       } else {
         // Check if the message is legal formatted
         if (messageChecks(msg)) {
-          // Check for our "special messages"
-          if (msg.isBroadcastMessage()) {
-            // Check for our "special messages"
-            Prattle.broadcastMessage(msg);
-          } else if (msg.isCommandMessage()) {
-            Prattle.commandMessage(msg);
-          }
+          respondToMessage(msg);
         } else {
           Message sendMsg;
           sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
@@ -255,6 +302,38 @@ public class ClientRunnable implements Runnable {
         }
       }
     }
+  }
+
+  private void respondToMessage(Message msg) {
+	// Check for our "special messages"
+      if (authenticated && msg.isBroadcastMessage()) {
+        // Check for our "special messages"
+        Prattle.broadcastMessage(msg);
+      } else if (authenticated && msg.isCommandMessage()) {
+        Prattle.commandMessage(msg);
+      } else if (msg.isAuthenticate()) {
+        authenticateUser(msg);
+      } else if (msg.isRegister()) {
+        registerUser(msg);
+      }	
+}
+
+private void registerUser(Message msg) {
+    Message sendMsg;
+    int id = hashCode();
+    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
+    boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
+    if (result) {
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration done. Continue to message.");
+      setName(msg.getName());
+      userId = id;
+      authenticated = true;
+ 
+    } else {
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration failed. Try connecting after some time.");
+    }
+    
+    enqueueMessage(sendMsg);
   }
 
   /**

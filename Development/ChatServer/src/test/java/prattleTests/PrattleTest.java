@@ -53,9 +53,19 @@ public class PrattleTest {
   @SuppressWarnings("unchecked")
   public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
-    cr1 = new ClientRunnable(networkConnection1);
+    cr1 = new ClientRunnable(networkConnection1) {
+    	@Override()
+    	protected void checkForInitialization() {
+
+    	}
+    };
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
-    cr2 = new ClientRunnable(networkConnection2);
+    cr2 = new ClientRunnable(networkConnection2){
+    	@Override()
+    	protected void checkForInitialization() {
+
+    	}
+    };
     cr1.setName("omar");
     cr2.setName("tuffaha");
     List<Message> messageQueue1 = new ArrayList<>();
@@ -78,12 +88,22 @@ public class PrattleTest {
     Field activeClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
             .getDeclaredField("active");
     activeClient.setAccessible(true);
+    Field authenticate = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("authenticated");
+    authenticate.setAccessible(true);
+    authenticate.set(cr1, true);
+    authenticate.set(cr2, true);
+    
+    Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("initialized");
+    initialized.setAccessible(true);
+    initialized.set(cr1, true);
+    initialized.set(cr2, true);
+    
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
             .get(null);
     active.add(cr1);
     active.add(cr2);
 
-    Field wl = cr1.getClass().getDeclaredField("waitingList");
+    Field wl = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("waitingList");
     wl.setAccessible(true);
     waitingList1 = (ConcurrentLinkedQueue<Message>)wl.get(cr1);
     waitingList2 = (ConcurrentLinkedQueue<Message>)wl.get(cr2);

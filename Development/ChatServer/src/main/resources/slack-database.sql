@@ -39,3 +39,11 @@ BEGIN
                     SET MESSAGE_TEXT = 'Direct messaging between two users already exists';
 	end if;
 END//
+
+
+ALTER TABLE slack.user MODIFY COLUMN password VARCHAR(100);
+
+
+
+ALTER TABLE slack.user
+ ADD CONSTRAINT unique_handle UNIQUE (handle);

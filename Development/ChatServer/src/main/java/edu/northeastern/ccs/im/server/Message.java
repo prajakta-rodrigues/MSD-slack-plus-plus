@@ -119,6 +119,29 @@ public class Message {
   public static Message makeCommandMessage(String myName, String text) {
     return new Message(MessageType.COMMAND, myName, text);
   }
+  
+  /**
+   * Create a new authenticate message to authenticate with the application.
+   *
+   * @param myName Name of the sender of the sender of this command.
+   * @param text Text of the command.
+   * @return Instance of Message that is a command.
+   */
+  public static Message makeAuthenticateMessage(String myName, String text) {
+    return new Message(MessageType.AUTHENTICATE, myName, text);
+  }
+  
+  
+  /**
+   * Create a new register message to register with the application.
+   *
+   * @param myName Name of the sender of the sender of this command.
+   * @param text Text of the command.
+   * @return Instance of Message that is a command.
+   */
+  public static Message makeRegisterMessage(String myName, String text) {
+    return new Message(MessageType.REGISTER, myName, text);
+  }
 
   /**
    * Create a new message stating the name with which the user would like to login.
@@ -152,7 +175,12 @@ public class Message {
       result = makeBroadcastMessage(srcName, text, activeChannelId);
     } else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
       result = makeCommandMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.AUTHENTICATE.toString()) == 0) {
+      result = makeAuthenticateMessage(srcName, text);
+    }else if (handle.compareTo(MessageType.REGISTER.toString()) == 0) {
+      result = makeRegisterMessage(srcName, text);
     }
+    
     return result;
   }
 
@@ -227,6 +255,24 @@ public class Message {
    */
   boolean terminate() {
     return (msgType == MessageType.QUIT);
+  }
+  
+  /**
+   * Determine if this message is a message trying to authenticate with the IM server.
+   *
+   * @return True if the message is sent when trying to authenticate; false otherwise
+   */
+  public boolean isAuthenticate() {
+    return (msgType == MessageType.AUTHENTICATE);
+  }
+  
+  /**
+   * Determine if this message is a message trying to register with the IM server.
+   *
+   * @return True if the message is sent when trying to register; false otherwise
+   */
+  public boolean isRegister() {
+    return (msgType == MessageType.REGISTER);
   }
 
   /**

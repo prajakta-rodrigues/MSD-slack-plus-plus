@@ -197,11 +197,17 @@ public class IMConnection {
     Message sentMessage;
     if (message.charAt(0) == '/') {
       sentMessage = Message.makeCommandMessage(userName, message);
-    } else {
+    } else if(message.startsWith(":authenticate ")) {
+      sentMessage = Message.makeAuthenticateMessage(userName, message.replaceFirst(":authenticate ", ""));
+    } else if(message.startsWith(":register ")) {
+      sentMessage = Message.makeRegisterMessage(userName, message.replaceFirst(":register ", ""));
+    }
+    else {
       sentMessage = Message.makeBroadcastMessage(userName, message);
     }
     socketConnection.print(sentMessage);
   }
+  
 
   /**
    * Send a message to log in to the IM server using the given username. For the moment, you will

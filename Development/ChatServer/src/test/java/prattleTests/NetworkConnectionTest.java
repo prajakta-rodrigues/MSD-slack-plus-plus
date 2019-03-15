@@ -1,5 +1,7 @@
 package prattleTests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -18,6 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 
 /**
@@ -215,4 +218,37 @@ public class NetworkConnectionTest {
     Message message = Message.makeSimpleLoginMessage("myName");
     assertTrue(message.isInitialization());
   }
+  
+  @Test
+  public void testAuthMessage() {
+	  Message message = Message.makeAuthenticateMessage("test", "text");
+	  assertEquals("text", message.getText());
+	  assertTrue(message.isAuthenticate());
+  }
+  
+  @Test
+  public void testRegisterMessage() {
+	  Message message = Message.makeRegisterMessage("test", "text");
+	  assertEquals("text", message.getText());
+	  assertTrue(message.isRegister());
+  }
+  
+  @Test
+  public void makeAuthMessage() {
+	  Message message = Message.makeMessage(MessageType.AUTHENTICATE.toString(), "b" , "txt");
+	  assertTrue(message.isAuthenticate());
+  }
+  
+  @Test
+  public void makeRegisterMessage() {
+	  Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b" , "txt");
+	  assertTrue(message.isRegister());
+  }
+  
+  @Test
+  public void makeErrorMessage() {
+	  Message message = Message.makeMessage("t", "b" , "txt");
+	  assertNull(message);
+  }
+  
 }
