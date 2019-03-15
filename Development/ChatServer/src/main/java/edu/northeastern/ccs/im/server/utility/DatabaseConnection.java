@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.utility;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,46 +12,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sql.DataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 /**
  * The Class DatabaseConnection.
  */
 public class DatabaseConnection {
 
-  private static Connection con;
-  
+
   private static final String HOST = ConfigurationProperties.getInstance().getProperty("dbhost");
-  
+
   private static final String DB_NAME = ConfigurationProperties.getInstance().getProperty("dbname");
-  
-  private static final String DRIVER = ConfigurationProperties.getInstance().getProperty("dbdriver");
-  
-  private static final String USERNAME = ConfigurationProperties.getInstance().getProperty("dbusername");
-  
-  private static final String PASSWORD = ConfigurationProperties.getInstance().getProperty("dbpasword");
-  
+
+  private static final String USERNAME =
+      ConfigurationProperties.getInstance().getProperty("dbusername");
+
+  private static final String PASSWORD =
+      ConfigurationProperties.getInstance().getProperty("dbpasword");
+
   private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
 
   /**
    * To restrict instantiation of class.
    */
   private DatabaseConnection() {
-    
-  }
-  
-  /**
-   * Creates the connection to database.
-   */
-  private static void createConnection() {
-    try {
-      Class.forName(DRIVER);
-      con = DriverManager.getConnection(
-          String.format("%s%s?useSSL=false",HOST , DB_NAME), USERNAME, PASSWORD);
-    } catch (Exception e) {
-      LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-  }
 
+  }
 
   /**
    * Maps result Set into list.
@@ -76,20 +64,16 @@ public class DatabaseConnection {
     return list;
   }
 
-  
   /**
    * Gets the database connection.
    *
    * @return the connection
    */
-  public static Connection getConnection() {
-    try {
-      if (con == null || con.isClosed()) {
-        createConnection();
-      }
-    } catch (SQLException e) {
-      LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    return con;
+  public static DataSource getDataSource() {
+    MysqlDataSource ds = new MysqlDataSource();
+    ds.setUrl(String.format("%s%s?useSSL=false", HOST, DB_NAME));
+    ds.setUser(USERNAME);
+    ds.setPassword(PASSWORD);
+    return ds;
   }
 }

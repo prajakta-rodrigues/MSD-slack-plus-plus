@@ -22,8 +22,18 @@ public enum MessageType {
   /**
    * Message whose intention is to allow the user to interact with the system
    */
-  COMMAND("CMD");
-
+  COMMAND("CMD"),
+  
+  /**
+   * Message whose intention is to authenticate with the system
+   */
+  AUTHENTICATE("AUT"),
+  
+  /**
+   * Message whose intention is to register with the system
+   */
+  REGISTER("REG");
+  
   /**
    * Store the short name of this message type.
    */

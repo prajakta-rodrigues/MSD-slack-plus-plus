@@ -29,24 +29,24 @@
 				</configuration>
 			</plugin>
 			<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-surefire-plugin</artifactId>
-			<version>2.16</version>
-			<configuration>
-				<reuseForks>false</reuseForks>
-				<forkCount>1</forkCount>
-			</configuration>
-		</plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.16</version>
+				<configuration>
+					<reuseForks>false</reuseForks>
+					<forkCount>1</forkCount>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version> 0.7.9</version>
 
-				<!--<configuration>-->
-					<!--<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>-->
-					<!--<dataFile>${basedir}/target/coverage-reports/Jacoco-unit.exec</dataFile>-->
-				<!--</configuration>-->
+				<!--<configuration> -->
+				<!--<destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile> -->
+				<!--<dataFile>${basedir}/target/coverage-reports/Jacoco-unit.exec</dataFile> -->
+				<!--</configuration> -->
 				<configuration>
 					<destFile>target/jacoco.exec</destFile>
 				</configuration>
@@ -78,18 +78,18 @@
 							<outputDirectory>target/jacoco-ut</outputDirectory>
 						</configuration>
 					</execution>
-					<!--<execution>-->
-						<!--<id>jacoco-initialize</id>-->
-						<!--<goals>-->
-							<!--<goal> prepare-agent </goal>-->
-						<!--</goals>-->
-					<!--</execution>-->
-					<!--<execution>-->
-						<!--<id>jacoco-site</id>-->
-						<!--<phase> package</phase>-->
-						<!--<goals>-->
-							<!--<goal>report</goal></goals>-->
-					<!--</execution>-->
+					<!--<execution> -->
+					<!--<id>jacoco-initialize</id> -->
+					<!--<goals> -->
+					<!--<goal> prepare-agent </goal> -->
+					<!--</goals> -->
+					<!--</execution> -->
+					<!--<execution> -->
+					<!--<id>jacoco-site</id> -->
+					<!--<phase> package</phase> -->
+					<!--<goals> -->
+					<!--<goal>report</goal></goals> -->
+					<!--</execution> -->
 				</executions>
 			</plugin>
 			<plugin>
@@ -136,6 +136,13 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.39</version>
 		</dependency>
+		<dependency>
+			<groupId>org.mindrot</groupId>
+			<artifactId>jbcrypt</artifactId>
+			<version>0.3m</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>

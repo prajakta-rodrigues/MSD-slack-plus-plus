@@ -54,14 +54,33 @@ public class CommandLineMain {
       // Get any recent messages received from the IM server.
       if (mess.hasNext()) {
         Message message = mess.next();
-        if (!message.getSender().equals(connect.getUserName())) {
-          System.out.println(message.getSender() + ": " + message.getText());
-        }
+        handleMessage(message, connect);
       }
     }
   } 
 
-  public IMConnection getConnection(String[] args, Readable input) {
+	private void handleMessage(Message message, IMConnection connect) {
+	  if (message.getText().equals("Wrong password for given username. Try again.") 
+	            && message.getSender().equals("Bouncer")) {
+	          System.out.println(message.getText());
+	          System.out.println("Enter :authenticate your_password.");
+	        }
+	        else if (message.getText().equals("Enter Password for user") 
+	            && message.getSender().equals("Bouncer")) {
+	          System.out.println("Enter :authenticate your_password.");
+	        }
+	        else if(message.getText().equals("User is not registered with system. Enter Password for user")
+	            && message.getSender().equals("Bouncer")) {
+	          System.out.println("Enter :register your_password.");
+	        }
+	        else if (!message.getSender().equals(connect.getUserName())) {
+	          System.out.println(message.getSender() + ": " + message.getText());
+	        }
+
+	
+}
+
+public IMConnection getConnection(String[] args, Readable input) {
 	@SuppressWarnings("all")
     Scanner in = new Scanner(input); 
     // Prompt the user to type in a username.
