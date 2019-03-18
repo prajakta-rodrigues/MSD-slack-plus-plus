@@ -137,7 +137,7 @@ public class ClientRunnableTest {
 		userRepo.setAccessible(true);
 		UserRepository u = (UserRepository)userRepo.get(client);
 		
-		Field dataSrc = Class.forName("edu.northeastern.ccs.im.server.repositories.UserRepository")
+		Field dataSrc = Class.forName("edu.northeastern.ccs.im.server.repositories.Repository")
 				.getDeclaredField("dataSource");
 		dataSrc.setAccessible(true);
 		dataSrc.set(u, ds);
