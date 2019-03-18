@@ -1,6 +1,5 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.repositories;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -8,34 +7,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.sql.DataSource;
 
 
+import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.repositories.Repository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
  * The Class UserRepository.
  */
-public class UserRepository {
+public class UserRepository extends Repository {
 
-	/** The data source. */
-	private DataSource dataSource;
-	
-	/** The connection. */
-	private Connection connection;
-	
-	/** The Constant LOGGER. */
-	private static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
-
-	/**
-	 * Instantiates a new user repository.
-	 *
-	 * @param ds the datasource
-	 */
-	public UserRepository(DataSource ds) {
-		this.dataSource = ds;
-	}
+  public UserRepository(DataSource ds) {
+    super(ds);
+  }
 
 	/**
 	 * Gets the user by user name.

@@ -15,8 +15,6 @@ public class ConfigurationProperties {
   private static ConfigurationProperties singleton;
   
   private Properties prop;
-  
-  private InputStream inputStream;
 
   /**
    * Instantiates a new configuration properties.
@@ -25,7 +23,7 @@ public class ConfigurationProperties {
     prop = new Properties();
     String propFileName = "config.properties";
     try {
-      inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+      InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
 
       if (inputStream != null) {
         prop.load(inputStream);
@@ -64,7 +62,4 @@ public class ConfigurationProperties {
     }
     return prop.getProperty(propertyName);
   }
-
-
-
 }

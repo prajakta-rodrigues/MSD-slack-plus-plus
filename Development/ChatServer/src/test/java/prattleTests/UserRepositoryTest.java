@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import com.mysql.jdbc.Connection;
 
 import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
 /**
  * The Class UserRepositoryTest.

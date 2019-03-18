@@ -4,10 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mindrot.jbcrypt.BCrypt;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.mysql.jdbc.Connection;
@@ -16,8 +14,6 @@ import com.mysql.jdbc.PreparedStatement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -30,10 +26,8 @@ import javax.sql.DataSource;
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.ClientTimer;
 
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -143,7 +137,7 @@ public class ClientRunnableTest {
 		userRepo.setAccessible(true);
 		UserRepository u = (UserRepository)userRepo.get(client);
 		
-		Field dataSrc = Class.forName("edu.northeastern.ccs.im.server.UserRepository")
+		Field dataSrc = Class.forName("edu.northeastern.ccs.im.server.repositories.UserRepository")
 				.getDeclaredField("dataSource");
 		dataSrc.setAccessible(true);
 		dataSrc.set(u, ds);
