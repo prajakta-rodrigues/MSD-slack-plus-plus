@@ -1,3 +1,4 @@
+DROP schema if exists slack;
 create schema slack;
 
 create table slack.user(id int(15) primary key, handle varchar(30), first_name varchar(30), last_name varchar(30),
@@ -40,6 +41,7 @@ BEGIN
 	end if;
 END//
 
+delimiter ;
 
 ALTER TABLE slack.user MODIFY COLUMN password VARCHAR(100);
 

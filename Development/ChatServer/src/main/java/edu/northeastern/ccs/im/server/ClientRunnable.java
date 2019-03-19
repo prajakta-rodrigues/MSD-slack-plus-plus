@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**

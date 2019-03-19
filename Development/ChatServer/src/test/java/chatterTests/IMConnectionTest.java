@@ -810,5 +810,4 @@ public class IMConnectionTest {
     msgChecksMethod.setAccessible(true);
     msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
   }
-
 }
