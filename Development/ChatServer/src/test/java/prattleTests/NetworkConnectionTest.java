@@ -337,14 +337,6 @@ public class NetworkConnectionTest {
   }
 
   @Test
-  public void hasNextMessageEmpty() throws IOException {
-    SocketChannel socketChannel = SocketChannel.open();
-    NetworkConnection networkConnection = new NetworkConnection(socketChannel);
-    Iterator<Message> iterator = networkConnection.iterator();
-    assertFalse(iterator.hasNext());
-  }
-
-  @Test
   public void hasNextMessageNotEmpty() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IOException, IllegalArgumentException, IllegalAccessException {
     SocketChannel socketChannel = SocketChannel.open();
