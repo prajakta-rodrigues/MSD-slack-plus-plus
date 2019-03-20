@@ -5,7 +5,6 @@ import org.mockito.Mockito;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
 import java.io.StringReader;
-import java.util.NoSuchElementException;
 import edu.northeastern.ccs.im.client.CommandLineMain;
 import edu.northeastern.ccs.im.client.IMConnection;
 import edu.northeastern.ccs.im.client.KeyboardScanner;
@@ -45,14 +44,50 @@ public class CommandLineMainTest {
 
 	}
 
-	@Test(expected = NoSuchElementException.class)
+	@Test
 	public void testGetUserNameAndNotConnected() {
-
+		
 		String[] args = new String[2];
 		args[0] = "localhost";
 		args[1] = "4545";
-		StringReader reader = new StringReader("testUser1");
-		commandLineMain = new CommandLineMain();
+		StringReader reader = new StringReader("testUser1\n");
+		commandLineMain = new CommandLineMain() {
+			private int i = 0;
+			@Override
+			protected boolean checkIfConnected(IMConnection connect) {
+				if(i == 0) {
+					i++;
+				return false;
+				}else {
+					return true;
+				}
+			}
+			
+			@Override
+			public IMConnection getConnection(String []args, Readable input) {
+				return null;	
+			}
+		};
+		commandLineMain.getUserNameAndConnect(args, reader);
+	}
+	
+	@Test
+	public void testCheckIfConnected() {
+		String[] args = new String[2];
+		args[0] = "localhost";
+		args[1] = "4145";
+		StringReader reader = new StringReader("testUser1\n");
+		
+		IMConnection imconnection = Mockito.mock(IMConnection.class);
+		commandLineMain = new CommandLineMain() {
+			private int i = 0;
+	
+			@Override
+			public IMConnection getConnection(String []args, Readable input) {
+				return imconnection;	
+			}
+		};
+		Mockito.when(imconnection.connect()).thenReturn(true);
 		commandLineMain.getUserNameAndConnect(args, reader);
 	}
 
@@ -251,5 +286,6 @@ public class CommandLineMainTest {
 		Mockito.when(connect.getUserName()).thenReturn("User1");
 		commandLineMain.handleMessage(message, connect);
 	}
+	
 	
 }

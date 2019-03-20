@@ -1,5 +1,6 @@
 package prattleTests;
 
+import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.Prattle;
 import java.lang.reflect.Field;
@@ -8,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,6 +21,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import edu.northeastern.ccs.im.server.Message;
@@ -252,6 +257,23 @@ public class PrattleTest {
   }
 
   /**
+   * Logger test.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   */
+  @Test
+  public void loggerTest() throws NoSuchMethodException {
+    Constructor<ChatLogger> constructor = ChatLogger.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    try {
+      constructor.newInstance();
+      assert false;
+    } catch (Exception e) {
+      assert true;
+    }
+  }
+  
+  /**
    * Test buddy.
    *
    * @throws ClassNotFoundException the class not found exception
@@ -265,6 +287,7 @@ public class PrattleTest {
     String bud = "edu.northeastern.ccs.im.client.Buddy";
     String daffa = "daffa";
     String jaffa = "jaffa";
+    ChatLogger.warning("testing");
     Buddy buddy = Buddy.makeTestBuddy(jaffa);
     String name = buddy.getUserName();
     Method method1 = Class.forName(bud).getDeclaredMethod("getBuddy", String.class);
@@ -281,6 +304,15 @@ public class PrattleTest {
     Assert.assertEquals(name, jaffa);
   }
 
+  @Test
+  public void testStopServer() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+	  Field isReady = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("isReady");
+	  isReady.setAccessible(true);
+	  isReady.set(null, true);
+	  Prattle.stopServer();
+	  assertEquals(false, (boolean)isReady.get(null));
+  }
+  
   /**
    * Test network connection socket channel 1.
    *
@@ -615,4 +647,5 @@ public class PrattleTest {
     Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
     assertTrue(waitingList2.isEmpty());
   }
+  
 }

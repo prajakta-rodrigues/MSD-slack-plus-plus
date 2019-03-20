@@ -253,7 +253,7 @@ public class Message {
    *
    * @return True if the message is sent when signing off; false otherwise
    */
-  boolean terminate() {
+  public boolean terminate() {
     return (msgType == MessageType.QUIT);
   }
   

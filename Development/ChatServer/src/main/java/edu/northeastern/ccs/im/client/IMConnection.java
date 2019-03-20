@@ -216,7 +216,7 @@ public class IMConnection {
    *
    * @return True if the connection was successfully made; false otherwise.
    */
-  private boolean login() {
+  protected boolean login() {
     // Now log in using this name.
     Message loginMessage = Message.makeLoginMessage(userName);
     try {

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -100,7 +102,39 @@ public class UserRepositoryTest {
 		PreparedStatement value = Mockito.mock(PreparedStatement.class); 
 		Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
 		assertNull(userRepository.getUserByUserName("tets"));
+	} 
+	
+	/**
+	 * Test get user by id success
+	 * @throws SQLException 
+	 */
+	@Test
+	public void testGetUserByIdSuccess() throws SQLException {
+		DataSource ds = Mockito.mock(DataSource.class);
+		userRepository = new UserRepository(ds);
+		Connection connection = Mockito.mock(Connection.class);
+		Mockito.when(ds.getConnection()).thenReturn(connection);
+		PreparedStatement value = Mockito.mock(PreparedStatement.class); 
+		Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+		Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+		ResultSet resultSet = Mockito.mock(ResultSet.class);
+		Mockito.when(value.executeQuery()).thenReturn(resultSet);
+		ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
+		Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
+		Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+		Mockito.when(metadata.getColumnCount()).thenReturn(3);
+		Mockito.when(metadata.getColumnName(1)).thenReturn("handle");
+		Mockito.when(metadata.getColumnName(2)).thenReturn("password");
+		Mockito.when(metadata.getColumnName(3)).thenReturn("id");
+		
+		Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+		Mockito.when(resultSet.getObject(1)).thenReturn(new String("Prajakta"));
+		Mockito.when(resultSet.getObject(2)).thenReturn(new String("pwd"));
+		Mockito.when(resultSet.getObject(3)).thenReturn(new Integer(1));
+		User user = userRepository.getUserByUserName("test");
+		assertEquals(1, user.getUserId());
 	}
+	
 	
 	
 }

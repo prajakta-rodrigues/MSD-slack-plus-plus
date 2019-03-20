@@ -25,7 +25,7 @@ import java.util.List;
  * 
  * @version 1.3
  */
-public final class SocketNB {
+public class SocketNB {
 	/** Name of the server to which we will connect. */
 	private String hostname;
 
