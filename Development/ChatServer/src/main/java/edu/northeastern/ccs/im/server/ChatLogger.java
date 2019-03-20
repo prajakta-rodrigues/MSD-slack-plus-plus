@@ -144,7 +144,7 @@ public class ChatLogger {
   /**
    * Enum class for Handler Types.
    */
-  public static enum HandlerType {
+  public enum HandlerType {
     /** The file handler. */
     FILE,
     /** The console handler. */

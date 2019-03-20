@@ -464,6 +464,46 @@ public class NetworkConnectionTest {
     Iterator<Message> iterator = networkConnection.iterator();
     iterator.hasNext();
   }
+  
 
+  @Test
+  public void hasNextSuccess() throws NoSuchFieldException, SecurityException,
+      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
+    SocketChannel socketChannel = SocketChannel.open();
+    NetworkConnection networkConnection = new NetworkConnection(socketChannel);
+    Selector selector = Mockito.mock(Selector.class);
+    Mockito.when(selector.selectNow()).thenReturn(1);
+    Field selectorField = Class.forName("edu.northeastern.ccs.im.server.NetworkConnection")
+        .getDeclaredField("selector");
+    selectorField.setAccessible(true);
+    selectorField.set(networkConnection, selector);
+    
+    Field keyField =
+        Class.forName("edu.northeastern.ccs.im.server.NetworkConnection").getDeclaredField("key");
+    keyField.setAccessible(true);
+    SelectionKey key = Mockito.mock(SelectionKey.class);
+    keyField.set(networkConnection, key);
+    Mockito.when(key.readyOps()).thenReturn(1);
+    
+    Field fieldChannel =
+        Class.forName("edu.northeastern.ccs.im.server.NetworkConnection").getDeclaredField("channel");
+    fieldChannel.setAccessible(true);
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(fieldChannel, fieldChannel.getModifiers() & ~Modifier.FINAL);
+    SocketChannel mockChannel = Mockito.mock(SocketChannel.class);
+    Mockito.when(mockChannel.read(Mockito.any(ByteBuffer.class))).thenReturn(1);
+    fieldChannel.set(networkConnection, mockChannel);
+    
+    Field buffField = Class.forName("edu.northeastern.ccs.im.server.NetworkConnection")
+        .getDeclaredField("buff");
+    buffField.setAccessible(true);
+    ByteBuffer buff = ByteBuffer.allocate(100);
+    buff.put("HLO 6 test12 2 --".getBytes());
+    buffField.set(networkConnection, buff);
+    Iterator<Message> iterator = networkConnection.iterator();
+    iterator.hasNext();
+  }
+ 
 
 }

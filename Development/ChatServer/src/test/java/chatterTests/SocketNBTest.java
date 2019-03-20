@@ -223,6 +223,62 @@ public class SocketNBTest {
     fieldChannel.set(socketNB, mockChannel);
     closeMethod.invoke(socketNB, msg);
   }
+  
+  @Test
+  public void testPrintNonEmptyMessage() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+      NoSuchFieldException, IOException {
+    SocketNB socketNB = new SocketNB("localhost", 2421) {
+      @Override
+      protected boolean isConnected() {
+        return true;
+
+      }
+    };
+    Method closeMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+        .getDeclaredMethod("print", Message.class);
+    closeMethod.setAccessible(true);
+    Message msg = Mockito.mock(Message.class);
+    Mockito.when(msg.toString()).thenReturn("hey");
+    Field fieldChannel =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("channel");
+    fieldChannel.setAccessible(true);
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(fieldChannel, fieldChannel.getModifiers() & ~Modifier.FINAL);
+    SocketChannel mockChannel = Mockito.mock(SocketChannel.class);
+    Mockito.when(mockChannel.write(Mockito.any(ByteBuffer.class))).thenReturn(1);
+    fieldChannel.set(socketNB, mockChannel);
+    closeMethod.invoke(socketNB, msg);
+  }
+  
+  @Test(expected = InvocationTargetException.class)
+  public void testPrintException() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+      NoSuchFieldException, IOException {
+    SocketNB socketNB = new SocketNB("localhost", 2421) {
+      @Override
+      protected boolean isConnected() {
+        return true;
+
+      }
+    };
+    Method closeMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+        .getDeclaredMethod("print", Message.class);
+    closeMethod.setAccessible(true);
+    Message msg = Mockito.mock(Message.class);
+    Mockito.when(msg.toString()).thenReturn("hey");
+    Field fieldChannel =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("channel");
+    fieldChannel.setAccessible(true);
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(fieldChannel, fieldChannel.getModifiers() & ~Modifier.FINAL);
+    SocketChannel mockChannel = Mockito.mock(SocketChannel.class);
+    Mockito.when(mockChannel.write(Mockito.any(ByteBuffer.class))).thenThrow(new IOException());
+    fieldChannel.set(socketNB, mockChannel);
+    closeMethod.invoke(socketNB, msg);
+  }
 
   @Test
   public void enqueueMessageDelayZero() throws NoSuchFieldException, SecurityException,
@@ -239,6 +295,52 @@ public class SocketNBTest {
     enqueueMethod.setAccessible(true);
     List<Message> listMessages = new ArrayList<Message>();
     Mockito.when(selector.select(Mockito.anyLong())).thenReturn(0);
+    enqueueMethod.invoke(socketNB, listMessages);
+  }
+  
+  @Test
+  public void testEnqueueMessageKeyReadableNewMessages() throws NoSuchMethodException, SecurityException,
+      ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException, NoSuchFieldException, IOException {
+    SocketNB socketNB = new SocketNB("localhost", 2421);
+    Method enqueueMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
+        .getDeclaredMethod("enqueueMessages", List.class);
+    enqueueMethod.setAccessible(true);
+    List<Message> listMessages = new ArrayList<Message>();
+    Field selectorField =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("selector");
+    selectorField.setAccessible(true);
+    Selector selector = Mockito.mock(Selector.class);
+    selectorField.set(socketNB, selector);
+
+    Field keyField =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("key");
+    keyField.setAccessible(true);
+    SelectionKey key = Mockito.mock(SelectionKey.class);
+    keyField.set(socketNB, key);
+    Mockito.when(key.readyOps()).thenReturn(1);
+
+    Field fieldChannel =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("channel");
+    fieldChannel.setAccessible(true);
+    Field modifiersField = Field.class.getDeclaredField("modifiers");
+    modifiersField.setAccessible(true);
+    modifiersField.setInt(fieldChannel, fieldChannel.getModifiers() & ~Modifier.FINAL);
+    SocketChannel mockChannel = Mockito.mock(SocketChannel.class);
+    Mockito.when(mockChannel.read(Mockito.any(ByteBuffer.class))).thenReturn(1);
+    fieldChannel.set(socketNB, mockChannel);
+    
+    Field keyBuffer =
+        Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("buff");
+    keyBuffer.setAccessible(true);
+    ByteBuffer buff = ByteBuffer.allocate(100);
+    buff.put("HLO 6 test12 2 --".getBytes());
+    keyBuffer.set(socketNB, buff);
+    
+    Mockito.when(selector.select(Mockito.anyLong())).thenReturn(2);
+    Set<SelectionKey> set = Mockito.mock(Set.class);
+    Mockito.when(selector.selectedKeys()).thenReturn(set);
+    Mockito.when(set.remove(Mockito.anyObject())).thenReturn(true);
     enqueueMethod.invoke(socketNB, listMessages);
   }
 
