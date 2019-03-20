@@ -14,6 +14,8 @@ public class ConfigurationProperties {
   
   private static ConfigurationProperties singleton;
   
+  private static final String PROPERTIES_FILE_NM = "config.properties";
+  
   private Properties prop;
 
   /**
@@ -21,9 +23,8 @@ public class ConfigurationProperties {
    */
   private ConfigurationProperties() {
     prop = new Properties();
-    String propFileName = "config.properties";
     try {
-      InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+      InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE_NM);
 
       if (inputStream != null) {
         prop.load(inputStream);
