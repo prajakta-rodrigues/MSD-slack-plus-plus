@@ -20,5 +20,5 @@ target/
 *.iml
 
 ###### db config file
-*/resources/config.properties
+resources/*.properties
 
