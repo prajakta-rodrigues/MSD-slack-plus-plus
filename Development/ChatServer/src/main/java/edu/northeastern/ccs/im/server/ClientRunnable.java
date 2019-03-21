@@ -68,7 +68,7 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   /**
    * Whether this client has been authenticated to send messages to other users
@@ -95,7 +95,7 @@ public class ClientRunnable implements Runnable {
 
     authenticated = false;
 
-    userRepository = new UserRepository(DatabaseConnection.getDataSource());
+    userRepository = new UserRepository();
   }
 
   /**

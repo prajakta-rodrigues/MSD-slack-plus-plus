@@ -17,6 +17,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
  * spawns a new thread to handle each client that connects to it. At this point, messages are
@@ -42,20 +44,23 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
-  private static final Map<String, Command> commands;
+  private static final Map<String, Command> COMMANDS;
+
+  private static final GroupRepository GROUP_REPOSITORY;
 
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     // Populate the known commands
-    commands = new Hashtable<>();
-    commands.put("/group", new Group());
-    commands.put("/groups", new Groups());
-    commands.put("/creategroup", new CreateGroup());
-    commands.put("/circle", new Circle());
-    commands.put("/dm", new Dm());
-    commands.put("/help", new Help());
+    COMMANDS = new Hashtable<>();
+    COMMANDS.put("/group", new Group());
+    COMMANDS.put("/groups", new Groups());
+    COMMANDS.put("/creategroup", new CreateGroup());
+    COMMANDS.put("/circle", new Circle());
+    COMMANDS.put("/dm", new Dm());
+    COMMANDS.put("/help", new Help());
+    GROUP_REPOSITORY = new GroupRepository();
   }
 
   /**
@@ -87,8 +92,8 @@ public abstract class Prattle {
     String param = messageContents.length > 1 ? messageContents[1] : null;
     String senderId = message.getName();
 
-    String callbackContents = commands.keySet().contains(commandLower)
-        ? commands.get(commandLower).apply(param, senderId)
+    String callbackContents = COMMANDS.keySet().contains(commandLower)
+        ? COMMANDS.get(commandLower).apply(param, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
     ClientRunnable client = getClient(senderId);
@@ -223,7 +228,7 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      SlackGroup targetGroup = getGroup(groupName);
+      SlackGroup targetGroup = GROUP_REPOSITORY.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName
           .contains(senderId)) {
@@ -258,12 +263,12 @@ public abstract class Prattle {
 
     @Override
     public String apply(String param, String senderId) {
-
+      return GROUP_REPOSITORY.groupsHavingMember(Integer.valueOf(senderId));
     }
 
     @Override
     public String description() {
-      return "Print out the names of each available Group on the server";
+      return "Print out the names of each Group you are a member of";
     }
   }
 
@@ -277,12 +282,10 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      try {
-        groups.add(channelFactory.makeGroup(senderId, groupName));
-        return String.format("Group %s created", groupName);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
-      }
+      boolean created = GROUP_REPOSITORY.addGroup(
+              new SlackGroup(Integer.valueOf(senderId), groupName)
+      );
+      return created ? String.format("Group %s created", groupName) : "Failed to create group";
     }
 
     @Override
@@ -334,7 +337,7 @@ public abstract class Prattle {
     @Override
     public String apply(String ignoredParam, String senderId) {
       StringBuilder availableCommands = new StringBuilder("Available Commands:");
-      for (Map.Entry<String, Command> command : commands.entrySet()) {
+      for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
         availableCommands.append(nextLine);
       }

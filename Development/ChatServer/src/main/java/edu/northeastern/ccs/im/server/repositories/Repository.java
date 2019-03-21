@@ -25,4 +25,12 @@ abstract class Repository {
   Repository(DataSource ds) {
     this.dataSource = ds;
   }
+
+  /**
+   * Instantiates a new repository.
+   *
+   */
+  Repository() {
+    this.dataSource = DatabaseConnection.getDataSource();
+  }
 }

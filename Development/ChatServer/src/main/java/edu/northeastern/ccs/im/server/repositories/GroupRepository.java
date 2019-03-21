@@ -18,6 +18,8 @@ public class GroupRepository extends Repository {
     super(ds);
   }
 
+  public GroupRepository() { super(); }
+
   public SlackGroup getGroupByName(String groupName) {
     SlackGroup group = null;
     try {
@@ -59,5 +61,27 @@ public class GroupRepository extends Repository {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     return count > 0;
+  }
+
+  public String groupsHavingMember(int memberId) {
+    StringBuilder groups = new StringBuilder();
+    try {
+      connection = dataSource.getConnection();
+      String query = "SELECT name FROM slack.group JOIN slack.user_group ug WHERE ug.id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, memberId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+
+          for (Map<String, Object> result : results) {
+            groups.append(result.get("name"));
+            groups.append("\n");
+          }
+        }
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return groups.toString();
   }
 }

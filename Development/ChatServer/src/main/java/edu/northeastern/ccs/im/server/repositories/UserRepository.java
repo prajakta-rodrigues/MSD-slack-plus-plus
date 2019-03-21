@@ -24,6 +24,8 @@ public class UserRepository extends Repository {
     super(ds);
   }
 
+  public UserRepository() { super(); }
+
 	/**
 	 * Gets the user by user name.
 	 *
