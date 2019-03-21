@@ -75,7 +75,6 @@ public class UserRepository extends Repository {
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-
 		}
 		return result == 1;
 	}

@@ -42,25 +42,12 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
-  /**
-   * Collection of groups that are on the server.
-   */
-  private static ConcurrentLinkedQueue<SlackGroup> groups;
-
-  /**
-   * Factory for making instances of direct message sessions and groups
-   */
-  private static ChannelFactory channelFactory;
-
   private static final Map<String, Command> commands;
 
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
-    groups = new ConcurrentLinkedQueue<>();
-    channelFactory = ChannelFactory.makeFactory();
-    groups.add(channelFactory.makeGroup(null, "general"));
     // Populate the known commands
     commands = new Hashtable<>();
     commands.put("/group", new Group());
@@ -258,21 +245,6 @@ public abstract class Prattle {
       }
     }
 
-    /**
-     * get Group by groupName.  To be changed with database integration.
-     *
-     * @param groupName name of the group
-     * @return Group associated with the groupName
-     */
-    private static SlackGroup getGroup(String groupName) {
-      for (SlackGroup group : groups) {
-        if (group.getGroupName().equals(groupName)) {
-          return group;
-        }
-      }
-      return null;
-    }
-
     @Override
     public String description() {
       return "Change your current chat room to the specified Group.\nParameters: group name";
@@ -280,17 +252,13 @@ public abstract class Prattle {
   }
 
   /**
-   * List all groups on the server.
+   * List all groups you are a member of.
    */
   private static class Groups implements Command {
 
     @Override
     public String apply(String param, String senderId) {
-      StringBuilder groupNames = new StringBuilder();
-      for (SlackGroup group : groups) {
-        groupNames.append(String.format("%n%s", group.getGroupName()));
-      }
-      return groupNames.toString();
+
     }
 
     @Override
@@ -401,7 +369,7 @@ public abstract class Prattle {
       }
       try {
         String groupName = "DM:" + senderId + "-" + userId;
-        groups.add(channelFactory.makeGroup(senderId, groupName));
+        // groups.add(channelFactory.makeGroup(senderId, groupName));
         return String.format("%s created", groupName);
       } catch (IllegalArgumentException e) {
         return e.getMessage();

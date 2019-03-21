@@ -18,7 +18,7 @@ abstract class Repository {
   static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
 
   /**
-   * Instantiates a new user repository.
+   * Instantiates a new repository.
    *
    * @param ds the datasource
    */
