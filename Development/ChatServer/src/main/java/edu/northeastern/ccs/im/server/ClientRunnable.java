@@ -4,9 +4,7 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
-
 import org.mindrot.jbcrypt.BCrypt;
-
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
@@ -120,7 +118,7 @@ public class ClientRunnable implements Runnable {
         sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
             "User is not registered with system. Enter Password for user");
       }
-      
+
       initialized = true;
       // Update the time until we terminate this client due to inactivity.
       timer.updateAfterInitialization();
@@ -131,13 +129,12 @@ public class ClientRunnable implements Runnable {
   }
 
   private void authenticateUser(Message msg) {
-    Message sendMsg; 
+    Message sendMsg;
     User user = userRepository.getUserByUserName(msg.getName());
-    if(user == null) {
-    	sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-    	          "Illegal Message");
-        enqueueMessage(sendMsg);
-        return;
+    if (user == null) {
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Illegal Message");
+      enqueueMessage(sendMsg);
+      return;
     }
     if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
       setName(user.getUserName());
@@ -181,27 +178,6 @@ public class ClientRunnable implements Runnable {
   protected boolean sendMessage(Message message) {
     ChatLogger.info("\t" + message);
     return connection.sendMessage(message);
-  }
-
-  /**
-   * Try allowing this user to set his/her user name to the given username.
-   *
-   * @param userName The new value to which we will try to set userName.
-   * @return True if the username is deemed acceptable; false otherwise
-   */
-  private boolean setUserName(String userName) {
-    boolean result = false;
-    // Now make sure this name is legal.
-    if (userName != null) {
-      // Optimistically set this users ID number.
-      setName(userName);
-      userId = hashCode();
-      result = true;
-    } else {
-      // Clear this name; we cannot use it. *sigh*
-      userId = -1;
-    }
-    return result;
   }
 
   /**
@@ -260,7 +236,7 @@ public class ClientRunnable implements Runnable {
     if (!initialized) {
       checkForInitialization();
     } else {
-      handleIncomingMessages(); 
+      handleIncomingMessages();
       handleOutgoingMessages();
     }
     // Finally, check if this client have been inactive for too long and,
@@ -281,7 +257,7 @@ public class ClientRunnable implements Runnable {
     // Client has already been initialized, so we should first check
     // if there are any input
     // messages.
-    Iterator<Message> messageIter = connection.iterator(); 
+    Iterator<Message> messageIter = connection.iterator();
     if (messageIter.hasNext()) {
       // Get the next message
       Message msg = messageIter.next();
@@ -306,34 +282,36 @@ public class ClientRunnable implements Runnable {
   }
 
   private void respondToMessage(Message msg) {
-	// Check for our "special messages"
-      if (authenticated && msg.isBroadcastMessage()) {
-        // Check for our "special messages"
-        Prattle.broadcastMessage(msg);
-      } else if (authenticated && msg.isCommandMessage()) {
-        Prattle.commandMessage(msg);
-      } else if (msg.isAuthenticate()) {
-        authenticateUser(msg);
-      } else if (msg.isRegister()) {
-        registerUser(msg);
-      }	
-}
+    // Check for our "special messages"
+    if (authenticated && msg.isBroadcastMessage()) {
+      // Check for our "special messages"
+      Prattle.broadcastMessage(msg);
+    } else if (authenticated && msg.isCommandMessage()) {
+      Prattle.commandMessage(msg);
+    } else if (msg.isAuthenticate()) {
+      authenticateUser(msg);
+    } else if (msg.isRegister()) {
+      registerUser(msg);
+    }
+  }
 
-private void registerUser(Message msg) {
+  private void registerUser(Message msg) {
     Message sendMsg;
     int id = hashCode();
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
     if (result) {
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration done. Continue to message.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
       authenticated = true;
- 
+
     } else {
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration failed. Try connecting after some time.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "Registration failed. Try connecting after some time.");
     }
-    
+
     enqueueMessage(sendMsg);
   }
 
