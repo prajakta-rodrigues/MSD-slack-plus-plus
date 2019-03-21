@@ -67,7 +67,9 @@ public class GroupRepository extends Repository {
     StringBuilder groups = new StringBuilder();
     try {
       connection = dataSource.getConnection();
-      String query = "SELECT name FROM slack.group JOIN slack.user_group ug WHERE ug.id = ?";
+      String query = "SELECT name " +
+              "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
+              "WHERE ug.user_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, memberId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
