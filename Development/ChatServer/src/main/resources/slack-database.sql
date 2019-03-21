@@ -45,7 +45,19 @@ delimiter ;
 
 ALTER TABLE slack.user MODIFY COLUMN password VARCHAR(100);
 
-
-
 ALTER TABLE slack.user
  ADD CONSTRAINT unique_handle UNIQUE (handle);
+ 
+ALTER TABLE slack.group
+	ADD COLUMN creator_id int(15),
+    ADD CONSTRAINT FOREIGN KEY (creator_id)
+		REFERENCES user(id);
+        
+delimiter //
+CREATE TRIGGER slack.insert_group AFTER INSERT ON slack.group
+FOR EACH ROW
+BEGIN
+	INSERT INTO slack.user_group VALUES (NEW.creator_id, NEW.id, TRUE, CURDATE());
+END //
+delimiter ;
+		
