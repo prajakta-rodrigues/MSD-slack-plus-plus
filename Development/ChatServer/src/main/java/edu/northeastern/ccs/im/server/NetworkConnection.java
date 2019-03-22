@@ -195,11 +195,15 @@ public class NetworkConnection implements Iterable<Message> {
 	                    // Read the first argument containing the sender's name
 	                    String sender = readArgument(charBuffer);
 	                    // Skip past the leading space
+                      charBuffer.position(charBuffer.position() + 2);
+                      // Read in second argument containing the senderId
+                      int senderId = Integer.parseInt(readArgument(charBuffer));
+                      // Skip past the leading space
 	                    charBuffer.position(charBuffer.position() + 2);
 	                    // Read in the second argument containing the message
 	                    String message = readArgument(charBuffer);
 	                    // Add this message into our queue
-	                    Message newMsg = Message.makeMessage(handle, sender, message);
+	                    Message newMsg = Message.makeMessage(handle, sender, senderId, message);
 	                    messages.add(newMsg);
 	                    // And move the position to the start of the next character
 	                    start = charBuffer.position() + 1;

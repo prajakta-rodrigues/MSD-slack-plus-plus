@@ -106,7 +106,7 @@ public abstract class Prattle {
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+      client.enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
     }
   }
 
@@ -232,14 +232,14 @@ public abstract class Prattle {
   private static class Group implements Command {
 
     @Override
-    public String apply(String groupName, String senderId) {
+    public String apply(String groupName, String srcName) {
       if (groupName == null) {
         return "No Group Name provided";
       }
       SlackGroup targetGroup = getGroup(groupName);
-      ClientRunnable sender = getClient(senderId);
+      ClientRunnable sender = getClient(srcName);
       if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName
-          .contains(senderId)) {
+          .contains(srcName)) {
         return "You are not authorized to use this DM";
       }
       if (targetGroup != null)

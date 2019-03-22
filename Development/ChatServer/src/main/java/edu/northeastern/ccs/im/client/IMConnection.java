@@ -53,6 +53,11 @@ public class IMConnection {
   private String userName;
 
   /**
+   * Integer identifier for this user.
+   */
+  private int userId;
+
+  /**
    * Holds the SwingWorker which is used to read and process all incoming data.
    */
   private SwingWorker<Void, Message> workerBee;
@@ -79,6 +84,7 @@ public class IMConnection {
     userName = username;
     hostName = host;
     portNum = port;
+    this.userId = username.hashCode();
   }
 
   /**
@@ -196,14 +202,14 @@ public class IMConnection {
     }
     Message sentMessage;
     if (message.charAt(0) == '/') {
-      sentMessage = Message.makeCommandMessage(userName, message);
+      sentMessage = Message.makeCommandMessage(userName, userId, message);
     } else if(message.startsWith(":authenticate ")) {
       sentMessage = Message.makeAuthenticateMessage(userName, message.replaceFirst(":authenticate ", ""));
     } else if(message.startsWith(":register ")) {
       sentMessage = Message.makeRegisterMessage(userName, message.replaceFirst(":register ", ""));
     }
     else {
-      sentMessage = Message.makeBroadcastMessage(userName, message);
+      sentMessage = Message.makeBroadcastMessage(userName, userId, message);
     }
     socketConnection.print(sentMessage);
   }

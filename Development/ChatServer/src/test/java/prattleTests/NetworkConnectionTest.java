@@ -282,7 +282,7 @@ public class NetworkConnectionTest {
    */
   @Test
   public void testMessageIsQuit() {
-    Message message = Message.makeMessage(MessageType.QUIT.toString(), "ih", "tet");
+    Message message = Message.makeMessage(MessageType.QUIT.toString(), "ih", -1,"tet");
     assertTrue(message.terminate());
   }
 
@@ -291,7 +291,7 @@ public class NetworkConnectionTest {
    */
   @Test
   public void testMessageIsHello() {
-    Message message = Message.makeMessage(MessageType.HELLO.toString(), "nam", "tet");
+    Message message = Message.makeMessage(MessageType.HELLO.toString(), "nam", -1, "tet");
     assertTrue(message.isInitialization());
   }
 
@@ -320,19 +320,19 @@ public class NetworkConnectionTest {
 
   @Test
   public void makeAuthMessage() {
-    Message message = Message.makeMessage(MessageType.AUTHENTICATE.toString(), "b", "txt");
+    Message message = Message.makeMessage(MessageType.AUTHENTICATE.toString(), "b", -1, "txt");
     assertTrue(message.isAuthenticate());
   }
 
   @Test
   public void makeRegisterMessage() {
-    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", "txt");
+    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", -1, "txt");
     assertTrue(message.isRegister());
   }
 
   @Test
   public void makeErrorMessage() {
-    Message message = Message.makeMessage("t", "b", "txt");
+    Message message = Message.makeMessage("t", "b", -1, "txt");
     assertNull(message);
   }
 
@@ -342,7 +342,7 @@ public class NetworkConnectionTest {
     SocketChannel socketChannel = SocketChannel.open();
     NetworkConnection networkConnection = new NetworkConnection(socketChannel);
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", "txt");
+    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", -1, "txt");
     messages.add(message);
     Field messageQueue = Class.forName("edu.northeastern.ccs.im.server.NetworkConnection")
         .getDeclaredField("messages");
@@ -358,7 +358,7 @@ public class NetworkConnectionTest {
     SocketChannel socketChannel = SocketChannel.open();
     NetworkConnection networkConnection = new NetworkConnection(socketChannel);
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", "txt");
+    Message message = Message.makeMessage(MessageType.REGISTER.toString(), "b", -1,"txt");
     messages.add(message);
     Field messageQueue = Class.forName("edu.northeastern.ccs.im.server.NetworkConnection")
         .getDeclaredField("messages");

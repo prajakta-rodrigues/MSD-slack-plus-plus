@@ -189,14 +189,14 @@ public class PrattleTest {
     String jaffa = "jaffa";
     String hello = "hello";
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-            .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+            .getDeclaredMethod("makeMessage", String.class, String.class, Integer.class, String.class);
     Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
             .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeHelloMessageMethod.setAccessible(true);
-    makeMessageMethod.invoke(null, "HLO", jaffa, hello);
-    makeMessageMethod.invoke(null, "ACK", jaffa, hello);
-    makeMessageMethod.invoke(null, "NAK", jaffa, hello);
+    makeMessageMethod.invoke(null, "HLO", jaffa, -1, hello);
+    makeMessageMethod.invoke(null, "ACK", jaffa, -1, hello);
+    makeMessageMethod.invoke(null, "NAK", jaffa, -1, hello);
     makeHelloMessageMethod.invoke(null, jaffa);
     edu.northeastern.ccs.im.client.Message sc = edu.northeastern.ccs.im.client.Message
             .makeLoginMessage("jaffa");
@@ -310,7 +310,7 @@ public class PrattleTest {
 	  isReady.setAccessible(true);
 	  isReady.set(null, true);
 	  Prattle.stopServer();
-	  assertEquals(false, (boolean)isReady.get(null));
+    assertFalse((boolean) isReady.get(null));
   }
   
   /**
@@ -334,7 +334,7 @@ public class PrattleTest {
    */
   @Test
   public void testCircleListsAllActiveUsers() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
     Message callback = waitingList2.remove();
@@ -349,7 +349,7 @@ public class PrattleTest {
    */
   @Test
   public void testNonRecognizedCommand() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circles"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/circles"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
     Message callback = waitingList2.remove();
@@ -363,7 +363,7 @@ public class PrattleTest {
    */
   @Test
   public void testNotInitialized() {
-    Prattle.commandMessage(Message.makeCommandMessage("mike", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("mike", -1,"/circle"));
     assertEquals(0, waitingList1.size());
     assertEquals(0, waitingList2.size());
   }
@@ -381,7 +381,7 @@ public class PrattleTest {
    */
   @Test
   public void testBroadcastMessage() {
-    Prattle.broadcastMessage(Message.makeCommandMessage("omar", "/circle"));
+    Prattle.broadcastMessage(Message.makeCommandMessage("omar", 2,"/circle"));
     assertEquals(0, waitingList2.size());
     assertEquals(0, waitingList1.size());
   }
@@ -391,7 +391,7 @@ public class PrattleTest {
    */
   @Test
   public void testHelp() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/help"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/help"));
     assertEquals(0, waitingList2.size());
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
@@ -410,7 +410,7 @@ public class PrattleTest {
    */
   @Test
   public void testCommandMessageWithMultipleInputs() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle aroundTheCampFire"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/circle aroundTheCampFire"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
     Message removed = waitingList2.remove();
@@ -425,14 +425,14 @@ public class PrattleTest {
    */
   @Test
   public void testNoneOnline() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     Message callback = waitingList2.remove();
     assertEquals(0, waitingList2.size());
     assertEquals(0, waitingList1.size());
     assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
     Prattle.removeClient(cr1);
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/circle"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     Message removed = waitingList2.remove();
     assertEquals(0, waitingList2.size());
@@ -442,22 +442,22 @@ public class PrattleTest {
 
   @Test
   public void testMakeBroadcastMessageInheritsChannelId() {
-    Message msg = Message.makeMessage("BCT", "omar", "hello world");
+    Message msg = Message.makeMessage("BCT", "omar", 2, "hello world");
     assertTrue(msg.isBroadcastMessage());
     assertEquals(msg.getChannelId(), cr1.getActiveChannelId());
   }
 
   @Test
   public void testMakeBroadcastMessageDefaultChannelId() {
-    Message msg = Message.makeMessage("BCT", "sean", "hello world");
+    Message msg = Message.makeMessage("BCT", "sean", 3,"hello world");
     assertTrue(msg.isBroadcastMessage());
     assertEquals(msg.getChannelId(), -1);
   }
 
   @Test
   public void testCreateGroup() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup myGroup"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/createGroup myGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("myGroup"));
     assertEquals(bot, callback.getName());
@@ -466,24 +466,24 @@ public class PrattleTest {
 
   @Test
   public void testDm() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/dm tuffaha"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/groups"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("DM:omar-tuffaha"));
   }
 
   @Test
   public void testDmUserNotActive() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm jacobe"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm jacobe"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList2.remove();
     assertTrue(callback.getText().contains("The provided user is not active"));
   }
 
   @Test
   public void testDmWithoutUser() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList1.remove();
     Message callback2 = waitingList2.remove();
     assertTrue(callback2.getText().contains("No user provided to direct message."));
@@ -493,8 +493,8 @@ public class PrattleTest {
 
   @Test
   public void testDmWithoutUser2() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm  "));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm  "));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList1.remove();
     Message callback2 = waitingList2.remove();
     assertTrue(callback2.getText().contains("No user provided to direct message."));
@@ -503,8 +503,8 @@ public class PrattleTest {
   }
   @Test
   public void testDMTaken() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm omar"));
     Message callback = waitingList2.remove();
     assertTrue(callback.getText().contains("DM:tuffaha-omar create"));
     callback = waitingList2.remove();
@@ -515,11 +515,11 @@ public class PrattleTest {
 
   @Test
   public void testDmChannelAccessibility() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/dm tuffaha"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group DM:tuffaha-tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group DM:tuffaha-tuffaha"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("You are not authorized to use this DM"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/group DM:tuffaha-tuffaha"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/group DM:tuffaha-tuffaha"));
     callback = waitingList2.remove();
     assertTrue(callback.getText().contains("DM:tuffaha-tuffaha created"));
     assertEquals(bot, callback.getName());
@@ -527,8 +527,8 @@ public class PrattleTest {
 
   @Test
   public void testCreateGroupSpecialCharacters() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup !@578"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup !@578"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("!@578"));
     assertTrue(callback.getText().contains("general"));
@@ -536,8 +536,8 @@ public class PrattleTest {
 
   @Test
   public void testCreateGroupSpaces() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup My Group"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup My Group"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("My"));
     assertFalse(callback.getText().contains("Group"));
@@ -546,7 +546,7 @@ public class PrattleTest {
 
   @Test
   public void testCreateGroupNoInput() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup"));
     Message callback = waitingList2.remove();
     assertTrue(callback.getText().contains("No Group Name provided"));
     assertEquals(bot, callback.getName());
@@ -554,7 +554,7 @@ public class PrattleTest {
 
   @Test
   public void testCreateGroupNameTaken() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup general"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup general"));
     Message callback = waitingList2.remove();
     assertTrue(callback.getText().contains("Group name already taken"));
     assertEquals(bot, callback.getName());
@@ -562,13 +562,13 @@ public class PrattleTest {
 
   @Test
   public void testMakeCommandMessage() {
-    Message msg = Message.makeMessage("CMD", "omar", "/hello");
+    Message msg = Message.makeMessage("CMD", "omar", 2, "/hello");
     assertTrue(msg.isCommandMessage());
   }
 
   @Test
   public void testShowGroupsDefault() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     assertEquals(0, waitingList2.size());
     Message callback = waitingList1.remove();
     assertEquals(callback.getName(), bot);
@@ -577,10 +577,10 @@ public class PrattleTest {
 
   @Test
   public void testShowMultipleGroups() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup omarGroup"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup TSeries"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup coolbeans"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/groups"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/createGroup omarGroup"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup TSeries"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup coolbeans"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
     waitingList1.remove();
     Message callback = waitingList1.remove();
     assertEquals(bot, callback.getName());
@@ -593,47 +593,47 @@ public class PrattleTest {
 
   @Test
   public void testChangeGroup() {
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/createGroup o"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group o"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup o"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group o"));
     Message callback = waitingList1.remove();
     assertEquals("Active channel set to Group o", callback.getText());
   }
 
   @Test
   public void testChangeGroupNoInput() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("No Group Name provided"));
   }
 
   @Test
   public void testChangeGroupNotFound() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group a"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group a"));
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("Group a does not exist"));
   }
 
   @Test
   public void testClientIdDoesntMatch() {
-    Prattle.commandMessage(Message.makeCommandMessage("nonexistent", "/group general"));
+    Prattle.commandMessage(Message.makeCommandMessage("nonexistent", -1,"/group general"));
     //Message callback = waitingList1.remove();
     //assertTrue(callback.getText().contains("Group a does not exist"));
   }
 
   @Test
   public void testMessagesReceivedGeneral() {
-    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     Message callback = waitingList2.remove();
-    assertEquals("omar", callback.getName());
+    assertEquals("omar",  callback.getName());
     assertEquals("Hey T", callback.getText());
   }
 
   @Test
   public void testMessagesReceivedSameGroup() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup grp"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group grp"));
-    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", "/group grp"));
-    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/createGroup grp"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group grp"));
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/group grp"));
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     waitingList2.remove();
     Message callback = waitingList2.remove();
     assertEquals("omar", callback.getName());
@@ -642,9 +642,9 @@ public class PrattleTest {
 
   @Test
   public void testMessagesNotReceivedDifferentGroup() {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup ogrp"));
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/group ogrp"));
-    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/createGroup ogrp"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group ogrp"));
+    Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     assertTrue(waitingList2.isEmpty());
   }
   

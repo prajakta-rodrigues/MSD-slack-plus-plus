@@ -88,7 +88,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsBroadcastMessage() {
-    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    Message message = Message.makeBroadcastMessage(TEST_USER, -1,"u");
     assertFalse(message.isCommandMessage());
     assertTrue(message.isBroadcastMessage());
 
@@ -99,9 +99,9 @@ public class MessageScannerTest {
    */
   @Test
   public void testCommandMessage() {
-    Message message = Message.makeCommandMessage(TEST_USER, "/circle");
+    Message message = Message.makeCommandMessage(TEST_USER, -1, "/circle");
     edu.northeastern.ccs.im.server.Message message2 =
-        edu.northeastern.ccs.im.server.Message.makeCommandMessage(TEST_USER, "/quit");
+        edu.northeastern.ccs.im.server.Message.makeCommandMessage(TEST_USER, -1, "/quit");
     assertEquals("CMD 7 testing 7 /circle", message.toString());
     assertFalse(message.isDisplayMessage());
     assertFalse(message.isBroadcastMessage());
@@ -148,7 +148,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsDisplayMessage() {
-    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    Message message = Message.makeBroadcastMessage(TEST_USER, -1,"u");
     assertTrue(message.isDisplayMessage());
 
   }
@@ -311,7 +311,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testMakeMessageBroadcast() {
-    Message.makeMessage("BCT", "test", "text");
+    Message.makeMessage("BCT", "test", -1,"text");
   }
 
   /**
@@ -337,7 +337,7 @@ public class MessageScannerTest {
    */
   @Test
   public void makeAuthMessage() {
-    Message msg = Message.makeMessage("AUT", "test", "test1");
+    Message msg = Message.makeMessage("AUT", "test", -1,"test1");
     assertEquals("test", msg.getSender());
     assertEquals(true, msg.isAuthenticateMessage());
     assertEquals(false, msg.isRegisterMessage());
@@ -348,7 +348,7 @@ public class MessageScannerTest {
    */
   @Test
   public void makeRegisterMessage() {
-    Message msg = Message.makeMessage("REG", "test", "test1");
+    Message msg = Message.makeMessage("REG", "test", -1,"test1");
     assertEquals("test", msg.getSender());
     assertEquals(true, msg.isRegisterMessage());
     assertEquals(false, msg.isAuthenticateMessage());
