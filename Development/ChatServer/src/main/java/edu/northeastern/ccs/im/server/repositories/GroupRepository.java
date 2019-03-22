@@ -57,6 +57,7 @@ public class GroupRepository extends Repository {
         preparedStmt.setString(3, group.getGroupName());
         count = preparedStmt.executeUpdate();
       }
+      connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
@@ -81,6 +82,7 @@ public class GroupRepository extends Repository {
           }
         }
       }
+      connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
