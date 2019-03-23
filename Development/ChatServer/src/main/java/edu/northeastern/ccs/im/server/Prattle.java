@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.io.IOException;
@@ -458,9 +459,8 @@ public abstract class Prattle {
         return "Your group is non-existent";
       }
       List<String> mods = currGroup.getModerators();
-      UserRepository users = new UserRepository(DatabaseConnection.getDataSource());
-      List<String> queriedMembers = null;
-      // query the users in the group with the id that i have or the slackgroup that i have
+      GroupRepository groupRepo = new GroupRepository(DatabaseConnection.getDataSource());
+      List<String> queriedMembers = groupRepo.getGroupMembers(currChannelId);
       StringBuilder groupMembers = new StringBuilder("Group Members:");
       for (String member : queriedMembers) {
         groupMembers.append("\n");
