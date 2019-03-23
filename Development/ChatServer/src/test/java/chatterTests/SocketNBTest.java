@@ -334,7 +334,7 @@ public class SocketNBTest {
         Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("buff");
     keyBuffer.setAccessible(true);
     ByteBuffer buff = ByteBuffer.allocate(100);
-    buff.put("HLO 6 test12 2 --".getBytes());
+    buff.put("HLO 6 test12 2 -1 2 --".getBytes());
     keyBuffer.set(socketNB, buff);
     
     Mockito.when(selector.select(Mockito.anyLong())).thenReturn(2);

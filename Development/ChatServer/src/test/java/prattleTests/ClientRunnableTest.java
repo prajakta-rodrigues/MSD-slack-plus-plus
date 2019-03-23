@@ -491,7 +491,7 @@ public class ClientRunnableTest {
 		init.setAccessible(true);
 		Message msg = Message.makeRegisterMessage("testUser", "hey");
 		init.invoke(client, msg);
-		assertEquals(client.hashCode() , client.getUserId());
+		assertEquals((client.getName().hashCode() & 0xfffffff) , client.getUserId());
 	}
 	
 	@Test

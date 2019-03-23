@@ -192,7 +192,7 @@ public class Message {
       result = makeSimpleLoginMessage(srcName);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
       // to be replaced with static query
-      ClientRunnable sender = Prattle.getClient(srcName);
+      ClientRunnable sender = Prattle.getClient(senderId);
       int activeChannelId = sender != null ? sender.getActiveChannelId() : -1;
       result = makeBroadcastMessage(srcName, senderId, text, activeChannelId);
     } else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {

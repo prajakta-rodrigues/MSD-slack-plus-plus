@@ -84,7 +84,7 @@ public class IMConnection {
     userName = username;
     hostName = host;
     portNum = port;
-    this.userId = username.hashCode();
+    this.userId = (username.hashCode() & 0xfffffff);
   }
 
   /**

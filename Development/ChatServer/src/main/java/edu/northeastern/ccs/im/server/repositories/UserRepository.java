@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 
 
 import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.repositories.Repository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
