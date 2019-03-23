@@ -1,7 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
-import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -474,7 +473,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the active users on the server";
+      return "Print out the handles of the users in a group.\nParameters: Channel Id";
     }
   }
 }
