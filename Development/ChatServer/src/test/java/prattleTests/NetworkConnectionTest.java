@@ -491,11 +491,9 @@ public class NetworkConnectionTest {
         .getDeclaredField("buff");
     buffField.setAccessible(true);
     ByteBuffer buff = ByteBuffer.allocate(100);
-    buff.put("HLO 6 test12 2 --".getBytes());
+    buff.put("HLO 6 test12 2 -1 2 --".getBytes());
     buffField.set(networkConnection, buff);
     Iterator<Message> iterator = networkConnection.iterator();
     iterator.hasNext();
   }
- 
-
 }

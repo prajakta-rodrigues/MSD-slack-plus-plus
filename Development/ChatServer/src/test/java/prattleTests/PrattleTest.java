@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -21,8 +20,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import edu.northeastern.ccs.im.server.Message;
@@ -49,7 +46,7 @@ public class PrattleTest {
   private ClientRunnable cr2;
   private Queue<Message> waitingList1;
   private Queue<Message> waitingList2;
-  private String bot = "SlackBot";
+  private String bot = "Slackbot";
 
   /**
    * Initialize the command data before each test
@@ -189,7 +186,7 @@ public class PrattleTest {
     String jaffa = "jaffa";
     String hello = "hello";
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-            .getDeclaredMethod("makeMessage", String.class, String.class, Integer.class, String.class);
+            .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
             .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
@@ -251,9 +248,9 @@ public class PrattleTest {
     String msg = msd.toString();
     String msg1 = msd1.toString();
     String msg2 = msd2.toString();
-    assertEquals("HLO 4 koka 2 --", msg);
-    assertEquals("BCT 4 koka 11 Hello There", msg1);
-    assertEquals("HLO 2 -- 2 --", msg2);
+    assertEquals("HLO 4 koka 2 -1 2 --", msg);
+    assertEquals("BCT 4 koka 2 -1 11 Hello There", msg1);
+    assertEquals("HLO 2 -- 2 -1 2 --", msg2);
   }
 
   /**

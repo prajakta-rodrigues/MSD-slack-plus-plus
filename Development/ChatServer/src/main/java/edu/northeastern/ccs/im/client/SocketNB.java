@@ -171,7 +171,8 @@ public class SocketNB {
 				// Skip past the leading space
 				charBuffer.position(charBuffer.position() + 2);
 				// Read in second argument containing the senderId
-				int senderId = Integer.parseInt(readArgument(charBuffer));
+        String maybeId = readArgument(charBuffer);
+				int senderId = maybeId != null ? Integer.parseInt(maybeId) : -1;
 				// Skip past the leading space
 				charBuffer.position(charBuffer.position() + 2);
 				// Read in the second argument containing the message

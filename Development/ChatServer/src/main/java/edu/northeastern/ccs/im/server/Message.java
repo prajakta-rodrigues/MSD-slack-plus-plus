@@ -314,10 +314,11 @@ public class Message {
   public String toString() {
     String result = msgType.toString();
     if (msgSender != null) {
-      result += " " + msgSender.length() + " " + msgSender + " " + userId;
+      result += " " + msgSender.length() + " " + msgSender;
     } else {
-      result += " " + NULL_OUTPUT.length() + " " + NULL_OUTPUT + " " + -1;
+      result += " " + NULL_OUTPUT.length() + " " + NULL_OUTPUT;
     }
+    result += " " + String.valueOf(userId).length() + " " + userId;
     if (msgText != null) {
       result += " " + msgText.length() + " " + msgText;
     } else {
