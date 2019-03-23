@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -9,6 +11,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -69,6 +72,7 @@ public abstract class Prattle {
     commands.put("/circle", new Circle());
     commands.put("/dm", new Dm());
     commands.put("/help", new Help());
+    commands.put("/groupmembers", new GroupMembers());
   }
 
   /**
@@ -121,6 +125,22 @@ public abstract class Prattle {
     for (ClientRunnable client : active) {
       if (client.getName().equals(senderId)) {
         return client;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get Channel by channelId. To be changed with database integration so not worrying about
+   * efficiency right now.
+   *
+   * @param channelId id of the desired channel
+   * @return Client associated with the senderID
+   */
+  public static SlackGroup getGroupByChannelId(int channelId) {
+    for (SlackGroup g : groups) {
+      if (g.getChannelId() == channelId) {
+        return g;
       }
     }
     return null;
@@ -411,6 +431,47 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Start a DM with the given user.\nParameters: user id";
+    }
+  }
+
+  /**
+   * List all the group members in a group
+   */
+  private static class GroupMembers implements Command {
+
+    /**
+     * Lists all the group members in a group
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, String senderId) {
+      ClientRunnable currClient = getClient(senderId);
+      if(currClient == null) {
+        return "Your client is null";
+      }
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = getGroupByChannelId(currChannelId);
+      List<String> mods = currGroup.getModerators();
+      UserRepository users = new UserRepository(DatabaseConnection.getDataSource());
+      List<String> queriedMembers = null;
+      // query the users in the group with the id that i have or the slackgroup that i have
+      StringBuilder groupMembers = new StringBuilder("Group Members:");
+      for (String member : queriedMembers) {
+        groupMembers.append("\n");
+        if (mods.contains(member)) {
+          groupMembers.append("*");
+        }
+        groupMembers.append("member");
+      }
+      return groupMembers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the active users on the server";
     }
   }
 }

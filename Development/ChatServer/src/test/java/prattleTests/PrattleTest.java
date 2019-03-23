@@ -97,12 +97,12 @@ public class PrattleTest {
     authenticate.setAccessible(true);
     authenticate.set(cr1, true);
     authenticate.set(cr2, true);
-    
+
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("initialized");
     initialized.setAccessible(true);
     initialized.set(cr1, true);
     initialized.set(cr2, true);
-    
+
     ConcurrentLinkedQueue<ClientRunnable> active = (ConcurrentLinkedQueue<ClientRunnable>) activeClient
             .get(null);
     active.add(cr1);
@@ -272,7 +272,7 @@ public class PrattleTest {
       assert true;
     }
   }
-  
+
   /**
    * Test buddy.
    *
@@ -312,7 +312,7 @@ public class PrattleTest {
 	  Prattle.stopServer();
 	  assertEquals(false, (boolean)isReady.get(null));
   }
-  
+
   /**
    * Test network connection socket channel 1.
    *
@@ -647,5 +647,30 @@ public class PrattleTest {
     Prattle.broadcastMessage(Message.makeMessage("BCT","omar", "Hey T"));
     assertTrue(waitingList2.isEmpty());
   }
-  
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testModerator()
+      throws NoSuchFieldException, IllegalAccessException {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup group1"));
+    Field groups = Prattle.class.getDeclaredField("groups");
+    groups.setAccessible(true);
+    ConcurrentLinkedQueue<SlackGroup> g = (ConcurrentLinkedQueue<SlackGroup>) groups
+        .get(null);
+    SlackGroup group = g.remove();
+    Message callback = waitingList1.peek();
+    System.out.println(group.getGroupName() + " " + callback);
+    while (group != null) {
+      if (group.getGroupName().equals("group1")) {
+        List<String> mods = group.getModerators();
+        String moderator1 = mods.remove(0);
+        assertEquals("omar", moderator1);
+        g.add(group);
+        break;
+      } else {
+        group = g.remove();
+      }
+    }
+  }
+
 }

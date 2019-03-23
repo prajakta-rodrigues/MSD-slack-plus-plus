@@ -1,7 +1,9 @@
 package edu.northeastern.ccs.im.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,11 +36,15 @@ public class SlackGroup {
     this.moderators.add(creatorId);
   }
 
-  String getGroupName() {
+  public String getGroupName() {
     return groupName;
   }
 
-  int getChannelId() {
+  public int getChannelId() {
     return channelId;
+  }
+
+  public List<String> getModerators() {
+    return new ArrayList<>(moderators);
   }
 }
