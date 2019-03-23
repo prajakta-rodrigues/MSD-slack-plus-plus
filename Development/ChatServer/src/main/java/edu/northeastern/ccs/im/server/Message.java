@@ -94,10 +94,10 @@ public class Message {
   /**
    * For Command Message use
    *
-   * @param handle
-   * @param srcName
-   * @param senderId
-   * @param text
+   * @param handle handle of the message
+   * @param srcName name of hte sender
+   * @param senderId id of the sender
+   * @param text the text of hte message
    */
   private Message(MessageType handle, String srcName, int senderId, String text) {
     this(handle, srcName, senderId, text, -1);
@@ -117,7 +117,7 @@ public class Message {
    * Create a new message broadcasting an announcement to the world.
    *
    * @param myName Name of the sender of this very important missive.
-   * @param userId
+   * @param userId id of the sender
    * @param text Text of the message that will be sent to all users
    * @param channelId The channel that this Message was sent in.
    * @return Instance of Message that transmits text to all logged in users.
@@ -134,7 +134,7 @@ public class Message {
    * Create a new command message to interact with the application.
    *
    * @param myName Name of the sender of the sender of this command.
-   * @param myId
+   * @param myId id of hte sender
    * @param text Text of the command.
    * @return Instance of Message that is a command.
    */
@@ -239,7 +239,7 @@ public class Message {
    *
    * @return user id of message sender.
    */
-  public int getUserId() { return userId; }
+  int getUserId() { return userId; }
 
   /**
    * Return the text of this message.

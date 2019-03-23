@@ -110,7 +110,7 @@ public class Message {
    *
    * @param handle Handle for the type of message being created.
    * @param srcName Name of the individual sending this message
-   * @param senderId
+   * @param senderId id of the sender
    * @param text Text of the instant message
    */
   private Message(MessageType handle, String srcName, int senderId, String text) {
@@ -139,24 +139,18 @@ public class Message {
    * @param handle Handle for the type of message being created.
    * @param srcName Argument for the message; at present this is the name used to log-in to the IM
    *        server.
-   * @param senderId
-   */
-  private Message(MessageType handle, String srcName, int senderId) {
-    this(handle, srcName, senderId,null);
-  }
-
-  /**
-   * Create a new message that contains a command sent the server that requires a single argument.
-   * This message contains the given handle and the single argument.
-   *
-   * @param handle Handle for the type of message being created.
-   * @param srcName Argument for the message; at present this is the name used to log-in to the IM
-   *        server.
    */
   private Message(MessageType handle, String srcName) {
     this(handle, srcName, -1, null);
   }
 
+  /**
+   * Creates a new message that contains the handle, sendername, and text.
+   *
+   * @param handle handle of the message
+   * @param srcName name of the sender
+   * @param text text of the message
+   */
   private Message(MessageType handle, String srcName, String text) {
     this(handle, srcName, -1, text);
   }
@@ -174,7 +168,7 @@ public class Message {
    * Create a new message broadcasting an announcement to the world.
    *
    * @param myName Name of the sender of this very important missive.
-   * @param myId
+   * @param myId id of the sender
    * @param text Text of the message that will be sent to all users
    * @return Instance of Message that transmits text to all logged in users.
    */
@@ -186,7 +180,7 @@ public class Message {
    * Create a new command message to interact with the application.
    *
    * @param myName Name of the sender of the sender of this command.
-   * @param myId
+   * @param myId id of the sender
    * @param text Text of the command.
    * @return Instance of Message that is a command.
    */
