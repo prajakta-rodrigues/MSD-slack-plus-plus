@@ -278,9 +278,7 @@ public abstract class Prattle {
         } else {
           return "Sender not found";
         }
-      } else
-
-      {
+      } else {
         return String.format("Group %s does not exist", groupName);
       }
     }
