@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -457,7 +458,8 @@ public abstract class Prattle {
       if (currGroup == null) {
         return "Your group is non-existent";
       }
-      List<String> mods = currGroup.getModerators();
+      UserGroupRepository userGroupRepo = new UserGroupRepository(DatabaseConnection.getDataSource());
+      List<String> mods = userGroupRepo.getModerators(currGroup.getGroupName());
       GroupRepository groupRepo = new GroupRepository(DatabaseConnection.getDataSource());
       List<String> queriedMembers = groupRepo.getGroupMembers(currChannelId);
       StringBuilder groupMembers = new StringBuilder("Group Members:");

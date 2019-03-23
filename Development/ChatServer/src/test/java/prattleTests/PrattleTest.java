@@ -648,29 +648,29 @@ public class PrattleTest {
     assertTrue(waitingList2.isEmpty());
   }
 
-  @SuppressWarnings("unchecked")
-  @Test
-  public void testModerator()
-      throws NoSuchFieldException, IllegalAccessException {
-    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup group1"));
-    Field groups = Prattle.class.getDeclaredField("groups");
-    groups.setAccessible(true);
-    ConcurrentLinkedQueue<SlackGroup> g = (ConcurrentLinkedQueue<SlackGroup>) groups
-        .get(null);
-    SlackGroup group = g.remove();
-    Message callback = waitingList1.peek();
-    System.out.println(group.getGroupName() + " " + callback);
-    while (group != null) {
-      if (group.getGroupName().equals("group1")) {
-        List<String> mods = group.getModerators();
-        String moderator1 = mods.remove(0);
-        assertEquals("omar", moderator1);
-        g.add(group);
-        break;
-      } else {
-        group = g.remove();
-      }
-    }
-  }
+//  @SuppressWarnings("unchecked")
+//  @Test
+//  public void testModerator()
+//      throws NoSuchFieldException, IllegalAccessException {
+//    Prattle.commandMessage(Message.makeCommandMessage("omar", "/createGroup group1"));
+//    Field groups = Prattle.class.getDeclaredField("groups");
+//    groups.setAccessible(true);
+//    ConcurrentLinkedQueue<SlackGroup> g = (ConcurrentLinkedQueue<SlackGroup>) groups
+//        .get(null);
+//    SlackGroup group = g.remove();
+//    Message callback = waitingList1.peek();
+//    System.out.println(group.getGroupName() + " " + callback);
+//    while (group != null) {
+//      if (group.getGroupName().equals("group1")) {
+//        List<String> mods = group.getModerators();
+//        String moderator1 = mods.remove(0);
+//        assertEquals("omar", moderator1);
+//        g.add(group);
+//        break;
+//      } else {
+//        group = g.remove();
+//      }
+//    }
+//  }
 
 }

@@ -12,10 +12,6 @@ import java.util.Set;
  */
 public class SlackGroup {
 
-  /**
-   * Collection of moderators of this Group
-   */
-  private Set<String> moderators = Collections.synchronizedSet(new HashSet<>());
   // Name of this group. Group names are unique across the server.
   private String groupName;
   // Channel Id associated with this group. Represented the GroupChat that goes with this Group.
@@ -33,7 +29,6 @@ public class SlackGroup {
   SlackGroup(String creatorId, String groupName, int channelId) {
     this.groupName = groupName;
     this.channelId = channelId;
-    this.moderators.add(creatorId);
   }
 
   public String getGroupName() {
@@ -44,7 +39,4 @@ public class SlackGroup {
     return channelId;
   }
 
-  public List<String> getModerators() {
-    return new ArrayList<>(moderators);
-  }
 }
