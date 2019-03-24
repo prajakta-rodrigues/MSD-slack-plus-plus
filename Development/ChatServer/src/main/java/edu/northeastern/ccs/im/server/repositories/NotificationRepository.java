@@ -24,34 +24,11 @@ public class NotificationRepository extends Repository {
     List<Notification> listNotifications = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      Notification notification = null;
       String query = "select * from slack.notification where receiver_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, receiverId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-
-          for (Map<String, Object> result : results) {
-            notification = new Notification();
-            notification.setId((Integer)result.get("id"));
-            notification.setRecieverId(Integer.parseInt(String.valueOf(result.get("receiver_id"))));
-            if (result.get("associated_user_id") != null) {
-              notification.setAssociatedUserId(
-                  Integer.parseInt(String.valueOf(result.get("associated_user_id"))));
-            }
-            if (result.get("associated_group_id") != null) {
-              notification.setAssociatedGroupId(
-                  Integer.parseInt(String.valueOf(result.get("associated_group_id"))));
-            }
-            if (result.get("created_date")!= null) {
-            notification
-                .setCreatedDate(Timestamp.valueOf(String.valueOf(result.get("created_date"))));
-            }
-            notification.setType(NotificationType.valueOf(String.valueOf(result.get("type"))));
-            notification.setNew(Boolean.parseBoolean(String.valueOf(result.get("new"))));
-            listNotifications.add(notification);
-          }
+          listNotifications = getNotificationsFromResultSet(rs);
           connection.close();
         }
       }
@@ -92,35 +69,13 @@ public class NotificationRepository extends Repository {
     List<Notification> listNotifications = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      Notification notification = null;
       String query = "select * from slack.notification where receiver_id = ? and new = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, receiverId);
         preparedStmt.setBoolean(2, true);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-
-          for (Map<String, Object> result : results) {
-            notification = new Notification();
-            notification.setId((Integer)result.get("id"));
-            notification.setRecieverId(Integer.parseInt(String.valueOf(result.get("receiver_id"))));
-            if (result.get("associated_user_id") != null) {
-              notification.setAssociatedUserId(
-                  Integer.parseInt(String.valueOf(result.get("associated_user_id"))));
-            }
-            if (result.get("associated_group_id") != null) {
-              notification.setAssociatedGroupId(
-                  Integer.parseInt(String.valueOf(result.get("associated_group_id"))));
-            }
-            if (result.get("created_date")!= null) {
-            notification
-                .setCreatedDate(Timestamp.valueOf(String.valueOf(result.get("created_date"))));
-            }
-            notification.setType(NotificationType.valueOf(String.valueOf(result.get("type"))));
-            notification.setNew(Boolean.parseBoolean(String.valueOf(result.get("new"))));
-            listNotifications.add(notification);
-          }
+          listNotifications = getNotificationsFromResultSet(rs);
+          
           connection.close();
         }
       }
@@ -131,6 +86,33 @@ public class NotificationRepository extends Repository {
     }
     return listNotifications;
     
+  }
+
+  private List<Notification> getNotificationsFromResultSet(ResultSet rs) {
+    List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+    Notification notification = null;
+    List<Notification> listNotifications = new ArrayList<>();
+    for (Map<String, Object> result : results) {
+      notification = new Notification();
+      notification.setId((Integer)result.get("id"));
+      notification.setRecieverId(Integer.parseInt(String.valueOf(result.get("receiver_id"))));
+      if (result.get("associated_user_id") != null) {
+        notification.setAssociatedUserId(
+            Integer.parseInt(String.valueOf(result.get("associated_user_id"))));
+      }
+      if (result.get("associated_group_id") != null) {
+        notification.setAssociatedGroupId(
+            Integer.parseInt(String.valueOf(result.get("associated_group_id"))));
+      }
+      if (result.get("created_date")!= null) {
+      notification
+          .setCreatedDate(Timestamp.valueOf(String.valueOf(result.get("created_date"))));
+      }
+      notification.setType(NotificationType.valueOf(String.valueOf(result.get("type"))));
+      notification.setNew(Boolean.parseBoolean(String.valueOf(result.get("new"))));
+      listNotifications.add(notification);
+    }
+    return listNotifications;
   }
 
   public boolean markNotificationsAsNotNew(List<Notification> listNotifications) {

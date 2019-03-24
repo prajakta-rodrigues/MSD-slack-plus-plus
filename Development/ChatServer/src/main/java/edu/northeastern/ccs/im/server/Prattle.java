@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
@@ -67,9 +66,7 @@ public abstract class Prattle {
 
   private static final Map<String, Command> commands;
   
-  private static final UserRepository userRepository;
-
-  private static final NotificationRepository notificationRepository;
+  private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -91,7 +88,6 @@ public abstract class Prattle {
     // commands.put("/dm", new Dm());
     commands.put("/help", new Help());
     commands.put("/notification", new NotificationHandler());
-    userRepository = new UserRepository(DatabaseConnection.getDataSource());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 

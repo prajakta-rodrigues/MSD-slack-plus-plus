@@ -27,7 +27,10 @@ import javax.sql.DataSource;
 
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
+import edu.northeastern.ccs.im.server.Notification;
+import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -581,6 +584,61 @@ public class ClientRunnableTest {
 		runnableMeField.set(client, runnableMe);
 		client.run();
 	}
+	
+	
+  @Test
+  public void testHandleNotificationsNoNotifications()
+      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
+    NetworkConnection mockNetwork = Mockito.mock(NetworkConnection.class);
+    client = new ClientRunnable(mockNetwork) {
+      @Override
+      public String getName() {
+        return "another";
+      }
+    };
+    NotificationRepository notificationRepository = Mockito.mock(NotificationRepository.class);
+    when(notificationRepository.getAllNewNotificationsByReceiverId(Mockito.anyInt())).thenReturn(null);
+    Field notificationRepositoryField = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+        .getDeclaredField("notificationRepository");
+    notificationRepositoryField.setAccessible(true);
+    notificationRepositoryField.set(client, notificationRepository);
+    when(mockNetwork.sendMessage(Mockito.any(Message.class))).thenReturn(true);
+    Method init = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+        .getDeclaredMethod("handleNotifications");
+    init.setAccessible(true);
+    init.invoke(client);
+
+  }
+  
+  @Test
+  public void testHandleNotifications()
+      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
+    NetworkConnection mockNetwork = Mockito.mock(NetworkConnection.class);
+    client = new ClientRunnable(mockNetwork);
+    NotificationRepository notificationRepository = Mockito.mock(NotificationRepository.class);
+    List<Notification> listNotifications = new ArrayList<>();
+    Field notificationRepositoryField = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+        .getDeclaredField("notificationRepository");
+    notificationRepositoryField.setAccessible(true);
+    notificationRepositoryField.set(client, notificationRepository);
+    Notification n;
+    n = new Notification();
+    n.setId(1);
+    n.setRecieverId(1);
+    n.setType(NotificationType.FRIEND_REQUEST_APPROVED);
+    n.setAssociatedUserId(2);
+    listNotifications.add(n);
+    when(notificationRepository.getAllNewNotificationsByReceiverId(Mockito.anyInt()))
+    .thenReturn(listNotifications);
+    when(mockNetwork.sendMessage(Mockito.any(Message.class))).thenReturn(true);
+    Method init = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
+        .getDeclaredMethod("handleNotifications");
+    init.setAccessible(true);
+    init.invoke(client);
+
+  }
 	
 	
 }
