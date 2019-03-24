@@ -565,7 +565,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Print out the handles of the users in a group.\nParameters: Channel Id";
+      return "Print out the handles of the users in a group.";
     }
   }
 }
