@@ -32,7 +32,7 @@ public class UserGroupRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
             if ((Boolean) result.get("isModerator")) {
-              mods.add(String.valueOf(result.get("name")));
+              mods.add(String.valueOf(result.get("user_id")));
             }
             connection.close();
           }
