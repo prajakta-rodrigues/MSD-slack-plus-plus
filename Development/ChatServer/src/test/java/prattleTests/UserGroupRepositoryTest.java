@@ -24,7 +24,8 @@ public class UserGroupRepositoryTest {
 
   /**
    * Tests that getting moderators works.
-   * @throws SQLException
+   *
+   * @throws SQLException SQL Exception
    */
   @Test
   public void testGetMods() throws SQLException {
@@ -57,7 +58,6 @@ public class UserGroupRepositoryTest {
 
   /**
    * Tests that getting moderators works if you're not a mod.
-   * @throws SQLException
    */
   @Test
   public void testGetMods2() throws SQLException {

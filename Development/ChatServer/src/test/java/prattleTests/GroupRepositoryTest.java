@@ -47,6 +47,7 @@ public class GroupRepositoryTest {
   /**
    * Test get group by id.
    */
+  @Test
   public void testGetGroupById() throws SQLException {
     groupRepository = new GroupRepository(db);
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
