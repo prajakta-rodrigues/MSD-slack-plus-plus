@@ -70,7 +70,6 @@ public class MessageScannerTest {
   public void testIsAcknowlegeMessage() {
     Message message = Message.makeAcknowledgeMessage(TESTING);
     assertTrue(message.isAcknowledge());
-
   }
 
   /**
@@ -80,7 +79,6 @@ public class MessageScannerTest {
   public void testIsNotAcknowlegeMessage() {
     Message message = Message.makeQuitMessage(TESTING);
     assertFalse(message.isAcknowledge());
-
   }
 
   /**
@@ -88,7 +86,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsBroadcastMessage() {
-    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    Message message = Message.makeBroadcastMessage(TEST_USER, -1,"u");
     assertFalse(message.isCommandMessage());
     assertTrue(message.isBroadcastMessage());
 
@@ -99,15 +97,15 @@ public class MessageScannerTest {
    */
   @Test
   public void testCommandMessage() {
-    Message message = Message.makeCommandMessage(TEST_USER, "/circle");
+    Message message = Message.makeCommandMessage(TEST_USER, -1, "/circle");
     edu.northeastern.ccs.im.server.Message message2 =
-        edu.northeastern.ccs.im.server.Message.makeCommandMessage(TEST_USER, "/quit");
-    assertEquals("CMD 7 testing 7 /circle", message.toString());
+        edu.northeastern.ccs.im.server.Message.makeCommandMessage(TEST_USER, -1, "/quit");
+    assertEquals("CMD 7 testing 2 -1 7 /circle", message.toString());
     assertFalse(message.isDisplayMessage());
     assertFalse(message.isBroadcastMessage());
     assertTrue(message.isCommandMessage());
 
-    assertEquals("CMD 7 testing 5 /quit", message2.toString());
+    assertEquals("CMD 7 testing 2 -1 5 /quit", message2.toString());
     assertFalse(message2.isBroadcastMessage());
     assertTrue(message2.isCommandMessage());
     assertEquals(-1, message2.getChannelId());
@@ -148,7 +146,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsDisplayMessage() {
-    Message message = Message.makeBroadcastMessage(TEST_USER, "u");
+    Message message = Message.makeBroadcastMessage(TEST_USER, -1,"u");
     assertTrue(message.isDisplayMessage());
 
   }
@@ -209,7 +207,7 @@ public class MessageScannerTest {
   @Test
   public void testToStringMessageSenderNull() {
     Message message = Message.makeLoginMessage(null);
-    assertEquals("HLO 2 -- 2 --", message.toString());
+    assertEquals("HLO 2 -- 2 -1 2 --", message.toString());
   }
 
   /**
@@ -218,7 +216,7 @@ public class MessageScannerTest {
   @Test
   public void testToStringMessageSenderNotNull() {
     Message message = Message.makeLoginMessage("test12");
-    assertEquals("HLO 6 test12 2 --", message.toString());
+    assertEquals("HLO 6 test12 2 -1 2 --", message.toString());
   }
 
   /**
@@ -250,9 +248,9 @@ public class MessageScannerTest {
   public void testMakeTypeBroadcastMessage2() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
+        .getDeclaredMethod("makeBroadcastMessage", String.class, int.class, String.class);
     makeMethod.setAccessible(true);
-    makeMethod.invoke(null, "test2", "testing");
+    makeMethod.invoke(null, "test2", 2, "testing");
   }
 
   /**
@@ -267,9 +265,9 @@ public class MessageScannerTest {
   public void testMakeTypeQuitMessage2() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+        .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     makeMethod.setAccessible(true);
-    makeMethod.invoke(null, "BYE", "tester", "testingText");
+    makeMethod.invoke(null, "BYE", "tester", -1, "testingText");
   }
 
   /**
@@ -284,9 +282,9 @@ public class MessageScannerTest {
   public void testMakeTypeCommandMessage2() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+        .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     makeMethod.setAccessible(true);
-    makeMethod.invoke(null, "CMD", "test2", "testing");
+    makeMethod.invoke(null, "CMD", "test2", 2, "testing");
   }
 
   /**
@@ -301,9 +299,9 @@ public class MessageScannerTest {
   public void testMakeTypeNoneMessageClient() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
     Method makeMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeMessage", String.class, String.class, String.class);
+        .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     makeMethod.setAccessible(true);
-    assertNull(makeMethod.invoke(null, "zzz", "test1", "testText"));
+    assertNull(makeMethod.invoke(null, "zzz", "test1", 1, "testText"));
   }
 
   /**
@@ -311,7 +309,7 @@ public class MessageScannerTest {
    */
   @Test
   public void testMakeMessageBroadcast() {
-    Message.makeMessage("BCT", "test", "text");
+    Message.makeMessage("BCT", "test", -1,"text");
   }
 
   /**
@@ -337,10 +335,10 @@ public class MessageScannerTest {
    */
   @Test
   public void makeAuthMessage() {
-    Message msg = Message.makeMessage("AUT", "test", "test1");
+    Message msg = Message.makeMessage("AUT", "test", -1,"test1");
     assertEquals("test", msg.getSender());
-    assertEquals(true, msg.isAuthenticateMessage());
-    assertEquals(false, msg.isRegisterMessage());
+    assertTrue(msg.isAuthenticateMessage());
+    assertFalse(msg.isRegisterMessage());
   }
 
   /**
@@ -348,9 +346,9 @@ public class MessageScannerTest {
    */
   @Test
   public void makeRegisterMessage() {
-    Message msg = Message.makeMessage("REG", "test", "test1");
+    Message msg = Message.makeMessage("REG", "test", -1,"test1");
     assertEquals("test", msg.getSender());
-    assertEquals(true, msg.isRegisterMessage());
-    assertEquals(false, msg.isAuthenticateMessage());
+    assertTrue(msg.isRegisterMessage());
+    assertFalse(msg.isAuthenticateMessage());
   }
 }
