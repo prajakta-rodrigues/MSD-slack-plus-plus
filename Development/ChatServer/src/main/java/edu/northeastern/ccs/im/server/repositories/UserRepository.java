@@ -78,5 +78,36 @@ public class UserRepository extends Repository {
 		}
 		return result == 1;
 	}
+	
+    /**
+     * Gets the user by user id.
+     *
+     * @param userName the user id
+     * @return the user by user id
+     */
+    public User getUserByUserId(int userId) {
+        User user = null; 
+        try {
+            connection = dataSource.getConnection();
+            String query = "select * from slack.user where id = ?";
+            try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+                preparedStmt.setInt(1, userId);
+                try (ResultSet rs = preparedStmt.executeQuery()) {
 
+                    List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+
+                    for (Map<String, Object> result : results) {
+                        user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
+                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
+                    }
+                    connection.close();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return user;
+    }
+    
+	
 }

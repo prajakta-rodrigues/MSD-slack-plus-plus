@@ -24,13 +24,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
+import edu.northeastern.ccs.im.server.Notification;
+import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.SlackGroup;
-
+import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import org.mockito.Mockito;
 
 import static junit.framework.Assert.assertNull;
@@ -42,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Created by venkateshkoka on 2/10/19. All the test cases
- */
+ */ 
 public class PrattleTest {
 
   private ClientRunnable cr1;
@@ -653,5 +658,75 @@ public class PrattleTest {
     Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     assertTrue(waitingList2.isEmpty());
   }
+  
+  @Test
+  public void testNotificationCommandNullList() throws NoSuchFieldException, SecurityException, 
+  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("notificationRepository");
+    notificationRepoField.setAccessible(true);
+    NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
+    notificationRepoField.set(null, notificationRepo);
+    Mockito.when(notificationRepo.getAllNotificationsByReceiverId(1)).thenReturn(null);
+    assertTrue(waitingList2.isEmpty());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
+    Message callback = waitingList2.remove();
+    assertEquals("No notifications to show" , callback.getText());
+
+  }
+  
+  @Test
+  public void testNotificationCommandEmptyList() throws NoSuchFieldException, SecurityException, 
+  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("notificationRepository");
+    notificationRepoField.setAccessible(true);
+    NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
+    notificationRepoField.set(null, notificationRepo);
+    List<Notification> list = new ArrayList<>();
+    Mockito.when(notificationRepo.getAllNotificationsByReceiverId(1)).thenReturn(list );
+    assertTrue(waitingList2.isEmpty());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
+    Message callback = waitingList2.remove();
+    assertEquals("No notifications to show" , callback.getText());
+
+  }
+  
+  @Test
+  public void testNotificationCommandNotificationList() throws NoSuchFieldException, SecurityException, 
+  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("notificationRepository");
+    notificationRepoField.setAccessible(true);
+    NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
+    notificationRepoField.set(null, notificationRepo);
+    
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+        .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "testY", "pwd");
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+    
+    List<Notification> list = new ArrayList<>();
+    Notification e = new Notification();
+    e.setId(1);
+    e.setAssociatedGroupId(1);
+    e.setAssociatedUserId(2);
+    e.setNew(true);
+    e.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    e.setRecieverId(1);
+    e.setType(NotificationType.FRIEND_REQUEST);
+    list.add(e);
+    Mockito.when(notificationRepo.getAllNotificationsByReceiverId(1)).thenReturn(list );
+    assertTrue(waitingList2.isEmpty());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
+    Message callback = waitingList2.remove();
+    assertEquals("Notifications:\n" + 
+        "testY has sent you a friend request.  NEW\n", callback.getText());
+
+  }
+  
   
 }
