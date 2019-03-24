@@ -43,14 +43,14 @@ public class GroupRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
             groupMembers.add(String.valueOf(result.get("name")));
-            }
+          }
           connection.close();
         }
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
- return groupMembers;
+    return groupMembers;
   }
 
   /*
@@ -71,9 +71,9 @@ public class GroupRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
 
           for (Map<String, Object> result : results) {
-            group = new SlackGroup((Integer)result.get("id"),
-                    String.valueOf(result.get("name")),
-                    (Integer)result.get("channel_id"));
+            group = new SlackGroup((Integer) result.get("id"),
+                String.valueOf(result.get("name")),
+                (Integer) result.get("channel_id"));
           }
           connection.close();
         }

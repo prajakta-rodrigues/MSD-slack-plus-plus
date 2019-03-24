@@ -538,7 +538,7 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, String senderId) {
+    public String apply(String ignoredParam, Integer senderId) {
       ClientRunnable currClient = getClient(senderId);
       if (currClient == null) {
         return "Your client is null";
