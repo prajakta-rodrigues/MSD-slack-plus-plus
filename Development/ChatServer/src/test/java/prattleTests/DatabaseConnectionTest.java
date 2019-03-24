@@ -15,14 +15,25 @@ import org.mockito.Mockito;
 
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class DatabaseConnectionTest.
+ */
 public class DatabaseConnectionTest {
 
+	/**
+	 * Test get datasource.
+	 */
 	@Test
 	public void testGetDatasource() {
 		DataSource ds = DatabaseConnection.getDataSource();
 		assertNotNull(ds);
 	}
 	
+	/**
+	 * Test results list.
+	 *
+	 * @throws SQLException the SQL exception
+	 */
 	@Test
 	public void testResultsList() throws SQLException {
 		ResultSet resultSet = Mockito.mock(ResultSet.class);

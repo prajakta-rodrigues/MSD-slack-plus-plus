@@ -170,10 +170,15 @@ public class SocketNB {
 				final String sender = readArgument(charBuffer);
 				// Skip past the leading space
 				charBuffer.position(charBuffer.position() + 2);
+				// Read in second argument containing the senderId
+        String maybeId = readArgument(charBuffer);
+				int senderId = maybeId != null ? Integer.parseInt(maybeId) : -1;
+				// Skip past the leading space
+				charBuffer.position(charBuffer.position() + 2);
 				// Read in the second argument containing the message
 				final String message = readArgument(charBuffer);
 				// Add this message into our queue
-				Message newMsg = Message.makeMessage(handle, sender, message);
+				Message newMsg = Message.makeMessage(handle, sender, senderId, message);
 				// And move the position to the start of the next character
 				start = charBuffer.position() + 1;
 				// Check if this message is closing our connection
