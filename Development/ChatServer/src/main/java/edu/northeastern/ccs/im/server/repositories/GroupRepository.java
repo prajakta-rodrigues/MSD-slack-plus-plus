@@ -11,12 +11,26 @@ import javax.sql.DataSource;
 import edu.northeastern.ccs.im.server.SlackGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class GroupRepository provides methods to interact with database entity group.
+ */
 public class GroupRepository extends Repository {
 
+  /**
+   * Instantiates a new group repository.
+   *
+   * @param ds the ds
+   */
   public GroupRepository(DataSource ds) {
     super(ds);
   }
 
+  /**
+   * Gets the group by id.
+   *
+   * @param groupId the group id
+   * @return the group by id
+   */
   public SlackGroup getGroupById(int groupId) {
     SlackGroup group = null;
     try {

@@ -14,9 +14,21 @@ import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
+/**
+ * The Class NotificationConvertorTest.
+ */
 public class NotificationConvertorTest {
 
 
+  /**
+   * Test get notifications as text no new unread messages.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws SecurityException the security exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalArgumentException the illegal argument exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public void testGetNotificationsAsTextNoNewUnreadMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -64,6 +76,15 @@ public class NotificationConvertorTest {
         NotificationConvertor.getNotificationsAsText(listNotifications));
   }
 
+  /**
+   * Test get notifications as text new unread messages.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws SecurityException the security exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalArgumentException the illegal argument exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public void testGetNotificationsAsTextNewUnreadMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -119,6 +140,15 @@ public class NotificationConvertorTest {
         NotificationConvertor.getNotificationsAsText(listNotifications));
   }
 
+  /**
+   * Test get notifications as text exception.
+   *
+   * @throws NoSuchFieldException the no such field exception
+   * @throws SecurityException the security exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalArgumentException the illegal argument exception
+   * @throws IllegalAccessException the illegal access exception
+   */
   @Test
   public void testGetNotificationsAsTextException() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {

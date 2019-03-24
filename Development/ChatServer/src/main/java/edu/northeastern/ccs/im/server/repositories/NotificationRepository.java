@@ -14,12 +14,26 @@ import edu.northeastern.ccs.im.server.Notification;
 import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class NotificationRepository provides methods to interact with database entity notification.
+ */
 public class NotificationRepository extends Repository {
 
+  /**
+   * Instantiates a new notification repository.
+   *
+   * @param ds the ds
+   */
   public NotificationRepository(DataSource ds) {
     super(ds);
   }
 
+  /**
+   * Gets the all notifications by receiver id.
+   *
+   * @param receiverId the receiver id
+   * @return the all notifications by receiver id
+   */
   public List<Notification> getAllNotificationsByReceiverId(int receiverId) { 
     List<Notification> listNotifications = new ArrayList<>();
     try {
@@ -40,6 +54,12 @@ public class NotificationRepository extends Repository {
     return listNotifications;
   }
 
+  /**
+   * Adds the notification.
+   *
+   * @param notification the notification
+   * @return true, if successful
+   */
   public boolean addNotification(Notification notification) {
     int result = 0;
     try {
@@ -65,6 +85,12 @@ public class NotificationRepository extends Repository {
   }
 
 
+  /**
+   * Gets the all new notifications by receiver id.
+   *
+   * @param receiverId the receiver id
+   * @return the all new notifications by receiver id
+   */
   public List<Notification> getAllNewNotificationsByReceiverId(int receiverId) {
     List<Notification> listNotifications = new ArrayList<>();
     try {
@@ -88,6 +114,12 @@ public class NotificationRepository extends Repository {
     
   }
 
+  /**
+   * Gets the notifications from result set.
+   *
+   * @param rs the result set
+   * @return the notifications from result set
+   */
   private List<Notification> getNotificationsFromResultSet(ResultSet rs) {
     List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
     Notification notification = null;
@@ -115,6 +147,12 @@ public class NotificationRepository extends Repository {
     return listNotifications;
   }
 
+  /**
+   * Mark notifications as not new.
+   *
+   * @param listNotifications the list notifications
+   * @return true, if successful
+   */
   public boolean markNotificationsAsNotNew(List<Notification> listNotifications) {
     int result = 0;
     try {

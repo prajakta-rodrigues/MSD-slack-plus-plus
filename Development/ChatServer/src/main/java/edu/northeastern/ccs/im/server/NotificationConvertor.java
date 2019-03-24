@@ -11,10 +11,18 @@ import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class NotificationConvertor provides methods to convert notifications their into text representation.
+ */
 public class NotificationConvertor {
 
+  /** The user repository. */
   private static UserRepository userRepository;
+  
+  /** The group repository. */
   private static GroupRepository groupRepository;
+  
+  /** The Constant LOGGER. */
   static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
 
   static {
@@ -22,6 +30,12 @@ public class NotificationConvertor {
     groupRepository = new GroupRepository(DatabaseConnection.getDataSource());
   }
   
+  /**
+   * Gets the list notifications as their text representation.
+   *
+   * @param listNotifications the list notifications
+   * @return the notifications as text
+   */
   public static String getNotificationsAsText(List<Notification> listNotifications) {
     StringBuilder result = new StringBuilder();
     try {
@@ -70,6 +84,13 @@ public class NotificationConvertor {
     return result.toString();
   }
 
+  /**
+   * Gets the text for friend request approval.
+   *
+   * @param associatedUserId the associated user id
+   * @param isNew the is new
+   * @return the text for friend request approval
+   */
   private static String getTextForFriendRequestApproval(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST_APPROVED.getText();
@@ -83,6 +104,13 @@ public class NotificationConvertor {
     return result.toString();
   }
 
+  /**
+   * Gets the text for friend request.
+   *
+   * @param associatedUserId the associated user id
+   * @param isNew the is new
+   * @return the text for friend request
+   */
   private static String getTextForFriendRequest(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST.getText();
@@ -96,6 +124,15 @@ public class NotificationConvertor {
     return result.toString();
   }
 
+  /**
+   * Count associated notifications from map and given resultant string representation.
+   *
+   * @param associatedMessages the associated messages
+   * @param isNew the is new
+   * @param unreadMessages the unread messages
+   * @param senderType the sender type
+   * @return the string
+   */
   private static String countAssociatedFromMap(Map<String, Integer> associatedMessages,
       boolean isNew, NotificationType unreadMessages, String senderType) {
     StringTemplate stringTemplate = null;
@@ -114,6 +151,12 @@ public class NotificationConvertor {
     return result.toString();
   }
 
+  /**
+   * Update map with given userName.
+   *
+   * @param map the map
+   * @param userName the user name
+   */
   private static void updateMap(Map<String, Integer> map, String userName) {
     if (map.containsKey(userName)) {
       map.put(userName, map.get(userName) + 1);

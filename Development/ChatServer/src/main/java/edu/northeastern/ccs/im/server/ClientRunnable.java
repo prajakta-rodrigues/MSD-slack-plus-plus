@@ -257,6 +257,9 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  /**
+   * Checks for new notifications for user.
+   */
   private void handleNotifications() {
     List<Notification> listNotifications = notificationRepository.getAllNewNotificationsByReceiverId(userId);
     if(listNotifications != null && !listNotifications.isEmpty()) {

@@ -14,14 +14,25 @@ import org.mockito.Mockito;
 import edu.northeastern.ccs.im.server.SlackGroup;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
+/**
+ * The Class GroupRepositoryTest.
+ */
 public class GroupRepositoryTest {
 
+  /** The group repository. */
   private GroupRepository groupRepository;
   
+  /** The connection. */
   private Connection connection;
   
+  /** The db. */
   private DataSource db;
   
+  /**
+   * Inits the.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Before
   public void init() throws SQLException {
     db = Mockito.mock(DataSource.class);
@@ -31,6 +42,11 @@ public class GroupRepositoryTest {
 
   }
   
+  /**
+   * Test get group by id.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetGroupById() throws SQLException {
     groupRepository = new GroupRepository(db);
@@ -53,6 +69,11 @@ public class GroupRepositoryTest {
     assertEquals(1 , group.getGroupId());
   }
   
+  /**
+   * Test get group by id exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetGroupByIdException() throws SQLException {
     groupRepository = new GroupRepository(db);

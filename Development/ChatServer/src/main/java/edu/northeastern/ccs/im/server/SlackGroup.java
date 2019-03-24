@@ -2,8 +2,7 @@ package edu.northeastern.ccs.im.server;
 
 
 /**
- * Class representing a SlackGroup.  This class is subject to a lot of change once the database is
- * integrated.
+ * Class representing a SlackGroup entity corresponding to database. 
  */
 public class SlackGroup {
 

@@ -48,26 +48,33 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ClientRunnableTest {
 
+	/** The client. */
 	private ClientRunnable client;
 
+	/** The mock iterator. */
 	private Iterator<Message> mockIterator;
 
+	/** The ds. */
 	@Mock
 	private DataSource ds;
 	
 		
+	/** The c. */
 	@Mock
     private Connection c;
 	
+    /** The stmt. */
     @Mock
     private PreparedStatement stmt;
 	
+    /** The rs. */
     @Mock
     private ResultSet rs;
     
 	/**
 	 * Setup for tests.
-	 * @throws SQLException 
+	 *
+	 * @throws SQLException the SQL exception
 	 */
 	@Before
 	public void initData() throws SQLException {
@@ -113,6 +120,9 @@ public class ClientRunnableTest {
 		assertEquals("Franklin", client.getName());
 	}
 
+	/**
+	 * Test set client runnable.
+	 */
 	@Test
 	public void testSetClientRunnable() {
 		ClientRunnable cr = Mockito.mock(ClientRunnable.class);
@@ -154,8 +164,12 @@ public class ClientRunnableTest {
 	  }
 
 	  /**
-	   * Test client runnable broadcast message different name.
-	   */
+  	 * Test client runnable broadcast message different name.
+  	 *
+  	 * @throws IllegalAccessException the illegal access exception
+  	 * @throws ClassNotFoundException the class not found exception
+  	 * @throws NoSuchFieldException the no such field exception
+  	 */
 	  @Test
 	  public void testClientRunnableBroadcastMessageDifferentName3()
 	      throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
@@ -177,15 +191,15 @@ public class ClientRunnableTest {
 	  }
 
 	  /**
-	   * Test message null checks.
-	   *
-	   * @throws NoSuchMethodException the no such method exception
-	   * @throws SecurityException the security exception
-	   * @throws ClassNotFoundException the class not found exception
-	   * @throws IllegalAccessException the illegal access exception
-	   * @throws IllegalArgumentException the illegal argument exception
-	   * @throws InvocationTargetException the invocation target exception
-	   */
+  	 * Test message null checks.
+  	 *
+  	 * @throws NoSuchMethodException the no such method exception
+  	 * @throws ClassNotFoundException the class not found exception
+  	 * @throws IllegalAccessException the illegal access exception
+  	 * @throws InvocationTargetException the invocation target exception
+  	 * @throws SecurityException the security exception
+  	 * @throws IllegalArgumentException the illegal argument exception
+  	 */
 	  @Test
 	  public void testMessageNullChecks()
 	      throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
@@ -200,15 +214,15 @@ public class ClientRunnableTest {
 	  }
 
 	  /**
-	   * Test message checks.
-	   *
-	   * @throws NoSuchMethodException the no such method exception
-	   * @throws SecurityException the security exception
-	   * @throws ClassNotFoundException the class not found exception
-	   * @throws IllegalAccessException the illegal access exception
-	   * @throws IllegalArgumentException the illegal argument exception
-	   * @throws InvocationTargetException the invocation target exception
-	   */
+  	 * Test message checks.
+  	 *
+  	 * @throws NoSuchMethodException the no such method exception
+  	 * @throws ClassNotFoundException the class not found exception
+  	 * @throws IllegalAccessException the illegal access exception
+  	 * @throws InvocationTargetException the invocation target exception
+  	 * @throws SecurityException the security exception
+  	 * @throws IllegalArgumentException the illegal argument exception
+  	 */
 	  @Test
 	  public void testMessageChecks()
 	      throws NoSuchMethodException, ClassNotFoundException, IllegalAccessException, InvocationTargetException {
@@ -220,6 +234,18 @@ public class ClientRunnableTest {
 	    msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
 	  }
 	
+	/**
+	 * Test authentication message.
+	 *
+	 * @throws SQLException the SQL exception
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testAuthenticationMessage() throws SQLException, NoSuchFieldException, 
 	SecurityException, ClassNotFoundException, IllegalArgumentException, 
@@ -260,6 +286,15 @@ public class ClientRunnableTest {
 		
 	}
 	
+	/**
+	 * Test authentication fail.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	@Test
 	public void testAuthenticationFail() throws NoSuchFieldException, SecurityException, 
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -295,6 +330,17 @@ public class ClientRunnableTest {
 	}
 
 	
+	/**
+	 * Test authentication success.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testAuthenticationSuccess() throws NoSuchFieldException, SecurityException, 
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -330,6 +376,16 @@ public class ClientRunnableTest {
 		
 	}
 	
+	/**
+	 * Test check for initialization no message.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testCheckForInitializationNoMessage() throws NoSuchMethodException, SecurityException,
 	ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -349,6 +405,17 @@ public class ClientRunnableTest {
 		
 	}
 	
+	/**
+	 * Test check for initialization user exists.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testCheckForInitializationUserExists() throws NoSuchMethodException, SecurityException,
 	ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
@@ -377,6 +444,17 @@ public class ClientRunnableTest {
 		init.invoke(client);
 	} 
 	
+	/**
+	 * Test respond to broadcast message.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testRespondToBroadcastMessage() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -400,6 +478,17 @@ public class ClientRunnableTest {
 		init.invoke(client, msg);
 	}
 
+	/**
+	 * Test respond to command message.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testRespondToCommandMessage() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -423,6 +512,17 @@ public class ClientRunnableTest {
 		init.invoke(client, msg);
 	}
 	
+	/**
+	 * Test respond to authenticate message.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testRespondToAuthenticateMessage() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -448,6 +548,17 @@ public class ClientRunnableTest {
 		init.invoke(client, msg);
 	}
 	
+	/**
+	 * Test respond to register message registration failed.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testRespondToRegisterMessageRegistrationFailed() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -472,6 +583,17 @@ public class ClientRunnableTest {
 		init.invoke(client, msg);
 	}
 	
+	/**
+	 * Test respond to register message registration success.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws NoSuchFieldException the no such field exception
+	 */
 	@Test
 	public void testRespondToRegisterMessageRegistrationSuccess() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -497,6 +619,16 @@ public class ClientRunnableTest {
 		assertEquals((client.getName().hashCode() & 0xfffffff) , client.getUserId());
 	}
 	
+	/**
+	 * Test send message.
+	 *
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	@Test
 	public void testSendMessage() throws NoSuchMethodException, 
 	SecurityException, ClassNotFoundException, IllegalAccessException, 
@@ -512,6 +644,15 @@ public class ClientRunnableTest {
 		
 	}
 	
+	/**
+	 * Test terminate client.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	@Test
 	public void testTerminateClient() throws NoSuchFieldException, SecurityException, 
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -534,6 +675,15 @@ public class ClientRunnableTest {
 		client.run();
 	}
 	
+	/**
+	 * Test handle incoming quit message.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	@Test
 	public void testHandleIncomingQuitMessage() throws NoSuchFieldException, SecurityException,
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -557,6 +707,15 @@ public class ClientRunnableTest {
 		client.run();
 	}
 	
+	/**
+	 * Test handle incoming ill formatted message.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	@Test
 	public void testHandleIncomingIllFormattedMessage() throws NoSuchFieldException, SecurityException,
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -586,6 +745,17 @@ public class ClientRunnableTest {
 	}
 	
 	
+  /**
+   * Test handle notifications no notifications.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws SecurityException the security exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalArgumentException the illegal argument exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws NoSuchFieldException the no such field exception
+   */
   @Test
   public void testHandleNotificationsNoNotifications()
       throws NoSuchMethodException, SecurityException, ClassNotFoundException,
@@ -611,6 +781,17 @@ public class ClientRunnableTest {
 
   }
   
+  /**
+   * Test handle notifications.
+   *
+   * @throws NoSuchMethodException the no such method exception
+   * @throws SecurityException the security exception
+   * @throws ClassNotFoundException the class not found exception
+   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalArgumentException the illegal argument exception
+   * @throws InvocationTargetException the invocation target exception
+   * @throws NoSuchFieldException the no such field exception
+   */
   @Test
   public void testHandleNotifications()
       throws NoSuchMethodException, SecurityException, ClassNotFoundException,

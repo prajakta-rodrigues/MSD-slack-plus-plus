@@ -18,13 +18,26 @@ import edu.northeastern.ccs.im.server.Notification;
 import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 
+/**
+ * The Class NotificationRespositoryTest.
+ */
 public class NotificationRespositoryTest {
 
   
+  /** The notification repository. */
   private NotificationRepository notificationRepository;
+  
+  /** The datasource. */
   private DataSource db;
+  
+  /** The connection. */
   private Connection connection;
   
+  /**
+   * Setup for the test.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Before
   public void init() throws SQLException {
     db = Mockito.mock(DataSource.class);
@@ -34,6 +47,11 @@ public class NotificationRespositoryTest {
 
   }
   
+  /**
+   * Test get all notifications by receiver id.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetAllNotificationsByReceiverId() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -63,6 +81,11 @@ public class NotificationRespositoryTest {
     assertEquals(2, list.size());
   }
   
+  /**
+   * Test get all notifications by receiver id SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetAllNotificationsByReceiverIdSQLException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -73,6 +96,11 @@ public class NotificationRespositoryTest {
     assertEquals(0, list.size());
   }
   
+  /**
+   * Test get all notifications by receiver id any exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetAllNotificationsByReceiverIdAnyException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -84,6 +112,11 @@ public class NotificationRespositoryTest {
   }
   
   
+  /**
+   * Test add notification success.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testAddNotificationSuccess() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -101,6 +134,11 @@ public class NotificationRespositoryTest {
   }
   
   
+  /**
+   * Test add notification exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testAddNotificationException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -112,6 +150,11 @@ public class NotificationRespositoryTest {
     assertEquals(false, notificationRepository.addNotification(notification));
   }
   
+  /**
+   * Test add notification SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testAddNotificationSQLException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -125,6 +168,11 @@ public class NotificationRespositoryTest {
   
   
   
+  /**
+   * Test get new notifications by receiver id.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetNewNotificationsByReceiverId() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -154,6 +202,11 @@ public class NotificationRespositoryTest {
     assertEquals(2, list.size());
   }
   
+  /**
+   * Test get new notifications by receiver id SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetNewNotificationsByReceiverIdSQLException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -164,6 +217,11 @@ public class NotificationRespositoryTest {
     assertEquals(0, list.size());
   }
   
+  /**
+   * Test get new all notifications by receiver id any exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetNewAllNotificationsByReceiverIdAnyException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -174,6 +232,11 @@ public class NotificationRespositoryTest {
     assertEquals(0, list.size());
   }
   
+  /**
+   * Test mark notifications as not new.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testMarkNotificationsAsNotNew() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -189,6 +252,11 @@ public class NotificationRespositoryTest {
 
   }
   
+  /**
+   * Test mark notifications as not new SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testMarkNotificationsAsNotNewSQLException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
@@ -204,6 +272,11 @@ public class NotificationRespositoryTest {
 
   }
   
+  /**
+   * Test mark notifications as not new exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testMarkNotificationsAsNotNewException() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
