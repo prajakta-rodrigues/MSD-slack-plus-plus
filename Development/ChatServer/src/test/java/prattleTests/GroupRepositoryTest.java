@@ -91,10 +91,7 @@ public class GroupRepositoryTest {
    */
   @Test
   public void testGetGroupMembers() throws SQLException {
-    DataSource ds = Mockito.mock(DataSource.class);
-    groupRepository = new GroupRepository(ds);
-    Connection connection = Mockito.mock(Connection.class);
-    Mockito.when(ds.getConnection()).thenReturn(connection);
+    groupRepository = new GroupRepository(db);
     PreparedStatement value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
@@ -127,10 +124,7 @@ public class GroupRepositoryTest {
    */
   @Test
   public void testGetGroupMembersException() throws SQLException {
-    DataSource ds = Mockito.mock(DataSource.class);
-    groupRepository = new GroupRepository(ds);
-    Connection connection = Mockito.mock(Connection.class);
-    Mockito.when(ds.getConnection()).thenReturn(connection);
+    groupRepository = new GroupRepository(db);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
     groupRepository.getGroupMembers(-1);
   }
@@ -142,10 +136,7 @@ public class GroupRepositoryTest {
    */
   @Test
   public void testGetGroupMembersException2() throws SQLException {
-    DataSource ds = Mockito.mock(DataSource.class);
-    groupRepository = new GroupRepository(ds);
-    Connection connection = Mockito.mock(Connection.class);
-    Mockito.when(ds.getConnection()).thenReturn(connection);
+    groupRepository = new GroupRepository(db);
     PreparedStatement value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());

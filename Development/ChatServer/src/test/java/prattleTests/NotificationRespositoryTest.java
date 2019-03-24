@@ -33,6 +33,11 @@ public class NotificationRespositoryTest {
   private NotificationRepository notificationRepository;
 
   /**
+   * The datasource.
+   */
+  private DataSource db;
+
+  /**
    * The connection.
    */
   private Connection connection;
@@ -44,7 +49,6 @@ public class NotificationRespositoryTest {
    */
   @Before
   public void init() throws SQLException {
-    DataSource db;
     db = Mockito.mock(DataSource.class);
     notificationRepository = new NotificationRepository(db);
     connection = Mockito.mock(Connection.class);
