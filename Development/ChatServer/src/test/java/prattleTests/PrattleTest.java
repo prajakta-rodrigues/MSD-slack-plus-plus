@@ -120,8 +120,8 @@ public class PrattleTest {
 
     Map<Integer, Set<ClientRunnable>> channelMembers = (Hashtable<Integer, Set<ClientRunnable>>) cm
             .get(null);
-    channelMembers.get(0).add(cr1);
-    channelMembers.get(0).add(cr2);
+    channelMembers.get(1).add(cr1);
+    channelMembers.get(1).add(cr2);
 
     Field wl = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable").getDeclaredField("waitingList");
     wl.setAccessible(true);

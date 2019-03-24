@@ -39,7 +39,7 @@ public class SlackGroup {
    * @param groupName The name of the newly created group.
    */
   public SlackGroup(int creatorId, String groupName) {
-    this(groupName.hashCode(), creatorId, groupName, -1);
+    this((groupName.hashCode() & 0xfffffff), creatorId, groupName, -1);
   }
 
   public String getGroupName() {

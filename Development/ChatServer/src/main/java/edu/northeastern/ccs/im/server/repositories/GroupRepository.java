@@ -64,6 +64,27 @@ public class GroupRepository extends Repository {
     return count > 0;
   }
 
+  public boolean groupHasMember(int memberId, String groupName) {
+    boolean hasMember = false;
+    try {
+      connection = dataSource.getConnection();
+      String query = "SELECT user_id " +
+              "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id) " +
+              "WHERE g.name like ? AND user_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setString(1, groupName);
+        preparedStmt.setInt(2, memberId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          hasMember = !DatabaseConnection.resultsList(rs).isEmpty();
+        }
+      }
+      connection.close();
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return hasMember;
+  }
+
   public String groupsHavingMember(int memberId) {
     StringBuilder groups = new StringBuilder();
     try {

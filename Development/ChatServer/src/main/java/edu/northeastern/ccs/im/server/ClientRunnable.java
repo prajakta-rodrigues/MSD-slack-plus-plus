@@ -8,6 +8,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
+
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
  * Instances are created when the client signs-on with the server. After instantiation, it is
@@ -31,7 +33,7 @@ public class ClientRunnable implements Runnable {
   /**
    * Id for the active channel that the client is sending messages to.
    */
-  private int activeChannelId = 0;
+  private int activeChannelId = GENERAL_ID;
 
   /**
    * Id for the user for whom we use this ClientRunnable to communicate.

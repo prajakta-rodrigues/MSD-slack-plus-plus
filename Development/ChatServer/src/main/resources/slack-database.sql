@@ -73,4 +73,8 @@ BEGIN
 END //
 delimiter ;
 
+INSERT INTO slack.channel VALUES();
+INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null);
+INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
+
 		
