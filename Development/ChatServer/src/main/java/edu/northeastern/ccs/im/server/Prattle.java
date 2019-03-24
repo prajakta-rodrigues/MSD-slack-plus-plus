@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,6 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -62,6 +66,10 @@ public abstract class Prattle {
   private static ChannelFactory channelFactory;
 
   private static final Map<String, Command> commands;
+  
+  private static final UserRepository userRepository;
+
+  private static final NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -82,6 +90,9 @@ public abstract class Prattle {
     commands.put("/circle", new Circle());
     // commands.put("/dm", new Dm());
     commands.put("/help", new Help());
+    commands.put("/notification", new NotificationHandler());
+    userRepository = new UserRepository(DatabaseConnection.getDataSource());
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
   /**
@@ -440,4 +451,24 @@ public abstract class Prattle {
 //      return "Start a DM with the given user.\nParameters: user id";
 //    }
 //  }
+  
+  private static class NotificationHandler implements Command {
+
+    @Override
+    public String apply(String noParam, Integer senderId) {
+
+      List<Notification> listNotifications = notificationRepository
+          .getAllNotificationsByReceiverId(senderId);
+      if(listNotifications == null || listNotifications.isEmpty()) {
+        return "No notifications to show";
+      }
+      return "Notifications:\n" + NotificationConvertor.getNotificationsAsText(listNotifications);
+    }
+
+    @Override
+    public String description() {
+      return "Shows recent notifications";
+    }
+    
+  }
 }
