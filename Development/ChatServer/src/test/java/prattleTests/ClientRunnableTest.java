@@ -257,7 +257,7 @@ public class ClientRunnableTest {
 	
 	@Test
 	public void testAuthenticationFail() throws NoSuchFieldException, SecurityException, 
-	ClassNotFoundException, IllegalArgumentException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
 		NetworkConnection mockNetwork = Mockito.mock(NetworkConnection.class);
 		client = new ClientRunnable(mockNetwork) {
 			@Override
@@ -414,7 +414,7 @@ public class ClientRunnableTest {
 	    		.getDeclaredField("authenticated");
 	    initialized.setAccessible(true);
 	    initialized.set(client, true);
-		Message msg = Message.makeCommandMessage("testUser", "hey");
+		Message msg = Message.makeCommandMessage("testUser", -1,"hey");
 		init.invoke(client, msg);
 	}
 	
@@ -489,7 +489,7 @@ public class ClientRunnableTest {
 		init.setAccessible(true);
 		Message msg = Message.makeRegisterMessage("testUser", "hey");
 		init.invoke(client, msg);
-		assertEquals(client.hashCode() , client.getUserId());
+		assertEquals((client.getName().hashCode() & 0xfffffff) , client.getUserId());
 	}
 	
 	@Test

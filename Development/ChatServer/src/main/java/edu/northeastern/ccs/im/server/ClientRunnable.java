@@ -139,6 +139,8 @@ public class ClientRunnable implements Runnable {
     if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
       setName(user.getUserName());
       userId = user.getUserId();
+      Prattle.authenticateClient(this);
+      System.out.println("userId: " + userId);
       // Set that the client is initialized.
       authenticated = true;
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
@@ -149,7 +151,6 @@ public class ClientRunnable implements Runnable {
       authenticated = false;
     }
     enqueueMessage(sendMsg);
-
   }
 
   private boolean userExists(String userName) {
@@ -297,7 +298,7 @@ public class ClientRunnable implements Runnable {
 
   private void registerUser(Message msg) {
     Message sendMsg;
-    int id = hashCode();
+    int id = (msg.getName().hashCode() & 0xfffffff);
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
     if (result) {
@@ -305,6 +306,7 @@ public class ClientRunnable implements Runnable {
           "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
+      Prattle.authenticateClient(this);
       authenticated = true;
 
     } else {

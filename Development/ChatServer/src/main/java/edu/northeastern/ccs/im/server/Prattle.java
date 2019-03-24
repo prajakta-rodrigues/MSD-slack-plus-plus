@@ -7,6 +7,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,8 +18,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -39,28 +39,49 @@ public abstract class Prattle {
    */
   private static boolean isReady = false;
 
+  private static ConcurrentLinkedQueue<ClientRunnable> active;
+
   /**
    * Collection of threads that are currently being used.
    */
-  private static ConcurrentLinkedQueue<ClientRunnable> active;
+  private static Map<Integer, ClientRunnable> authenticated;
 
-  private static final Map<String, Command> COMMANDS;
+  /**
+   * Channels to its members
+   */
+  private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
-  private static final GroupRepository GROUP_REPOSITORY;
+  /**
+   * Collection of groups that are on the server.
+   */
+  private static ConcurrentLinkedQueue<SlackGroup> groups;
+
+  /**
+   * Factory for making instances of direct message sessions and groups
+   */
+  private static ChannelFactory channelFactory;
+
+  private static final Map<String, Command> commands;
 
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
+    authenticated = new Hashtable<>();
+    groups = new ConcurrentLinkedQueue<>();
+    channelMembers = new Hashtable<>();
+    channelFactory = ChannelFactory.makeFactory();
+    SlackGroup general = channelFactory.makeGroup(-1, "general");
+    groups.add(general);
+    channelMembers.put(general.getChannelId(), Collections.synchronizedSet(new HashSet<>()));
     // Populate the known commands
-    COMMANDS = new Hashtable<>();
-    COMMANDS.put("/group", new Group());
-    COMMANDS.put("/groups", new Groups());
-    COMMANDS.put("/creategroup", new CreateGroup());
-    COMMANDS.put("/circle", new Circle());
-    COMMANDS.put("/dm", new Dm());
-    COMMANDS.put("/help", new Help());
-    GROUP_REPOSITORY = new GroupRepository();
+    commands = new Hashtable<>();
+    commands.put("/group", new Group());
+    commands.put("/groups", new Groups());
+    commands.put("/creategroup", new CreateGroup());
+    commands.put("/circle", new Circle());
+    // commands.put("/dm", new Dm());
+    commands.put("/help", new Help());
   }
 
   /**
@@ -70,12 +91,17 @@ public abstract class Prattle {
    * @param message Message that the client sent.
    */
   public static void broadcastMessage(Message message) {
+    int channelId = message.getChannelId();
     // Loop through all of our active threads
-    for (ClientRunnable tt : active) {
-      // Do not send the message to any clients that are not ready to receive it.
-      if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
-        tt.enqueueMessage(message);
+    if (channelMembers.containsKey(channelId)) {
+      for (ClientRunnable tt : channelMembers.get(channelId)) {
+        // Do not send the message to any clients that are not ready to receive it.
+        if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
+          tt.enqueueMessage(message);
+        }
       }
+    } else {
+      ChatLogger.info("Could not find the corresponding channel " + channelId + "\n");
     }
   }
 
@@ -90,15 +116,15 @@ public abstract class Prattle {
     String command = messageContents[0];
     String commandLower = command.toLowerCase();
     String param = messageContents.length > 1 ? messageContents[1] : null;
-    String senderId = message.getName();
+    int senderId = message.getUserId();
 
-    String callbackContents = COMMANDS.keySet().contains(commandLower)
-        ? COMMANDS.get(commandLower).apply(param, senderId)
+    String callbackContents = commands.keySet().contains(commandLower)
+        ? commands.get(commandLower).apply(param, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage("SlackBot", callbackContents));
+      client.enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
     }
   }
 
@@ -109,13 +135,8 @@ public abstract class Prattle {
    * @param senderId id of the sender
    * @return Client associated with the senderID
    */
-  public static ClientRunnable getClient(String senderId) {
-    for (ClientRunnable client : active) {
-      if (client.getName().equals(senderId)) {
-        return client;
-      }
-    }
-    return null;
+  public static ClientRunnable getClient(int senderId) {
+    return authenticated.get(senderId);
   }
 
 
@@ -127,7 +148,9 @@ public abstract class Prattle {
   public static void removeClient(ClientRunnable dead) {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
-    if (!active.remove(dead)) {
+    if (authenticated.remove(dead.getUserId()) != null
+            || !active.remove(dead)
+            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
   }
@@ -137,6 +160,16 @@ public abstract class Prattle {
    */
   public static void stopServer() {
     isReady = false;
+  }
+
+  /**
+   * Registers a ClientRunnable that has successfully logged in
+   *
+   * @param toAuthenticate the ClientRunnable that has just logged in
+   */
+  static void authenticateClient(ClientRunnable toAuthenticate) {
+    authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
+    channelMembers.get(0).add(toAuthenticate);
   }
 
   /**
@@ -224,30 +257,45 @@ public abstract class Prattle {
   private static class Group implements Command {
 
     @Override
-    public String apply(String groupName, String senderId) {
+    public String apply(String groupName, Integer senderId) {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      SlackGroup targetGroup = GROUP_REPOSITORY.getGroupByName(groupName);
+      SlackGroup targetGroup = getGroup(groupName);
       ClientRunnable sender = getClient(senderId);
-      if (groupName.length() > 3 && groupName.substring(0, 3).equals("DM:") && !groupName
-          .contains(senderId)) {
-        return "You are not authorized to use this DM";
-      }
-      if (targetGroup != null)
-
-      {
+      if (targetGroup != null) {
         if (sender != null) {
-          sender.setActiveChannelId(targetGroup.getChannelId());
+          int channelId = targetGroup.getChannelId();
+          sender.setActiveChannelId(channelId);
+          if (channelMembers.containsKey(channelId)) {
+            channelMembers.get(channelId).add(sender);
+          } else {
+            Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
+            channelSet.add(sender);
+            channelMembers.put(channelId, channelSet);
+          }
           return String.format("Active channel set to Group %s", groupName);
         } else {
           return "Sender not found";
         }
-      } else
-
-      {
+      } else {
         return String.format("Group %s does not exist", groupName);
       }
+    }
+
+    /**
+     * get Group by groupName.  To be changed with database integration.
+     *
+     * @param groupName name of the group
+     * @return Group associated with the groupName
+     */
+    private static SlackGroup getGroup(String groupName) {
+      for (SlackGroup group : groups) {
+        if (group.getGroupName().equals(groupName)) {
+          return group;
+        }
+      }
+      return null;
     }
 
     @Override
@@ -257,18 +305,22 @@ public abstract class Prattle {
   }
 
   /**
-   * List all groups you are a member of.
+   * List all groups on the server.
    */
   private static class Groups implements Command {
 
     @Override
-    public String apply(String param, String senderId) {
-      return GROUP_REPOSITORY.groupsHavingMember(Integer.valueOf(senderId));
+    public String apply(String param, Integer senderId) {
+      StringBuilder groupNames = new StringBuilder();
+      for (SlackGroup group : groups) {
+        groupNames.append(String.format("%n%s", group.getGroupName()));
+      }
+      return groupNames.toString();
     }
 
     @Override
     public String description() {
-      return "Print out the names of each Group you are a member of";
+      return "Print out the names of each available Group on the server";
     }
   }
 
@@ -278,14 +330,16 @@ public abstract class Prattle {
   private static class CreateGroup implements Command {
 
     @Override
-    public String apply(String groupName, String senderId) {
+    public String apply(String groupName, Integer senderId) {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      boolean created = GROUP_REPOSITORY.addGroup(
-              new SlackGroup(Integer.valueOf(senderId), groupName)
-      );
-      return created ? String.format("Group %s created", groupName) : "Failed to create group";
+      try {
+        groups.add(channelFactory.makeGroup(senderId, groupName));
+        return String.format("Group %s created", groupName);
+      } catch (IllegalArgumentException e) {
+        return e.getMessage();
+      }
     }
 
     @Override
@@ -307,9 +361,9 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, String senderId) {
+    public String apply(String ignoredParam, Integer senderId) {
       StringBuilder activeUsers = new StringBuilder("Active Users:");
-      for (ClientRunnable activeUser : active) {
+      for (ClientRunnable activeUser : authenticated.values()) {
         activeUsers.append("\n");
         activeUsers.append(activeUser.getName());
       }
@@ -335,9 +389,9 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, String senderId) {
+    public String apply(String ignoredParam, Integer senderId) {
       StringBuilder availableCommands = new StringBuilder("Available Commands:");
-      for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
+      for (Map.Entry<String, Command> command : commands.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
         availableCommands.append(nextLine);
       }
@@ -350,38 +404,38 @@ public abstract class Prattle {
     }
   }
 
-  /**
-   * Starts a Dm.
-   */
-  private static class Dm implements Command {
-
-    /**
-     * Lists all of the active users on the server.
-     *
-     * @param userId Ignored parameter.
-     * @param senderId the id of the sender.
-     * @return the list of active users as a String.
-     */
-    @Override
-    public String apply(String userId, String senderId) {
-      if (userId == null) {
-        return "No user provided to direct message.";
-      }
-      if (!active.contains(getClient(userId))) {
-        return "The provided user is not active";
-      }
-      try {
-        String groupName = "DM:" + senderId + "-" + userId;
-        // groups.add(channelFactory.makeGroup(senderId, groupName));
-        return String.format("%s created", groupName);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
-      }
-    }
-
-    @Override
-    public String description() {
-      return "Start a DM with the given user.\nParameters: user id";
-    }
-  }
+//  /**
+//   * Starts a Dm.
+//   */
+//  private static class Dm implements Command {
+//
+//    /**
+//     * Lists all of the active users on the server.
+//     *
+//     * @param userId Ignored parameter.
+//     * @param senderId the id of the sender.
+//     * @return the list of active users as a String.
+//     */
+//    @Override
+//    public String apply(String userId, String senderId) {
+//      if (userId == null) {
+//        return "No user provided to direct message.";
+//      }
+//      if (!active.contains(getClient(userId))) {
+//        return "The provided user is not active";
+//      }
+//      try {
+//        String groupName = "DM:" + senderId + "-" + userId;
+//        groups.add(channelFactory.makeGroup(senderId, groupName));
+//        return String.format("%s created", groupName);
+//      } catch (IllegalArgumentException e) {
+//        return e.getMessage();
+//      }
+//    }
+//
+//    @Override
+//    public String description() {
+//      return "Start a DM with the given user.\nParameters: user id";
+//    }
+//  }
 }
