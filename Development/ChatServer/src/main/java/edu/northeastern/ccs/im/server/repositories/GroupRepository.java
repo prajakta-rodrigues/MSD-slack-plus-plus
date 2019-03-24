@@ -53,7 +53,7 @@ public class GroupRepository extends Repository {
     return groupMembers;
   }
 
-  /*
+  /**
    * Gets the group by id.
    *
    * @param groupId the group id

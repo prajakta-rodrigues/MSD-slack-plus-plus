@@ -9,8 +9,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.sql.DataSource;
 
+/**
+ * The User Group Repository.
+ */
 public class UserGroupRepository extends Repository {
 
+  /**
+   * Instantiates a new user group repository.
+   *
+   * @param ds the ds
+   */
   public UserGroupRepository(DataSource ds) {
     super(ds);
   }
