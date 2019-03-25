@@ -3,9 +3,8 @@ package prattleTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.mysql.jdbc.Connection;
-
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

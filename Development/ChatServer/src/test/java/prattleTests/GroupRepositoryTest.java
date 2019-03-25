@@ -10,8 +10,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -28,16 +26,24 @@ import static org.junit.Assert.assertTrue;
  */
 public class GroupRepositoryTest {
 
-  /** The executed query */
+  /**
+   * The executed query
+   */
   private PreparedStatement value;
 
-  /** The group repository. */
+  /**
+   * The group repository.
+   */
   private GroupRepository groupRepository;
 
-  /** The connection. */
+  /**
+   * The connection.
+   */
   private Connection connection;
 
-  /** the ResultSet returned after executing a query */
+  /**
+   * the ResultSet returned after executing a query
+   */
   private ResultSet resultSet;
 
 
@@ -60,19 +66,6 @@ public class GroupRepositoryTest {
     Mockito.when(value.executeUpdate()).thenReturn(1);
     Mockito.doNothing().when(connection).close();
 
-  }
-
-  /**
-   * Test get group by id.
-   */
-  @Test
-  public void testGetGroupById() throws SQLException {
-    groupRepository = new GroupRepository(db);
-    PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
-    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
-    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
-    ResultSet resultSet = Mockito.mock(ResultSet.class);
-    Mockito.when(preparedStmt.executeQuery()).thenReturn(resultSet);
     resultSet = Mockito.mock(ResultSet.class);
     Mockito.when(value.executeQuery()).thenReturn(resultSet);
     /* the Metadata returned after executing a query */
@@ -152,16 +145,16 @@ public class GroupRepositoryTest {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     assertEquals("", groupRepository.groupsHavingMember(2));
   }
-  
+
   /**
    * Test get group by id.
    */
   @Test
   public void testGetGroupById() {
     SlackGroup group = groupRepository.getGroupById(1);
-    assertEquals(1 , group.getGroupId());
+    assertEquals(1, group.getGroupId());
   }
-  
+
   /**
    * Test get group by id.
    *
@@ -172,7 +165,7 @@ public class GroupRepositoryTest {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     assertNull(groupRepository.getGroupById(1));
   }
-  
+
   /**
    * Tests that get group members works.
    *
@@ -180,7 +173,6 @@ public class GroupRepositoryTest {
    */
   @Test
   public void testGetGroupMembers() throws SQLException {
-    groupRepository = new GroupRepository(db);
     PreparedStatement value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
@@ -213,19 +205,17 @@ public class GroupRepositoryTest {
    */
   @Test
   public void testGetGroupMembersException() throws SQLException {
-    groupRepository = new GroupRepository(db);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
     groupRepository.getGroupMembers(-1);
   }
-  
- /**
+
+  /**
    * Test get group members exception.
    *
    * @throws SQLException the SQL exception
    */
   @Test
   public void testGetGroupMembersException2() throws SQLException {
-    groupRepository = new GroupRepository(db);
     PreparedStatement value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());

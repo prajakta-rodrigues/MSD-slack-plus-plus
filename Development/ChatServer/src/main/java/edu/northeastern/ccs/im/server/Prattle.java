@@ -143,22 +143,6 @@ public abstract class Prattle {
     return authenticated.get(senderId);
   }
 
-  /**
-   * get Channel by channelId. To be changed with database integration so not worrying about
-   * efficiency right now.
-   *
-   * @param channelId id of the desired channel
-   * @return Client associated with the senderID
-   */
-  public static SlackGroup getGroupByChannelId(int channelId) {
-    for (SlackGroup g : groups) {
-      if (g.getChannelId() == channelId) {
-        return g;
-      }
-    }
-    return null;
-  }
-
 
   /**
    * Remove the given IM client from the list of active threads.
