@@ -1,10 +1,12 @@
 package edu.northeastern.ccs.im.server;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import org.mindrot.jbcrypt.BCrypt;
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
@@ -71,6 +73,8 @@ public class ClientRunnable implements Runnable {
   private Queue<Message> waitingList;
 
   private final UserRepository userRepository;
+  
+  private NotificationRepository notificationRepository;
 
   /**
    * Whether this client has been authenticated to send messages to other users
@@ -98,6 +102,7 @@ public class ClientRunnable implements Runnable {
     authenticated = false;
 
     userRepository = new UserRepository();
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
   /**
@@ -240,6 +245,7 @@ public class ClientRunnable implements Runnable {
       checkForInitialization();
     } else {
       handleIncomingMessages();
+      handleNotifications();
       handleOutgoingMessages();
     }
     // Finally, check if this client have been inactive for too long and,
@@ -250,6 +256,20 @@ public class ClientRunnable implements Runnable {
     }
     if (terminate) {
       terminateClient();
+    }
+  }
+
+  /**
+   * Checks for new notifications for user.
+   */
+  private void handleNotifications() {
+    List<Notification> listNotifications = notificationRepository.getAllNewNotificationsByReceiverId(userId);
+    if(listNotifications != null && !listNotifications.isEmpty()) {
+      Message sendMsg;
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "You have new notifications: \n" + NotificationConvertor.getNotificationsAsText(listNotifications));
+      enqueueMessage(sendMsg);
+      notificationRepository.markNotificationsAsNotNew(listNotifications);
     }
   }
 

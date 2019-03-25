@@ -1,12 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Class representing a SlackGroup.  This class is subject to a lot of change once the database is
- * integrated.
+ * Class representing a SlackGroup entity corresponding to database. 
  */
 public class SlackGroup {
 
@@ -53,4 +49,5 @@ public class SlackGroup {
   public int getGroupId() { return groupId; }
 
   public int getCreatorId() { return creatorId; }
+
 }
