@@ -33,7 +33,7 @@ public class UserGroupRepository extends Repository {
     List<String> mods = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.user_group where name = ?";
+      String query = "select * from slack.user_group where group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
