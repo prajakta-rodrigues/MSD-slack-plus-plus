@@ -8,8 +8,20 @@ import org.junit.Test;
 
 import edu.northeastern.ccs.im.server.utility.ConfigurationProperties;
 
+/**
+ * The Class ConfigurationPropertiesTest.
+ */
 public class ConfigurationPropertiesTest {
 
+	/**
+	 * Test null properties.
+	 *
+	 * @throws NoSuchFieldException the no such field exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws IllegalAccessException the illegal access exception
+	 */
 	@Test
 	public void testNullProperties() throws NoSuchFieldException, SecurityException, 
 	ClassNotFoundException, IllegalArgumentException, IllegalAccessException {

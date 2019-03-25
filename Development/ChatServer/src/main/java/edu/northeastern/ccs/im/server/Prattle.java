@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -39,6 +42,7 @@ public abstract class Prattle {
    */
   private static boolean isReady = false;
 
+  /** The active. */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
   /**
@@ -46,9 +50,7 @@ public abstract class Prattle {
    */
   private static Map<Integer, ClientRunnable> authenticated;
 
-  /**
-   * Channels to its members
-   */
+  /** Channels to its members. */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
   /**
@@ -56,12 +58,14 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<SlackGroup> groups;
 
-  /**
-   * Factory for making instances of direct message sessions and groups
-   */
+  /** Factory for making instances of direct message sessions and groups. */
   private static ChannelFactory channelFactory;
 
+  /** The Constant commands. */
   private static final Map<String, Command> commands;
+  
+  /** The notification repository. */
+  private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -82,6 +86,8 @@ public abstract class Prattle {
     commands.put("/circle", new Circle());
     // commands.put("/dm", new Dm());
     commands.put("/help", new Help());
+    commands.put("/notification", new NotificationHandler());
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
   /**
@@ -163,7 +169,7 @@ public abstract class Prattle {
   }
 
   /**
-   * Registers a ClientRunnable that has successfully logged in
+   * Registers a ClientRunnable that has successfully logged in.
    *
    * @param toAuthenticate the ClientRunnable that has just logged in
    */
@@ -256,6 +262,9 @@ public abstract class Prattle {
    */
   private static class Group implements Command {
 
+    /* (non-Javadoc)
+     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
+     */
     @Override
     public String apply(String groupName, Integer senderId) {
       if (groupName == null) {
@@ -298,6 +307,9 @@ public abstract class Prattle {
       return null;
     }
 
+    /* (non-Javadoc)
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
     @Override
     public String description() {
       return "Change your current chat room to the specified Group.\nParameters: group name";
@@ -309,6 +321,9 @@ public abstract class Prattle {
    */
   private static class Groups implements Command {
 
+    /* (non-Javadoc)
+     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
+     */
     @Override
     public String apply(String param, Integer senderId) {
       StringBuilder groupNames = new StringBuilder();
@@ -318,6 +333,9 @@ public abstract class Prattle {
       return groupNames.toString();
     }
 
+    /* (non-Javadoc)
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
     @Override
     public String description() {
       return "Print out the names of each available Group on the server";
@@ -329,6 +347,9 @@ public abstract class Prattle {
    */
   private static class CreateGroup implements Command {
 
+    /* (non-Javadoc)
+     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
+     */
     @Override
     public String apply(String groupName, Integer senderId) {
       if (groupName == null) {
@@ -342,6 +363,9 @@ public abstract class Prattle {
       }
     }
 
+    /* (non-Javadoc)
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
@@ -370,6 +394,9 @@ public abstract class Prattle {
       return activeUsers.toString();
     }
 
+    /* (non-Javadoc)
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
     @Override
     public String description() {
       return "Print out the handles of the active users on the server";
@@ -398,6 +425,9 @@ public abstract class Prattle {
       return availableCommands.toString();
     }
 
+    /* (non-Javadoc)
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
     @Override
     public String description() {
       return "Lists all of the available commands.";
@@ -438,4 +468,39 @@ public abstract class Prattle {
 //      return "Start a DM with the given user.\nParameters: user id";
 //    }
 //  }
+  
+  /**
+   * The Class NotificationHandler handles command notification.
+   */
+  private static class NotificationHandler implements Command {
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public String apply(String noParam, Integer senderId) {
+
+      List<Notification> listNotifications =
+          notificationRepository.getAllNotificationsByReceiverId(senderId);
+      if (listNotifications == null || listNotifications.isEmpty()) {
+        return "No notifications to show";
+      }
+      String result = NotificationConvertor.getNotificationsAsText(listNotifications);
+      notificationRepository.markNotificationsAsNotNew(listNotifications);
+      return "Notifications:\n" + result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see edu.northeastern.ccs.im.server.Command#description()
+     */
+    @Override
+    public String description() {
+      return "Shows recent notifications";
+    }
+
+  }
 }
