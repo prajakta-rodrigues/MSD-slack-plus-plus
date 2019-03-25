@@ -692,7 +692,6 @@ public class PrattleTest {
 
   @Test
   public void testMessagesReceivedGeneral() {
-    System.out.println(cr2.getActiveChannelId());
     Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     Message callback = waitingList2.remove();
     assertEquals("omar",  callback.getName());
