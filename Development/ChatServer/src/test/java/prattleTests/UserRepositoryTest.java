@@ -4,6 +4,7 @@ package prattleTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -13,8 +14,6 @@ import javax.sql.DataSource;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.mysql.jdbc.Connection;
 
 import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;

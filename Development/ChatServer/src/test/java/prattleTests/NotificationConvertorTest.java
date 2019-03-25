@@ -101,7 +101,7 @@ public class NotificationConvertorTest {
     groupRepoField.setAccessible(true);
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
     groupRepoField.set(null, groupRepository);
-    SlackGroup group = new SlackGroup(1, "gou", 3);
+    SlackGroup group = new SlackGroup(1, 1, "gou", 3);
     Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(group);
 
     List<Notification> listNotifications = new ArrayList<>();

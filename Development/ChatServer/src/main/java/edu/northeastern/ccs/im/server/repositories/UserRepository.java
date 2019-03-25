@@ -23,6 +23,8 @@ public class UserRepository extends Repository {
     super(ds);
   }
 
+  public UserRepository() { super(); }
+
 	/**
 	 * Gets the user by user name.
 	 *
@@ -74,7 +76,6 @@ public class UserRepository extends Repository {
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-
 		}
 		return result == 1;
 	}
