@@ -544,13 +544,13 @@ public abstract class Prattle {
         return "Your client is null";
       }
       int currChannelId = currClient.getActiveChannelId();
-      SlackGroup currGroup = getGroupByChannelId(currChannelId);
+      GroupRepository groupRepo = new GroupRepository(DatabaseConnection.getDataSource());
+      SlackGroup currGroup = groupRepo.getGroupById(currChannelId);
       if (currGroup == null) {
         return "Your group is non-existent";
       }
       UserGroupRepository userGroupRepo = new UserGroupRepository(DatabaseConnection.getDataSource());
       List<String> mods = userGroupRepo.getModerators(currGroup.getGroupName());
-      GroupRepository groupRepo = new GroupRepository(DatabaseConnection.getDataSource());
       List<String> queriedMembers = groupRepo.getGroupMembers(currChannelId);
       StringBuilder groupMembers = new StringBuilder("Group Members:");
       for (String member : queriedMembers) {
