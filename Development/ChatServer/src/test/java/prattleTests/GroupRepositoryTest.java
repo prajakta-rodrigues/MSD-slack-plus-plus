@@ -36,12 +36,6 @@ public class GroupRepositoryTest {
   /** The connection. */
   private Connection connection;
 
-  /** The db. */
-  private DataSource db;
-
-  /** the Metadata returned after executing a query */
-  private ResultSetMetaData md;
-
   /** the ResultSet returned after executing a query */
   private ResultSet resultSet;
 
@@ -53,7 +47,8 @@ public class GroupRepositoryTest {
    */
   @Before
   public void initData() throws SQLException {
-    db = Mockito.mock(DataSource.class);
+    /* The db. */
+    DataSource db = Mockito.mock(DataSource.class);
     groupRepository = new GroupRepository(db);
     connection = Mockito.mock(Connection.class);
     Mockito.when(db.getConnection()).thenReturn(connection);
@@ -66,7 +61,8 @@ public class GroupRepositoryTest {
 
     resultSet = Mockito.mock(ResultSet.class);
     Mockito.when(value.executeQuery()).thenReturn(resultSet);
-    md = Mockito.mock(ResultSetMetaData.class);
+    /* the Metadata returned after executing a query */
+    ResultSetMetaData md = Mockito.mock(ResultSetMetaData.class);
     Mockito.when(resultSet.getMetaData()).thenReturn(md);
     Mockito.when(md.getColumnCount()).thenReturn(4);
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
@@ -116,13 +112,13 @@ public class GroupRepositoryTest {
 
   @Test
   public void testGroupHasMemberFalse() throws SQLException {
-    Mockito.when(value.executeUpdate()).thenReturn(0);
+    Mockito.when(resultSet.next()).thenReturn(false);
     assertFalse(groupRepository.groupHasMember(2, "testing"));
   }
 
   @Test
   public void testGroupHasMemberException() throws SQLException {
-    Mockito.when(value.executeUpdate()).thenThrow(new SQLException());
+    Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     assertFalse(groupRepository.groupHasMember(2, "testing"));
   }
 
@@ -138,12 +134,13 @@ public class GroupRepositoryTest {
   }
 
   @Test
-  public void testGroupsHavingMemberException() {}
+  public void testGroupsHavingMemberException() throws SQLException {
+    Mockito.when(value.executeQuery()).thenThrow(new SQLException());
+    assertEquals("", groupRepository.groupsHavingMember(2));
+  }
   
   /**
    * Test get group by id.
-   *
-   * @throws SQLException the SQL exception
    */
   @Test
   public void testGetGroupById() {

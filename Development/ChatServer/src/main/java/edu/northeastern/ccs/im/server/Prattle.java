@@ -57,7 +57,7 @@ public abstract class Prattle {
   /** Channels to its members. */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
-  private static final GroupRepository GROUP_REPOSITORY;
+  private static GroupRepository groupRepository;
 
   private static final Map<String, Command> COMMANDS;
   /** The notification repository. */
@@ -68,7 +68,7 @@ public abstract class Prattle {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
-    GROUP_REPOSITORY = new GroupRepository();
+    groupRepository = new GroupRepository();
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -263,11 +263,11 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      SlackGroup targetGroup = GROUP_REPOSITORY.getGroupByName(groupName);
+      SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
         if (sender != null) {
-          if (!GROUP_REPOSITORY.groupHasMember(senderId, groupName)) {
+          if (!groupRepository.groupHasMember(senderId, groupName)) {
             return "You are not a member of this group";
           }
           int channelId = targetGroup.getChannelId();
@@ -307,7 +307,7 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String param, Integer senderId) {
-      return GROUP_REPOSITORY.groupsHavingMember(senderId);
+      return groupRepository.groupsHavingMember(senderId);
     }
 
     /* (non-Javadoc)
@@ -332,12 +332,14 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      if (GROUP_REPOSITORY.addGroup(new SlackGroup(senderId, groupName))) {
+      if (groupRepository.getGroupByName(groupName) != null) {
+        return "A group with this name already exists";
+      }
+      if (groupRepository.addGroup(new SlackGroup(senderId, groupName))) {
         return String.format("Group %s created", groupName);
       } else {
         // need a better way to handle write failures.
-        return "Something went wrong and your group was not created.  " +
-                "Are you sure your group name is valid?";
+        return "Something went wrong and your group was not created.";
       }
     }
 
@@ -408,7 +410,7 @@ public abstract class Prattle {
      */
     @Override
     public String description() {
-      return "Lists all of the available COMMANDS.";
+      return "Lists all of the available commands.";
     }
   }
 
