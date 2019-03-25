@@ -23,9 +23,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -49,7 +46,9 @@ public abstract class Prattle {
    */
   private static boolean isReady = false;
 
-  /** The active. */
+  /**
+   * The active.
+   */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
   /**
@@ -57,13 +56,19 @@ public abstract class Prattle {
    */
   private static Map<Integer, ClientRunnable> authenticated;
 
-  /** Channels to its members. */
+  /**
+   * Channels to its members.
+   */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
   private static GroupRepository groupRepository;
 
+  private static UserGroupRepository userGroupRepository;
+
   private static final Map<String, Command> COMMANDS;
-  /** The notification repository. */
+  /**
+   * The notification repository.
+   */
   private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
@@ -72,6 +77,7 @@ public abstract class Prattle {
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
     groupRepository = new GroupRepository();
+    userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -128,7 +134,8 @@ public abstract class Prattle {
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
+      client
+          .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
     }
   }
 
@@ -153,8 +160,8 @@ public abstract class Prattle {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
     if (authenticated.remove(dead.getUserId()) != null
-            || !active.remove(dead)
-            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+        || !active.remove(dead)
+        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
   }
@@ -453,7 +460,7 @@ public abstract class Prattle {
 //      return "Start a DM with the given user.\nParameters: user id";
 //    }
 //  }
-  
+
   /**
    * The Class NotificationHandler handles command notification.
    */
@@ -461,7 +468,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -479,7 +486,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see edu.northeastern.ccs.im.server.Command#description()
      */
     @Override
@@ -508,14 +515,12 @@ public abstract class Prattle {
         return "Your client is null";
       }
       int currChannelId = currClient.getActiveChannelId();
-      GroupRepository groupRepo = new GroupRepository(DatabaseConnection.getDataSource());
-      SlackGroup currGroup = groupRepo.getGroupById(currChannelId);
+      SlackGroup currGroup = groupRepository.getGroupById(currChannelId);
       if (currGroup == null) {
         return "Your group is non-existent";
       }
-      UserGroupRepository userGroupRepo = new UserGroupRepository(DatabaseConnection.getDataSource());
-      List<String> mods = userGroupRepo.getModerators(currGroup.getGroupName());
-      List<String> queriedMembers = groupRepo.getGroupMembers(currChannelId);
+      List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
+      List<String> queriedMembers = userGroupRepository.getGroupMembers(currChannelId);
       StringBuilder groupMembers = new StringBuilder("Group Members:");
       for (String member : queriedMembers) {
         groupMembers.append("\n");
