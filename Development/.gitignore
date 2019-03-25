@@ -19,3 +19,6 @@ target/
 .idea
 *.iml
 
+###### db config file
+resources/*.properties
+
