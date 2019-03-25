@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -100,6 +103,8 @@ public abstract class Prattle {
     int channelId = message.getChannelId();
     // Loop through all of our active threads
     if (channelMembers.containsKey(channelId)) {
+      MessageRepository messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
+      messageRepository.saveMessage(message);
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {

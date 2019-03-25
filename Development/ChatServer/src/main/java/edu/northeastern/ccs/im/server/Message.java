@@ -122,7 +122,7 @@ public class Message {
    * @param channelId The channel that this Message was sent in.
    * @return Instance of Message that transmits text to all logged in users.
    */
-  private static Message makeBroadcastMessage(String myName, int userId, String text, int channelId) {
+  public static Message makeBroadcastMessage(String myName, int userId, String text, int channelId) {
     return new Message(MessageType.BROADCAST, myName, userId, text, channelId);
   }
 
@@ -235,11 +235,20 @@ public class Message {
   }
 
   /**
+   * Return MessageType associated with this message.
+   *
+   * @return messagetype of message.
+   */
+  public MessageType getMsgType() {
+    return msgType;
+  }
+
+  /**
    * Return user id associated with this message.
    *
    * @return user id of message sender.
    */
-  int getUserId() { return userId; }
+   public int getUserId() { return userId; }
 
   /**
    * Return the text of this message.
