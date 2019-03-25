@@ -2,7 +2,6 @@ package edu.northeastern.ccs.im.server.repositories;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
