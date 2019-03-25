@@ -18,11 +18,19 @@ abstract class Repository {
   static final Logger LOGGER = Logger.getLogger(DatabaseConnection.class.getName());
 
   /**
-   * Instantiates a new user repository.
+   * Instantiates a new repository.
    *
    * @param ds the datasource
    */
   Repository(DataSource ds) {
     this.dataSource = ds;
+  }
+
+  /**
+   * Instantiates a new repository.
+   *
+   */
+  Repository() {
+    this.dataSource = DatabaseConnection.getDataSource();
   }
 }
