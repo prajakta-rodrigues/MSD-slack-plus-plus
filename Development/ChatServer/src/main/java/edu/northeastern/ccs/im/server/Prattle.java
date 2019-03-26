@@ -49,7 +49,9 @@ public abstract class Prattle {
    */
   private static boolean isReady = false;
 
-  /** The active. */
+  /**
+   * The active.
+   */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
   /**
@@ -57,20 +59,30 @@ public abstract class Prattle {
    */
   private static Map<Integer, ClientRunnable> authenticated;
 
-  /** Channels to its members. */
+  /**
+   * Channels to its members.
+   */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
-  /** The group repository*/
+  /**
+   * The group repository
+   */
   private static GroupRepository groupRepository;
 
-  /** The user repository */
+  /**
+   * The user repository
+   */
   private static UserRepository userRepository;
 
-  /** The friend request repository */
+  /**
+   * The friend request repository
+   */
   private static FriendRequestRepository friendRequestRepository;
 
   private static final Map<String, Command> COMMANDS;
-  /** The notification repository. */
+  /**
+   * The notification repository.
+   */
   private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
@@ -92,7 +104,8 @@ public abstract class Prattle {
     // COMMANDS.put("/dm", new Dm());
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
-    COMMANDS.put("/friend", new Friends());
+    COMMANDS.put("/friends", new Friends());
+    COMMANDS.put("/friend", new Friend());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
@@ -136,7 +149,8 @@ public abstract class Prattle {
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
+      client
+          .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
     }
   }
 
@@ -161,8 +175,8 @@ public abstract class Prattle {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
     if (authenticated.remove(dead.getUserId()) != null
-            || !active.remove(dead)
-            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+        || !active.remove(dead)
+        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
   }
@@ -466,7 +480,7 @@ public abstract class Prattle {
 //      return "Start a DM with the given user.\nParameters: user id";
 //    }
 //  }
-  
+
   /**
    * The Class NotificationHandler handles command notification.
    */
@@ -474,7 +488,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -492,7 +506,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see edu.northeastern.ccs.im.server.Command#description()
      */
     @Override
@@ -531,4 +545,47 @@ public abstract class Prattle {
       return "Print out the names of all of my friends.";
     }
   }
+
+  /**
+   * Friends a User
+   */
+  private static class Friend implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param toFriend the desired friend's handle
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String toFriend, Integer senderId) {
+      if (toFriend == null) {
+        return "No user provided to friend.";
+      }
+      User newFriend = userRepository.getUserByUserName(toFriend);
+      Integer newFriendId = newFriend.getUserId();
+      if (friendRequestRepository.hasPendingFriendRequest(senderId, newFriendId)) {
+        friendRequestRepository.updatePendingFriendRequest(senderId, newFriendId, true);
+        friendRequestRepository.updatePendingFriendRequest(newFriendId, senderId, true);
+        return senderId + " and " + toFriend + " are now friends.";
+      } else {
+        Notification friendRequestNotification = makeFriendRequestNotification(senderId, )
+        Notification friendRequestNotification = new Notification();
+        friendRequestNotification.setType(NotificationType.FRIEND_REQUEST);
+        friendRequestNotification.
+        notificationRepository.addNotification(senderId); // send notification of friend request
+        friendRequestRepository.updatePendingFriendRequest(senderId, newFriendId, false);
+        friendRequestRepository.updatePendingFriendRequest(newFriendId, senderId, false);
+        return senderId + " sent " + toFriend + " a friend request";
+
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Friends the user with the given handle.\nParameters: User to friend";
+    }
+  }
+
 }

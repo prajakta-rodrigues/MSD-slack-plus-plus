@@ -1,10 +1,8 @@
 package edu.northeastern.ccs.im.server.repositories;
 
-import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,4 +49,61 @@ public class FriendRequestRepository extends Repository {
     }
     return myFriends;
   }
+
+  /**
+   * Checks if the given user has a friend request from the other user.
+   *
+   * @param senderId the user checking his requests
+   * @param receiverId the user whose request is being looked for
+   * @return true if there is a pending request, false if not
+   */
+  public boolean hasPendingFriendRequest(Integer senderId, Integer receiverId) {
+    boolean hasPendingRequest = false;
+    try {
+      connection = dataSource.getConnection();
+      String query = "select receiver_id, accepted from slack.friend_request WHERE sender_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, senderId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            if (result.get(receiverId).equals(receiverId)) {
+              hasPendingRequest = (Boolean) result.get("accepted");
+            }
+          }
+          connection.close();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return hasPendingRequest;
+  }
+
+  /**
+   * Updates the friend request table for the given users based on the given boolean.
+   *
+   * @param senderId the user sending his request
+   * @param receiverId the user who is being sent a request
+   * @param accepted whether or not the request has been accepted
+   * @return true if there is a pending request, false if not
+   */
+  public void updatePendingFriendRequest(Integer senderId, Integer receiverId, boolean accepted) {
+    try {
+      connection = dataSource.getConnection();
+      String query = "update slack.friend_request set accepted = ? where sender_id = ?, receiver_id = ? ";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setBoolean(1, accepted);
+        preparedStmt.setInt(2, senderId);
+        preparedStmt.setInt(3, receiverId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          connection.close();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+  }
+
+
 }
