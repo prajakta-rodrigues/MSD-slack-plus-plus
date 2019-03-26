@@ -1,8 +1,12 @@
 package edu.northeastern.ccs.im.server;
 
+
+import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -75,14 +79,14 @@ public abstract class Prattle {
   private static DirectMessageRepository dmRepository;
 
   private static UserRepository userRepository;
-  
+
+  private static FriendRequestRepository friendRequestRepository;
+
   private static UserGroupRepository userGroupRepository;
+  
+  private static NotificationRepository notificationRepository;
 
   private static final Map<String, Command> COMMANDS;
-  /**
-   * The notification repository.
-   */
-  private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -92,6 +96,7 @@ public abstract class Prattle {
     groupRepository = new GroupRepository();
     dmRepository = new DirectMessageRepository();
     userRepository = new UserRepository();
+    friendRequestRepository = new FriendRequestRepository(DatabaseConnection.getDataSource());
     userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
@@ -104,6 +109,8 @@ public abstract class Prattle {
     COMMANDS.put("/dm", new Dm());
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
+    COMMANDS.put("/friends", new Friends());
+    COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/groupmembers", new GroupMembers());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
 
@@ -567,6 +574,81 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Print out the handles of the users in a group.";
+    }
+  }
+
+  /**
+   * Displays all of a User's friends.
+   */
+  private static class Friends implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, Integer senderId) {
+      List<String> friends = friendRequestRepository.getFriendsByUserId(senderId);
+      StringBuilder listOfFriends;
+      if (friends.isEmpty()) {
+        listOfFriends = new StringBuilder("You have no friends. :(");
+      } else {
+        listOfFriends = new StringBuilder("My friends:");
+      }
+      for (String friend : friends) {
+        listOfFriends.append("\n");
+        listOfFriends.append(friend);
+      }
+      return listOfFriends.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the names of all of my friends.";
+    }
+  }
+
+  /**
+   * Friends a User
+   */
+  private static class Friend implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param toFriend the desired friend's handle
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String toFriend, Integer senderId) {
+      if (toFriend == null) {
+        return "No user provided to friend.";
+      }
+      User newFriend = userRepository.getUserByUserName(toFriend);
+      if(newFriend == null) {
+        throw new IllegalArgumentException("The specified user does not exist");
+      }
+      Integer toFriendId = newFriend.getUserId();
+      if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
+        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true);
+        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, true);
+        return senderId + " and " + toFriend + " are now friends.";
+      } else {
+        Notification friendReq = Notification.makeFriendRequestNotification(senderId, toFriendId);
+        notificationRepository.addNotification(friendReq);
+        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, false);
+        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false);
+        return senderId + " sent " + toFriend + " a friend request";
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Friends the user with the given handle.\nParameters: User to friend";
     }
   }
 }
