@@ -563,7 +563,7 @@ public abstract class Prattle {
     }
   }
 
- /**
+  /**
    * Displays all of a User's friends.
    */
   private static class Friends implements Command {
@@ -578,12 +578,16 @@ public abstract class Prattle {
     @Override
     public String apply(String ignoredParam, Integer senderId) {
       List<String> friends = friendRequestRepository.getFriendsByUserId(senderId);
-      StringBuilder listOfFriends = new StringBuilder("My friends:");
+      StringBuilder listOfFriends;
+      if (friends.isEmpty()) {
+        listOfFriends = new StringBuilder("You have no friends. :(");
+      } else {
+        listOfFriends = new StringBuilder("My friends:");
+      }
       for (String friend : friends) {
         listOfFriends.append("\n");
         listOfFriends.append(friend);
       }
-
       return listOfFriends.toString();
     }
 
@@ -623,8 +627,9 @@ public abstract class Prattle {
         friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false);
         return senderId + " sent " + toFriend + " a friend request";
       }
-}
-        @Override
+    }
+
+    @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
     }

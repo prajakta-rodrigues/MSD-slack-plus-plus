@@ -91,7 +91,7 @@ public class FriendRequestRepository extends Repository {
   public void updatePendingFriendRequest(Integer senderId, Integer receiverId, boolean accepted) {
     try {
       connection = dataSource.getConnection();
-      String query = "update slack.friend_request set accepted = ? where sender_id = ?, receiver_id = ? ";
+      String query = "update slack.friend_request set accepted = ? where sender_id = ? AND receiver_id = ? ";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setBoolean(1, accepted);
         preparedStmt.setInt(2, senderId);
