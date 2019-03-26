@@ -25,7 +25,6 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
-import javax.sql.DataSource;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -564,21 +563,17 @@ public abstract class Prattle {
         return "No user provided to friend.";
       }
       User newFriend = userRepository.getUserByUserName(toFriend);
-      Integer newFriendId = newFriend.getUserId();
-      if (friendRequestRepository.hasPendingFriendRequest(senderId, newFriendId)) {
-        friendRequestRepository.updatePendingFriendRequest(senderId, newFriendId, true);
-        friendRequestRepository.updatePendingFriendRequest(newFriendId, senderId, true);
+      Integer toFriendId = newFriend.getUserId();
+      if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
+        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true);
+        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, true);
         return senderId + " and " + toFriend + " are now friends.";
       } else {
-        Notification friendRequestNotification = makeFriendRequestNotification(senderId, )
-        Notification friendRequestNotification = new Notification();
-        friendRequestNotification.setType(NotificationType.FRIEND_REQUEST);
-        friendRequestNotification.
-        notificationRepository.addNotification(senderId); // send notification of friend request
-        friendRequestRepository.updatePendingFriendRequest(senderId, newFriendId, false);
-        friendRequestRepository.updatePendingFriendRequest(newFriendId, senderId, false);
+        Notification friendReq = Notification.makeFriendRequestNotification(senderId, toFriendId);
+        notificationRepository.addNotification(friendReq);
+        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, false);
+        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false);
         return senderId + " sent " + toFriend + " a friend request";
-
       }
     }
 
@@ -587,5 +582,6 @@ public abstract class Prattle {
       return "Friends the user with the given handle.\nParameters: User to friend";
     }
   }
+
 
 }

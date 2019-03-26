@@ -9,22 +9,22 @@ public class Notification {
 
   /** The id. */
   private int id;
-  
+
   /** The reciever id. */
   private int recieverId;
-  
+
   /** The associated user id of the user involved in the notification. */
   private int associatedUserId;
-  
+
   /** The type. */
   private NotificationType type;
-  
+
   /** The created date. */
   private Timestamp createdDate;
-  
+
   /** The is new represents if the notification is new. */
   private boolean isNew;
-  
+
   /** The associated group id of the group involved in the notification. */
   private int associatedGroupId;
 
@@ -177,6 +177,19 @@ public class Notification {
     this.id = id;
   }
 
-
+  /**
+   * Makes a friend request notification from the given sender id to the second given receiver id
+   * @param senderId the sender of the request
+   * @param receiverId the receiver of the request
+   * @return the friend request notification
+   */
+  public static Notification makeFriendRequestNotification(int senderId, int receiverId) {
+    Notification notification = new Notification();
+    notification.setType(NotificationType.FRIEND_REQUEST);
+    notification.setAssociatedUserId(senderId);
+    notification.setRecieverId(receiverId);
+    notification.setNew(true);
+    return notification;
+  }
 
 }
