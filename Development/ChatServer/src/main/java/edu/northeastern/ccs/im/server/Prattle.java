@@ -457,7 +457,7 @@ public abstract class Prattle {
   private static class Dm implements Command {
 
     /**
-     * Lists all of the active users on the server.
+     * Starts a direct message with the specified user, if possible.
      *
      * @param receiverName name of the receiver.
      * @param senderId the id of the sender.
