@@ -71,6 +71,18 @@ BEGIN
 		(creatorId, groupId, groupName, LAST_INSERT_ID(), CURTIME());
 END //
 
+CREATE PROCEDURE slack.make_dm (
+	senderId int(15),
+    receiverId int(15)
+)
+BEGIN
+	DECLARE channelId int(15);
+	INSERT INTO slack.channel VALUES();
+    SET channelId = LAST_INSERT_ID();
+    INSERT INTO slack.direct_message VALUES (senderId, receiverId, channelId);
+	SELECT channelId as 'channel_id';
+END //
+
 CREATE TRIGGER slack.insert_group AFTER INSERT ON slack.group
 FOR EACH ROW
 BEGIN
@@ -84,7 +96,6 @@ BEGIN
 END //
 
 delimiter ;
-
 		
 create table slack.notification(id int(15) primary key auto_increment, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
 type varchar(30) not null, created_date timestamp, new boolean,
