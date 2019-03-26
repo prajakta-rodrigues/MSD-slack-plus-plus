@@ -10,6 +10,8 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
+
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
  * Instances are created when the client signs-on with the server. After instantiation, it is
@@ -33,7 +35,7 @@ public class ClientRunnable implements Runnable {
   /**
    * Id for the active channel that the client is sending messages to.
    */
-  private int activeChannelId = 0;
+  private int activeChannelId = GENERAL_ID;
 
   /**
    * Id for the user for whom we use this ClientRunnable to communicate.
@@ -70,7 +72,7 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
   
   private NotificationRepository notificationRepository;
 
@@ -98,8 +100,8 @@ public class ClientRunnable implements Runnable {
     timer = new ClientTimer();
 
     authenticated = false;
-    
-    userRepository = new UserRepository(DatabaseConnection.getDataSource());
+
+    userRepository = new UserRepository();
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
@@ -145,7 +147,6 @@ public class ClientRunnable implements Runnable {
       setName(user.getUserName());
       userId = user.getUserId();
       Prattle.authenticateClient(this);
-      System.out.println("userId: " + userId);
       // Set that the client is initialized.
       authenticated = true;
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,

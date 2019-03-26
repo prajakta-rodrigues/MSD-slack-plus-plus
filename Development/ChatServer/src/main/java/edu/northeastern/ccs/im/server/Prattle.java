@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -20,7 +23,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
+import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -42,7 +46,9 @@ public abstract class Prattle {
    */
   private static boolean isReady = false;
 
-  /** The active. */
+  /**
+   * The active.
+   */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
   /**
@@ -50,21 +56,19 @@ public abstract class Prattle {
    */
   private static Map<Integer, ClientRunnable> authenticated;
 
-  /** Channels to its members. */
+  /**
+   * Channels to its members.
+   */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
+  private static GroupRepository groupRepository;
+
+  private static UserGroupRepository userGroupRepository;
+
+  private static final Map<String, Command> COMMANDS;
   /**
-   * Collection of groups that are on the server.
+   * The notification repository.
    */
-  private static ConcurrentLinkedQueue<SlackGroup> groups;
-
-  /** Factory for making instances of direct message sessions and groups. */
-  private static ChannelFactory channelFactory;
-
-  /** The Constant commands. */
-  private static final Map<String, Command> commands;
-  
-  /** The notification repository. */
   private static NotificationRepository notificationRepository;
 
   // All of the static initialization occurs in this "method"
@@ -72,22 +76,22 @@ public abstract class Prattle {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
-    groups = new ConcurrentLinkedQueue<>();
+    groupRepository = new GroupRepository();
+    userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
     channelMembers = new Hashtable<>();
-    channelFactory = ChannelFactory.makeFactory();
-    SlackGroup general = channelFactory.makeGroup(-1, "general");
-    groups.add(general);
-    channelMembers.put(general.getChannelId(), Collections.synchronizedSet(new HashSet<>()));
-    // Populate the known commands
-    commands = new Hashtable<>();
-    commands.put("/group", new Group());
-    commands.put("/groups", new Groups());
-    commands.put("/creategroup", new CreateGroup());
-    commands.put("/circle", new Circle());
-    // commands.put("/dm", new Dm());
-    commands.put("/help", new Help());
-    commands.put("/notification", new NotificationHandler());
+    channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
+    // Populate the known COMMANDS
+    COMMANDS = new Hashtable<>();
+    COMMANDS.put("/group", new Group());
+    COMMANDS.put("/groups", new Groups());
+    COMMANDS.put("/creategroup", new CreateGroup());
+    COMMANDS.put("/circle", new Circle());
+    // COMMANDS.put("/dm", new Dm());
+    COMMANDS.put("/help", new Help());
+    COMMANDS.put("/notification", new NotificationHandler());
+    COMMANDS.put("/groupmembers", new GroupMembers());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+
   }
 
   /**
@@ -124,13 +128,14 @@ public abstract class Prattle {
     String param = messageContents.length > 1 ? messageContents[1] : null;
     int senderId = message.getUserId();
 
-    String callbackContents = commands.keySet().contains(commandLower)
-        ? commands.get(commandLower).apply(param, senderId)
+    String callbackContents = COMMANDS.keySet().contains(commandLower)
+        ? COMMANDS.get(commandLower).apply(param, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
     ClientRunnable client = getClient(senderId);
     if (client != null && client.isInitialized()) {
-      client.enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
+      client
+          .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
     }
   }
 
@@ -155,8 +160,8 @@ public abstract class Prattle {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
     if (authenticated.remove(dead.getUserId()) != null
-            || !active.remove(dead)
-            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+        || !active.remove(dead)
+        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
   }
@@ -175,7 +180,7 @@ public abstract class Prattle {
    */
   static void authenticateClient(ClientRunnable toAuthenticate) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
-    channelMembers.get(0).add(toAuthenticate);
+    channelMembers.get(GENERAL_ID).add(toAuthenticate);
   }
 
   /**
@@ -270,11 +275,15 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      SlackGroup targetGroup = getGroup(groupName);
+      SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
         if (sender != null) {
+          if (!groupRepository.groupHasMember(senderId, groupName)) {
+            return "You are not a member of this group";
+          }
           int channelId = targetGroup.getChannelId();
+          int oldChannel = sender.getActiveChannelId();
           sender.setActiveChannelId(channelId);
           if (channelMembers.containsKey(channelId)) {
             channelMembers.get(channelId).add(sender);
@@ -283,30 +292,17 @@ public abstract class Prattle {
             channelSet.add(sender);
             channelMembers.put(channelId, channelSet);
           }
-          return String.format("Active channel set to Group %s", groupName);
+          channelMembers.get(oldChannel).remove(sender);
+          if (channelMembers.get(oldChannel).isEmpty()) {
+            channelMembers.remove(oldChannel);
+          }
+          return String.format("Active channel set to Group %s", targetGroup.getGroupName());
         } else {
           return "Sender not found";
         }
-      } else
-
-      {
+      } else {
         return String.format("Group %s does not exist", groupName);
       }
-    }
-
-    /**
-     * get Group by groupName.  To be changed with database integration.
-     *
-     * @param groupName name of the group
-     * @return Group associated with the groupName
-     */
-    private static SlackGroup getGroup(String groupName) {
-      for (SlackGroup group : groups) {
-        if (group.getGroupName().equals(groupName)) {
-          return group;
-        }
-      }
-      return null;
     }
 
     /* (non-Javadoc)
@@ -328,11 +324,7 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String param, Integer senderId) {
-      StringBuilder groupNames = new StringBuilder();
-      for (SlackGroup group : groups) {
-        groupNames.append(String.format("%n%s", group.getGroupName()));
-      }
-      return groupNames.toString();
+      return groupRepository.groupsHavingMember(senderId);
     }
 
     /* (non-Javadoc)
@@ -340,7 +332,7 @@ public abstract class Prattle {
      */
     @Override
     public String description() {
-      return "Print out the names of each available Group on the server";
+      return "Print out the names of each Group you are a member of";
     }
   }
 
@@ -357,11 +349,14 @@ public abstract class Prattle {
       if (groupName == null) {
         return "No Group Name provided";
       }
-      try {
-        groups.add(channelFactory.makeGroup(senderId, groupName));
+      if (groupRepository.getGroupByName(groupName) != null) {
+        return "A group with this name already exists";
+      }
+      if (groupRepository.addGroup(new SlackGroup(senderId, groupName))) {
         return String.format("Group %s created", groupName);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
+      } else {
+        // need a better way to handle write failures.
+        return "Something went wrong and your group was not created.";
       }
     }
 
@@ -406,12 +401,12 @@ public abstract class Prattle {
   }
 
   /**
-   * List all available commands to use.
+   * List all available COMMANDS to use.
    */
   private static class Help implements Command {
 
     /**
-     * Lists all of the available commands.
+     * Lists all of the available COMMANDS.
      *
      * @param ignoredParam Ignored parameter.
      * @param senderId the id of the sender.
@@ -419,12 +414,12 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String ignoredParam, Integer senderId) {
-      StringBuilder availableCommands = new StringBuilder("Available Commands:");
-      for (Map.Entry<String, Command> command : commands.entrySet()) {
+      StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
+      for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
-        availableCommands.append(nextLine);
+        availableCOMMANDS.append(nextLine);
       }
-      return availableCommands.toString();
+      return availableCOMMANDS.toString();
     }
 
     /* (non-Javadoc)
@@ -470,7 +465,7 @@ public abstract class Prattle {
 //      return "Start a DM with the given user.\nParameters: user id";
 //    }
 //  }
-  
+
   /**
    * The Class NotificationHandler handles command notification.
    */
@@ -478,7 +473,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
@@ -496,7 +491,7 @@ public abstract class Prattle {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see edu.northeastern.ccs.im.server.Command#description()
      */
     @Override
@@ -504,5 +499,47 @@ public abstract class Prattle {
       return "Shows recent notifications";
     }
 
+  }
+
+  /**
+   * List all the group members in a group
+   */
+  private static class GroupMembers implements Command {
+
+    /**
+     * Lists all the group members in a group
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, Integer senderId) {
+      ClientRunnable currClient = getClient(senderId);
+      if (currClient == null) {
+        return "Your client is null";
+      }
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return "Your group is non-existent";
+      }
+      List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
+      List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
+      StringBuilder groupMembers = new StringBuilder("Group Members:");
+      for (String member : queriedMembers) {
+        groupMembers.append("\n");
+        if (mods.contains(member)) {
+          groupMembers.append("*");
+        }
+        groupMembers.append(member);
+      }
+      return groupMembers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the users in a group.";
+    }
   }
 }

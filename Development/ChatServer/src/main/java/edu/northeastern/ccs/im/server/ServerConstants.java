@@ -36,6 +36,8 @@ public class ServerConstants {
 
 	public static final String SLACKBOT = "Slackbot";
 
+	static final int GENERAL_ID = 1;
+
 	/** Private constructor to prevent anyone from creating one of these. */
 	private ServerConstants() {
 		/* does nothing. */
