@@ -19,7 +19,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
@@ -59,6 +62,10 @@ public abstract class Prattle {
 
   private static GroupRepository groupRepository;
 
+  private static DirectMessageRepository dmRepository;
+
+  private static UserRepository userRepository;
+
   private static final Map<String, Command> COMMANDS;
   /** The notification repository. */
   private static NotificationRepository notificationRepository;
@@ -69,6 +76,8 @@ public abstract class Prattle {
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
     groupRepository = new GroupRepository();
+    dmRepository = new DirectMessageRepository();
+    userRepository = new UserRepository();
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -77,7 +86,7 @@ public abstract class Prattle {
     COMMANDS.put("/groups", new Groups());
     COMMANDS.put("/creategroup", new CreateGroup());
     COMMANDS.put("/circle", new Circle());
-    // COMMANDS.put("/dm", new Dm());
+    COMMANDS.put("/dm", new Dm());
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
@@ -250,6 +259,23 @@ public abstract class Prattle {
     }
   }
 
+  private static void changeClientChannel(int channelId, ClientRunnable client) {
+    if (client == null) { throw new IllegalArgumentException("Client not found"); }
+    int oldChannel = client.getActiveChannelId();
+    client.setActiveChannelId(channelId);
+    if (channelMembers.containsKey(channelId)) {
+      channelMembers.get(channelId).add(client);
+    } else {
+      Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
+      channelSet.add(client);
+      channelMembers.put(channelId, channelSet);
+    }
+    channelMembers.get(oldChannel).remove(client);
+    if (channelMembers.get(oldChannel).isEmpty()) {
+      channelMembers.remove(oldChannel);
+    }
+  }
+
   /**
    * Change sender's active channel to the specified Group.
    */
@@ -266,28 +292,16 @@ public abstract class Prattle {
       SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
-        if (sender != null) {
-          if (!groupRepository.groupHasMember(senderId, groupName)) {
-            return "You are not a member of this group";
-          }
-          int channelId = targetGroup.getChannelId();
-          int oldChannel = sender.getActiveChannelId();
-          sender.setActiveChannelId(channelId);
-          if (channelMembers.containsKey(channelId)) {
-            channelMembers.get(channelId).add(sender);
-          } else {
-            Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
-            channelSet.add(sender);
-            channelMembers.put(channelId, channelSet);
-          }
-          channelMembers.get(oldChannel).remove(sender);
-          if (channelMembers.get(oldChannel).isEmpty()) {
-            channelMembers.remove(oldChannel);
-          }
-          return String.format("Active channel set to Group %s", targetGroup.getGroupName());
-        } else {
-          return "Sender not found";
+        if (!groupRepository.groupHasMember(senderId, groupName)) {
+          return "You are not a member of this group";
         }
+        int channelId = targetGroup.getChannelId();
+        try {
+          changeClientChannel(channelId, sender);
+        } catch (IllegalArgumentException e) {
+          return e.getMessage();
+        }
+        return String.format("Active channel set to Group %s", targetGroup.getGroupName());
       } else {
         return String.format("Group %s does not exist", groupName);
       }
@@ -419,40 +433,47 @@ public abstract class Prattle {
     }
   }
 
-//  /**
-//   * Starts a Dm.
-//   */
-//  private static class Dm implements Command {
-//
-//    /**
-//     * Lists all of the active users on the server.
-//     *
-//     * @param userId Ignored parameter.
-//     * @param senderId the id of the sender.
-//     * @return the list of active users as a String.
-//     */
-//    @Override
-//    public String apply(String userId, String senderId) {
-//      if (userId == null) {
-//        return "No user provided to direct message.";
-//      }
-//      if (!active.contains(getClient(userId))) {
-//        return "The provided user is not active";
-//      }
-//      try {
-//        String groupName = "DM:" + senderId + "-" + userId;
-//        groups.add(channelFactory.makeGroup(senderId, groupName));
-//        return String.format("%s created", groupName);
-//      } catch (IllegalArgumentException e) {
-//        return e.getMessage();
-//      }
-//    }
-//
-//    @Override
-//    public String description() {
-//      return "Start a DM with the given user.\nParameters: user id";
-//    }
-//  }
+  /**
+   * Starts a Dm.
+   */
+  private static class Dm implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param receiverName name of the receiver.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String receiverName, Integer senderId) {
+      User receiver = userRepository.getUserByUserName(receiverName);
+      if (receiver == null) {
+        return String.format("User %s not found!", receiverName);
+      }
+      int receiverId = receiver.getUserId();
+      int existingId = dmRepository.getDMChannel(senderId, receiverId);
+      int channelId = existingId > 0 ? existingId : dmRepository.createDM(senderId, receiverId);
+      ClientRunnable sender = getClient(senderId);
+      if (sender == null) {
+        return "Client not found";
+      } else if (channelId < 0) {
+        return "Failed to create direct message. Try again later.";
+      } else {
+        try {
+          changeClientChannel(channelId, sender);
+        } catch (IllegalArgumentException e) {
+          return e.getMessage();
+        }
+        return String.format("You are now messaging %s", receiverName);
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Start a DM with the given user.\nParameters: user id";
+    }
+  }
   
   /**
    * The Class NotificationHandler handles command notification.
