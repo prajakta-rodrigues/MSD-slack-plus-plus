@@ -37,6 +37,7 @@ import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.SlackGroup;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
@@ -58,6 +59,8 @@ public class PrattleTest {
   private Queue<Message> waitingList1;
   private Queue<Message> waitingList2;
   private String bot = "Slackbot";
+  private DirectMessageRepository dmRepository;
+  private UserRepository userRepository;
 
   /**
    * Initialize the command data before each test
@@ -146,6 +149,26 @@ public class PrattleTest {
             .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
+
+    dmRepository = Mockito.mock(DirectMessageRepository.class);
+    userRepository = Mockito.mock(UserRepository.class);
+
+    User omar = new User(2, "omar", "password");
+
+    Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("userRepository");
+    ur.setAccessible(true);
+    ur.set(null, userRepository);
+
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
+
+    Field dmr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("dmRepository");
+    dmr.setAccessible(true);
+    dmr.set(null, dmRepository);
+
+    Mockito.when(dmRepository.createDM(Mockito.anyInt(), Mockito.anyInt())).thenReturn(5);
+    Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(10);
   }
 
   /** Mock Group Repository class for testing purposes. */
@@ -197,15 +220,6 @@ public class PrattleTest {
       return ans.toString();
     }
 
-  }
-
-  /**
-   * Reset command data after each test
-   */
-  @After
-  public void resetData() {
-    Prattle.removeClient(cr1);
-    Prattle.removeClient(cr2);
   }
 
   @AfterClass
@@ -534,67 +548,6 @@ public class PrattleTest {
     assertTrue(callback.getText().contains("general"));
   }
 
-//  @Test
-//  public void testDm() {
-//    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/groups"));
-//    Message callback = waitingList1.remove();
-//    assertTrue(callback.getText().contains("DM:omar-tuffaha"));
-//  }
-//
-//  @Test
-//  public void testDmUserNotActive() {
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm jacobe"));
-//    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
-//    Message callback = waitingList2.remove();
-//    assertTrue(callback.getText().contains("The provided user is not active"));
-//  }
-//
-//  @Test
-//  public void testDmWithoutUser() {
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm"));
-//    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
-//    Message callback = waitingList1.remove();
-//    Message callback2 = waitingList2.remove();
-//    assertTrue(callback2.getText().contains("No user provided to direct message."));
-//    assertEquals(bot, callback.getName());
-//    assertTrue(callback.getText().contains("general"));
-//  }
-
-//  @Test
-//  public void testDmWithoutUser2() {
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm  "));
-//    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
-//    Message callback = waitingList1.remove();
-//    Message callback2 = waitingList2.remove();
-//    assertTrue(callback2.getText().contains("No user provided to direct message."));
-//    assertEquals(bot, callback.getName());
-//    assertTrue(callback.getText().contains("general"));
-//  }
-//  @Test
-//  public void testDMTaken() {
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm omar"));
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1,  "/dm omar"));
-//    Message callback = waitingList2.remove();
-//    assertTrue(callback.getText().contains("DM:tuffaha-omar create"));
-//    callback = waitingList2.remove();
-//    assertTrue(callback.getText().contains("Group name already taken"));
-//    assertEquals(bot, callback.getName());
-//  }
-
-
-//  @Test
-//  public void testDmChannelAccessibility() {
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm tuffaha"));
-//    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group DM:tuffaha-tuffaha"));
-//    Message callback = waitingList1.remove();
-//    assertTrue(callback.getText().contains("You are not authorized to use this DM"));
-//    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/group DM:tuffaha-tuffaha"));
-//    callback = waitingList2.remove();
-//    assertTrue(callback.getText().contains("DM:tuffaha-tuffaha created"));
-//    assertEquals(bot, callback.getName());
-//  }
-
   @Test
   public void testCreateGroupSpecialCharacters() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup !@578"));
@@ -788,7 +741,7 @@ public class PrattleTest {
   }
 
   @Test
-  public void mustBeMemberToSetGroup() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+  public void testMustBeMemberToSetGroup() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
     GroupRepository groupRepository = Mockito.mock(MockGroupRepository.class);
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
@@ -805,5 +758,48 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group special_group"));
     Message callback = waitingList1.remove();
     assertEquals("You are not a member of this group", callback.getText());
+  }
+
+  @Test
+  public void testDMUserNotFound() {
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm koka"));
+    Message callback = waitingList2.remove();
+    assertEquals("User koka not found!", callback.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+  }
+
+  @Test
+  public void testDMExistingDM() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
+    Message callback = waitingList2.remove();
+    assertEquals("You are now messaging omar", callback.getText());
+    assertEquals(10, cr2.getActiveChannelId());
+  }
+
+  @Test
+  public void testDMnewDM() {
+    Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
+    Message callback = waitingList2.remove();
+    assertEquals("You are now messaging omar", callback.getText());
+    assertEquals(5, cr2.getActiveChannelId());
+  }
+
+  @Test
+  public void testDMqueryFail() {
+    Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
+    Mockito.when(dmRepository.createDM(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
+    Message callback = waitingList2.remove();
+    assertEquals("Failed to create direct message. Try again later.", callback.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+  }
+
+  @Test
+  public void testDMBetweenUsers() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
+    assertEquals(cr1.getActiveChannelId(), cr2.getActiveChannelId());
   }
 }
