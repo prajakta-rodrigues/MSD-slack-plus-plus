@@ -800,6 +800,7 @@ public class PrattleTest {
   public void testDMBetweenUsers() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
-    assertEquals(cr1.getActiveChannelId(), cr2.getActiveChannelId());
+    assertEquals(10, cr1.getActiveChannelId());
+    assertEquals(10, cr2.getActiveChannelId());
   }
 }
