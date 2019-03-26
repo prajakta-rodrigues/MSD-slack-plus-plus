@@ -1,5 +1,6 @@
 DROP schema if exists slack;
 create schema slack;
+USE slack;
 
 create table slack.user(id int(15) primary key, handle varchar(30), first_name varchar(30), last_name varchar(30),
 password varchar(20), account_created_date timestamp, type varchar(20)) ENGINE=INNODB;
@@ -53,6 +54,10 @@ ALTER TABLE slack.group
     ADD CONSTRAINT FOREIGN KEY (creator_id)
 		REFERENCES user(id),
 	ADD CONSTRAINT UNIQUE (channel_id);
+    
+INSERT INTO slack.channel VALUES();
+INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null);
+INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
         
 delimiter //
 CREATE PROCEDURE slack.make_group (
@@ -71,11 +76,14 @@ FOR EACH ROW
 BEGIN
 	INSERT INTO slack.user_group VALUES (NEW.creator_id, NEW.id, TRUE, CURTIME());
 END //
-delimiter ;
 
-INSERT INTO slack.channel VALUES();
-INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null);
-INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
+CREATE TRIGGER slack.insert_user AFTER INSERT ON slack.user
+FOR EACH ROW
+BEGIN
+	INSERT INTO slack.user_group VALUES (NEW.id, 1, FALSE, CURTIME());
+END //
+
+delimiter ;
 
 		
 create table slack.notification(id int(15) primary key, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
@@ -83,3 +91,4 @@ type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
+

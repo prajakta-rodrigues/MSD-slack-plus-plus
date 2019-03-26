@@ -271,6 +271,7 @@ public abstract class Prattle {
             return "You are not a member of this group";
           }
           int channelId = targetGroup.getChannelId();
+          int oldChannel = sender.getActiveChannelId();
           sender.setActiveChannelId(channelId);
           if (channelMembers.containsKey(channelId)) {
             channelMembers.get(channelId).add(sender);
@@ -278,6 +279,10 @@ public abstract class Prattle {
             Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
             channelSet.add(sender);
             channelMembers.put(channelId, channelSet);
+          }
+          channelMembers.get(oldChannel).remove(sender);
+          if (channelMembers.get(oldChannel).isEmpty()) {
+            channelMembers.remove(oldChannel);
           }
           return String.format("Active channel set to Group %s", targetGroup.getGroupName());
         } else {

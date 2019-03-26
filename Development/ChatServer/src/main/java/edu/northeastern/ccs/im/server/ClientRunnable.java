@@ -147,7 +147,6 @@ public class ClientRunnable implements Runnable {
       setName(user.getUserName());
       userId = user.getUserId();
       Prattle.authenticateClient(this);
-      System.out.println("userId: " + userId);
       // Set that the client is initialized.
       authenticated = true;
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
