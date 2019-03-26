@@ -103,9 +103,3 @@ constraint fk_group_notification_id foreign key(associated_group_id) references 
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
 
-SELECT DISTINCT channel_id
-FROM slack.direct_message
-WHERE (user1_id = 80304512 AND user2_id = 108696065) OR (user1_id = 108696065 AND user2_id = 80304512);
-
-CALL slack.make_dm(80304512,108696065);
-
