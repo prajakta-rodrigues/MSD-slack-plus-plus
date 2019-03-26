@@ -71,6 +71,18 @@ BEGIN
 		(creatorId, groupId, groupName, LAST_INSERT_ID(), CURTIME());
 END //
 
+CREATE PROCEDURE slack.make_dm (
+	senderId int(15),
+    receiverId int(15)
+)
+BEGIN
+	DECLARE channelId int(15);
+	INSERT INTO slack.channel VALUES();
+    SET channelId = LAST_INSERT_ID();
+    INSERT INTO slack.direct_message VALUES (senderId, receiverId, channelId);
+	SELECT channelId as 'channel_id';
+END //
+
 CREATE TRIGGER slack.insert_group AFTER INSERT ON slack.group
 FOR EACH ROW
 BEGIN
@@ -85,10 +97,15 @@ END //
 
 delimiter ;
 
-		
 create table slack.notification(id int(15) primary key, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
 type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
+
+SELECT DISTINCT channel_id
+FROM slack.direct_message
+WHERE (user1_id = 80304512 AND user2_id = 108696065) OR (user1_id = 108696065 AND user2_id = 80304512);
+
+CALL slack.make_dm(80304512,108696065);
 
