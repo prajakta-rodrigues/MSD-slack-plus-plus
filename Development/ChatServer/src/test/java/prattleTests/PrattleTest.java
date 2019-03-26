@@ -114,13 +114,11 @@ public class PrattleTest {
     authenticate.setAccessible(true);
     authenticate.set(cr1, true);
     authenticate.set(cr2, true);
-    
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
             .getDeclaredField("initialized");
     initialized.setAccessible(true);
     initialized.set(cr1, true);
     initialized.set(cr2, true);
-
     Field userId = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
             .getDeclaredField("userId");
     userId.setAccessible(true);
@@ -366,7 +364,7 @@ public class PrattleTest {
       assert true;
     }
   }
-  
+
   /**
    * Test buddy.
    *
@@ -406,7 +404,7 @@ public class PrattleTest {
 	  Prattle.stopServer();
     assertFalse((boolean) isReady.get(null));
   }
-  
+
   /**
    * Test network connection socket channel 1.
    *
@@ -739,7 +737,6 @@ public class PrattleTest {
         "testY has sent you a friend request.  NEW\n", callback.getText());
 
   }
-
   @Test
   public void testMustBeMemberToSetGroup() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
     GroupRepository groupRepository = Mockito.mock(MockGroupRepository.class);
