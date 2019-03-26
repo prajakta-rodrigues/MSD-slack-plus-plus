@@ -26,7 +26,9 @@ public class GroupRepository extends Repository {
     super(ds);
   }
 
-  public GroupRepository() { super(); }
+  public GroupRepository() {
+    super();
+  }
 
   /**
    * Gets the group by id.
@@ -44,10 +46,10 @@ public class GroupRepository extends Repository {
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            group = new SlackGroup((Integer)result.get("id"),
-                    (Integer)result.get("creator_id"),
-                    String.valueOf(result.get("name")),
-                    (Integer)result.get("channel_id"));
+            group = new SlackGroup((Integer) result.get("id"),
+                (Integer) result.get("creator_id"),
+                String.valueOf(result.get("name")),
+                (Integer) result.get("channel_id"));
           }
           connection.close();
         }
@@ -77,10 +79,10 @@ public class GroupRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
 
           for (Map<String, Object> result : results) {
-            group = new SlackGroup( (Integer)result.get("id"),
-                    (Integer)result.get("creator_id"),
-                    String.valueOf(result.get("name")),
-                    (Integer)result.get("channel_id"));
+            group = new SlackGroup((Integer) result.get("id"),
+                (Integer) result.get("creator_id"),
+                String.valueOf(result.get("name")),
+                (Integer) result.get("channel_id"));
           }
           connection.close();
         }
@@ -93,6 +95,7 @@ public class GroupRepository extends Repository {
 
   /**
    * Add a group to the database, if valid
+   *
    * @param group the group to add
    * @return boolean representing whether or not the write was successful
    */
@@ -126,8 +129,8 @@ public class GroupRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query = "SELECT user_id " +
-              "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id) " +
-              "WHERE g.name like ? AND user_id = ?";
+          "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id) " +
+          "WHERE g.name like ? AND user_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setString(1, groupName);
         preparedStmt.setInt(2, memberId);
@@ -153,8 +156,8 @@ public class GroupRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query = "SELECT name " +
-              "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
-              "WHERE ug.user_id = ?";
+          "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
+          "WHERE ug.user_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, memberId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -171,5 +174,36 @@ public class GroupRepository extends Repository {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     return groups.toString();
+  }
+
+  /**
+   * Gets the group by channel id.
+   *
+   * @param channelId the group id
+   * @return the group by id
+   */
+  public SlackGroup getGroupByChannelId(int channelId) {
+    SlackGroup group = null;
+    try {
+      connection = dataSource.getConnection();
+      String query = "select * from slack.group where channel_id = ? LIMIT 1";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, channelId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            group = new SlackGroup((Integer) result.get("id"),
+                (Integer) result.get("creator_id"),
+                String.valueOf(result.get("name")),
+                (Integer) result.get("channel_id"));
+          }
+          connection.close();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return group;
+
   }
 }

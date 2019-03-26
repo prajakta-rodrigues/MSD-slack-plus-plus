@@ -1,7 +1,12 @@
 package edu.northeastern.ccs.im.server;
 
+
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -22,9 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -77,6 +79,7 @@ public abstract class Prattle {
    * The friend request repository
    */
   private static FriendRequestRepository friendRequestRepository;
+  private static UserGroupRepository userGroupRepository;
 
   private static final Map<String, Command> COMMANDS;
   /**
@@ -92,6 +95,7 @@ public abstract class Prattle {
     groupRepository = new GroupRepository();
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
     friendRequestRepository = new FriendRequestRepository(DatabaseConnection.getDataSource());
+    userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -105,7 +109,9 @@ public abstract class Prattle {
     COMMANDS.put("/notification", new NotificationHandler());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/friend", new Friend());
+    COMMANDS.put("/groupmembers", new GroupMembers());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+
   }
 
   /**
@@ -516,6 +522,48 @@ public abstract class Prattle {
   }
 
   /**
+   * List all the group members in a group
+   */
+  private static class GroupMembers implements Command {
+
+    /**
+     * Lists all the group members in a group
+     *
+     * @param ignoredParam Ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the list of active users as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, Integer senderId) {
+      ClientRunnable currClient = getClient(senderId);
+      if (currClient == null) {
+        return "Your client is null";
+      }
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return "Your group is non-existent";
+      }
+      List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
+      List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
+      StringBuilder groupMembers = new StringBuilder("Group Members:");
+      for (String member : queriedMembers) {
+        groupMembers.append("\n");
+        if (mods.contains(member)) {
+          groupMembers.append("*");
+        }
+        groupMembers.append(member);
+      }
+      return groupMembers.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the users in a group.";
+    }
+  }
+
+ /**
    * Displays all of a User's friends.
    */
   private static class Friends implements Command {
@@ -575,13 +623,10 @@ public abstract class Prattle {
         friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false);
         return senderId + " sent " + toFriend + " a friend request";
       }
-    }
-
-    @Override
+}
+        @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
     }
   }
-
-
 }

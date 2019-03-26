@@ -1,6 +1,9 @@
 package prattleTests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,16 +26,22 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
  */
 public class NotificationRespositoryTest {
 
-  
-  /** The notification repository. */
+
+  /**
+   * The notification repository.
+   */
   private NotificationRepository notificationRepository;
-  
-  /** The datasource. */
+
+  /**
+   * The datasource.
+   */
   private DataSource db;
-  
-  /** The connection. */
+
+  /**
+   * The connection.
+   */
   private Connection connection;
-  
+
   /**
    * Setup for the test.
    *
@@ -46,7 +55,7 @@ public class NotificationRespositoryTest {
     Mockito.when(db.getConnection()).thenReturn(connection);
 
   }
-  
+
   /**
    * Test get all notifications by receiver id.
    *
@@ -74,13 +83,14 @@ public class NotificationRespositoryTest {
     Mockito.when(resultSet.getObject(2)).thenReturn(2);
     Mockito.when(resultSet.getObject(3)).thenReturn(1).thenReturn(null);
     Mockito.when(resultSet.getObject(4)).thenReturn(3).thenReturn(null);
-    Mockito.when(resultSet.getObject(5)).thenReturn(Timestamp.valueOf(LocalDateTime.now())).thenReturn(null);
+    Mockito.when(resultSet.getObject(5)).thenReturn(Timestamp.valueOf(LocalDateTime.now()))
+        .thenReturn(null);
     Mockito.when(resultSet.getObject(6)).thenReturn(NotificationType.FRIEND_REQUEST.name());
     Mockito.when(resultSet.getObject(7)).thenReturn(true);
     List<Notification> list = notificationRepository.getAllNotificationsByReceiverId(1);
     assertEquals(2, list.size());
   }
-  
+
   /**
    * Test get all notifications by receiver id SQL exception.
    *
@@ -95,7 +105,7 @@ public class NotificationRespositoryTest {
     List<Notification> list = notificationRepository.getAllNotificationsByReceiverId(1);
     assertEquals(0, list.size());
   }
-  
+
   /**
    * Test get all notifications by receiver id any exception.
    *
@@ -110,8 +120,8 @@ public class NotificationRespositoryTest {
     List<Notification> list = notificationRepository.getAllNotificationsByReceiverId(1);
     assertEquals(0, list.size());
   }
-  
-  
+
+
   /**
    * Test add notification success.
    *
@@ -125,15 +135,16 @@ public class NotificationRespositoryTest {
     Mockito.doNothing().when(preparedStmt).setNull(Mockito.anyInt(), Mockito.anyInt());
     Mockito.doNothing().when(preparedStmt).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
     Mockito.doNothing().when(preparedStmt).setString(Mockito.anyInt(), Mockito.anyString());
-    Mockito.doNothing().when(preparedStmt).setTimestamp(Mockito.anyInt(), Mockito.any(Timestamp.class));
+    Mockito.doNothing().when(preparedStmt)
+        .setTimestamp(Mockito.anyInt(), Mockito.any(Timestamp.class));
     Mockito.when(preparedStmt.executeUpdate()).thenReturn(1);
     Notification notification = new Notification();
     notification.setType(NotificationType.FRIEND_REQUEST);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    assertEquals(true, notificationRepository.addNotification(notification));
+    assertTrue(notificationRepository.addNotification(notification));
   }
-  
-  
+
+
   /**
    * Test add notification exception.
    *
@@ -147,9 +158,9 @@ public class NotificationRespositoryTest {
     Notification notification = new Notification();
     notification.setType(NotificationType.FRIEND_REQUEST);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    assertEquals(false, notificationRepository.addNotification(notification));
+    assertFalse(notificationRepository.addNotification(notification));
   }
-  
+
   /**
    * Test add notification SQL exception.
    *
@@ -163,11 +174,10 @@ public class NotificationRespositoryTest {
     Notification notification = new Notification();
     notification.setType(NotificationType.FRIEND_REQUEST);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    assertEquals(false, notificationRepository.addNotification(notification));
+    assertFalse(notificationRepository.addNotification(notification));
   }
-  
-  
-  
+
+
   /**
    * Test get new notifications by receiver id.
    *
@@ -195,13 +205,14 @@ public class NotificationRespositoryTest {
     Mockito.when(resultSet.getObject(2)).thenReturn(2);
     Mockito.when(resultSet.getObject(3)).thenReturn(1).thenReturn(null);
     Mockito.when(resultSet.getObject(4)).thenReturn(3).thenReturn(null);
-    Mockito.when(resultSet.getObject(5)).thenReturn(Timestamp.valueOf(LocalDateTime.now())).thenReturn(null);
+    Mockito.when(resultSet.getObject(5)).thenReturn(Timestamp.valueOf(LocalDateTime.now()))
+        .thenReturn(null);
     Mockito.when(resultSet.getObject(6)).thenReturn(NotificationType.FRIEND_REQUEST.name());
     Mockito.when(resultSet.getObject(7)).thenReturn(true);
     List<Notification> list = notificationRepository.getAllNewNotificationsByReceiverId(1);
     assertEquals(2, list.size());
   }
-  
+
   /**
    * Test get new notifications by receiver id SQL exception.
    *
@@ -216,7 +227,7 @@ public class NotificationRespositoryTest {
     List<Notification> list = notificationRepository.getAllNewNotificationsByReceiverId(1);
     assertEquals(0, list.size());
   }
-  
+
   /**
    * Test get new all notifications by receiver id any exception.
    *
@@ -231,7 +242,7 @@ public class NotificationRespositoryTest {
     List<Notification> list = notificationRepository.getAllNewNotificationsByReceiverId(1);
     assertEquals(0, list.size());
   }
-  
+
   /**
    * Test mark notifications as not new.
    *
@@ -248,10 +259,10 @@ public class NotificationRespositoryTest {
     e.setId(1);
     listNotifications.add(e);
     Mockito.when(preparedStmt.executeUpdate()).thenReturn(1);
-    assertEquals(true, notificationRepository.markNotificationsAsNotNew(listNotifications));
+    assertTrue(notificationRepository.markNotificationsAsNotNew(listNotifications));
 
   }
-  
+
   /**
    * Test mark notifications as not new SQL exception.
    *
@@ -268,10 +279,10 @@ public class NotificationRespositoryTest {
     e.setId(1);
     listNotifications.add(e);
     Mockito.when(preparedStmt.executeUpdate()).thenThrow(new IllegalArgumentException());
-    assertEquals(false, notificationRepository.markNotificationsAsNotNew(listNotifications));
+    assertFalse(notificationRepository.markNotificationsAsNotNew(listNotifications));
 
   }
-  
+
   /**
    * Test mark notifications as not new exception.
    *
@@ -288,11 +299,9 @@ public class NotificationRespositoryTest {
     e.setId(1);
     listNotifications.add(e);
     Mockito.when(preparedStmt.executeUpdate()).thenThrow(new SQLException());
-    assertEquals(false, notificationRepository.markNotificationsAsNotNew(listNotifications));
+    assertFalse(notificationRepository.markNotificationsAsNotNew(listNotifications));
 
   }
-  
-  
-  
-  
+
+
 }

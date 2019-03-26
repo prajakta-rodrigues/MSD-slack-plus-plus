@@ -50,4 +50,5 @@ public class SlackGroup {
 
   public int getCreatorId() { return creatorId; }
 
+
 }
