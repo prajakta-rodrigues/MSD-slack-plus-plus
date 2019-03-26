@@ -31,21 +31,11 @@ public class UserGroupRepository extends Repository {
    */
   public List<String> getModerators(int groupId) {
     List<String> mods = new ArrayList<>();
+    List<Map<String, Object>> results = getHandlesQuery(groupId);
     try {
-      connection = dataSource.getConnection();
-      String query = "SELECT handle, isModerator "
-          + "FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
-          + "WHERE group_id = ?";
-      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-        preparedStmt.setInt(1, groupId);
-        try (ResultSet rs = preparedStmt.executeQuery()) {
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-          for (Map<String, Object> result : results) {
-            if ((Boolean) result.get("isModerator")) {
-              mods.add(String.valueOf(result.get("handle")));
-            }
-            connection.close();
-          }
+      for (Map<String, Object> result : results) {
+        if ((Boolean) result.get("isModerator")) {
+          mods.add(String.valueOf(result.get("handle")));
         }
       }
     } catch (Exception e) {
@@ -62,24 +52,40 @@ public class UserGroupRepository extends Repository {
    */
   public List<String> getGroupMembers(int groupId) {
     List<String> groupMembers = new ArrayList<>();
+    List<Map<String, Object>> results = getHandlesQuery(groupId);
+    try {
+      for (Map<String, Object> result : results) {
+        groupMembers.add(String.valueOf(result.get("handle")));
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return groupMembers;
+  }
+
+  /**
+   * Gets the handles (and moderators) of all users in the desired group.
+   *
+   * @param groupId the group id of the desired group
+   * @return the result set of the query translated as a result list
+   */
+  private List<Map<String, Object>> getHandlesQuery(int groupId) {
+    List<Map<String, Object>> results = null;
     try {
       connection = dataSource.getConnection();
-      String query =
-          "SELECT handle FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
-              + "WHERE group_id = ?";
+      String query = "SELECT handle, isModerator "
+          + "FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
+          + "WHERE group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-          for (Map<String, Object> result : results) {
-            groupMembers.add(String.valueOf(result.get("handle")));
-          }
+          results = DatabaseConnection.resultsList(rs);
           connection.close();
         }
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
-    return groupMembers;
+    return results;
   }
 }

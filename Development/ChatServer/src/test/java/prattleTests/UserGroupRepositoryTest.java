@@ -86,7 +86,6 @@ public class UserGroupRepositoryTest {
     Mockito.when(resultSet.getObject(4)).thenReturn("Omar");
     List<String> mods = userGroupRepository.getModerators(1);
     assertEquals(1, mods.size());
-    System.out.println(mods.get(0));
     assertTrue(mods.contains("Omar"));
   }
 
