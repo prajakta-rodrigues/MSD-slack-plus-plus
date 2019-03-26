@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -23,6 +25,7 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import javax.sql.DataSource;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -57,7 +60,14 @@ public abstract class Prattle {
   /** Channels to its members. */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
+  /** The group repository*/
   private static GroupRepository groupRepository;
+
+  /** The user repository */
+  private static UserRepository userRepository;
+
+  /** The friend request repository */
+  private static FriendRequestRepository friendRequestRepository;
 
   private static final Map<String, Command> COMMANDS;
   /** The notification repository. */
@@ -69,6 +79,8 @@ public abstract class Prattle {
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
     groupRepository = new GroupRepository();
+    userRepository = new UserRepository(DatabaseConnection.getDataSource());
+    friendRequestRepository = new FriendRequestRepository(DatabaseConnection.getDataSource());
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -80,6 +92,7 @@ public abstract class Prattle {
     // COMMANDS.put("/dm", new Dm());
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
+    COMMANDS.put("/friend", new Friends());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
   }
 
@@ -487,5 +500,35 @@ public abstract class Prattle {
       return "Shows recent notifications";
     }
 
+  }
+
+  /**
+   * Displays all of a User's friends.
+   */
+  private static class Friends implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String ignoredParam, Integer senderId) {
+      List<String> friends = friendRequestRepository.getFriendsByUserId(senderId);
+      StringBuilder listOfFriends = new StringBuilder("My friends:");
+      for (String friend : friends) {
+        listOfFriends.append("\n");
+        listOfFriends.append(friend);
+      }
+
+      return listOfFriends.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the names of all of my friends.";
+    }
   }
 }
