@@ -515,19 +515,19 @@ public abstract class Prattle {
         return "Your client is null";
       }
       int currChannelId = currClient.getActiveChannelId();
-      SlackGroup currGroup = groupRepository.getGroupById(currChannelId);
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
       if (currGroup == null) {
         return "Your group is non-existent";
       }
       List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
-      List<String> queriedMembers = userGroupRepository.getGroupMembers(currChannelId);
+      List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
       StringBuilder groupMembers = new StringBuilder("Group Members:");
       for (String member : queriedMembers) {
         groupMembers.append("\n");
         if (mods.contains(member)) {
           groupMembers.append("*");
         }
-        groupMembers.append("member");
+        groupMembers.append(member);
       }
       return groupMembers.toString();
     }

@@ -33,14 +33,16 @@ public class UserGroupRepository extends Repository {
     List<String> mods = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.user_group where group_id = ?";
+      String query = "select handle, isModerator "
+          + "FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
+          + "WHERE group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
             if ((Boolean) result.get("isModerator")) {
-              mods.add(String.valueOf(result.get("user_id")));
+              mods.add(String.valueOf(result.get("handle")));
             }
             connection.close();
           }
@@ -55,20 +57,20 @@ public class UserGroupRepository extends Repository {
   /**
    * Returns all of the group members from the given channel id.
    *
-   * @param channelId the channel id whose group members are being sought
+   * @param group_id the channel id whose group members are being sought
    * @return the list of group members.
    */
-  public List<String> getGroupMembers(int channelId) {
+  public List<String> getGroupMembers(int group_id) {
     List<String> groupMembers = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.user_group where group_id = ?";
+      String query = "select handle from slack.user u, slack.user_group g where u.id = g.user_id and g.group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-        preparedStmt.setInt(1, channelId);
+        preparedStmt.setInt(1, group_id);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            groupMembers.add(String.valueOf(result.get("user_id")));
+            groupMembers.add(String.valueOf(result.get("handle")));
           }
           connection.close();
         }

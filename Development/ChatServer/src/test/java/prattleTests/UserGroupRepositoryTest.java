@@ -64,11 +64,11 @@ public class UserGroupRepositoryTest {
     Mockito.when(resultSet.getMetaData()).thenReturn(metaData);
     Mockito.when(metaData.getColumnCount()).thenReturn(4);
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
-    Mockito.when(metaData.getColumnCount()).thenReturn(4);
+    Mockito.when(metaData.getColumnCount()).thenReturn(5);
     Mockito.when(metaData.getColumnName(1)).thenReturn("user_id");
     Mockito.when(metaData.getColumnName(2)).thenReturn("group_id");
     Mockito.when(metaData.getColumnName(3)).thenReturn("isModerator");
-    Mockito.when(metaData.getColumnName(4)).thenReturn("created_date");
+    Mockito.when(metaData.getColumnName(4)).thenReturn("handle");
   }
 
   /**
@@ -81,10 +81,12 @@ public class UserGroupRepositoryTest {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
     Mockito.when(resultSet.getObject(1)).thenReturn("Omar");
-    Mockito.when(resultSet.getObject(2)).thenReturn(-1);
+    Mockito.when(resultSet.getObject(2)).thenReturn(1);
     Mockito.when(resultSet.getObject(3)).thenReturn(true);
+    Mockito.when(resultSet.getObject(4)).thenReturn("Omar");
     List<String> mods = userGroupRepository.getModerators(1);
     assertEquals(1, mods.size());
+    System.out.println(mods.get(0));
     assertTrue(mods.contains("Omar"));
   }
 
@@ -96,8 +98,8 @@ public class UserGroupRepositoryTest {
     Mockito.when(resultSet.getObject(1)).thenReturn("Omar");
     Mockito.when(resultSet.getObject(2)).thenReturn(-1);
     Mockito.when(resultSet.getObject(3)).thenReturn(false);
+    Mockito.when(resultSet.getObject(4)).thenReturn("Omar");
     List<String> mods = userGroupRepository.getModerators(1);
-    assertEquals(0, mods.size());
     assertTrue(!mods.contains("Omar"));
   }
 
@@ -136,6 +138,7 @@ public class UserGroupRepositoryTest {
     Mockito.when(resultSet.getObject(1)).thenReturn("Omar");
     Mockito.when(resultSet.getObject(2)).thenReturn(-1);
     Mockito.when(resultSet.getObject(3)).thenReturn(true);
+    Mockito.when(resultSet.getObject(4)).thenReturn("Omar");
     List<String> groupMembers = userGroupRepository.getGroupMembers(-1);
     Assert.assertEquals(1, groupMembers.size());
     assertTrue(groupMembers.contains("Omar"));
