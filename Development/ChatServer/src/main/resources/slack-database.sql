@@ -96,8 +96,8 @@ BEGIN
 END //
 
 delimiter ;
-
-create table slack.notification(id int(15) primary key, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
+		
+create table slack.notification(id int(15) primary key auto_increment, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
 type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
