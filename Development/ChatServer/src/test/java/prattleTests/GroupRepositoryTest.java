@@ -155,7 +155,7 @@ public class GroupRepositoryTest {
   }
 
   /**
-   * Test get group by id.
+   * Test get group by id exception.
    *
    * @throws SQLException the SQL exception
    */
@@ -164,4 +164,38 @@ public class GroupRepositoryTest {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     assertNull(groupRepository.getGroupById(1));
   }
+
+  /**
+   * Tsst get group by channel id exception
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testGetGroupByChannelIdException() throws SQLException {
+    Mockito.when(value.executeQuery()).thenThrow(new SQLException());
+    assertNull(groupRepository.getGroupByChannelId(1));
+  }
+
+  /**
+   * Tsst get group by channel id exception in preparing the statement
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testGetGroupByChannelIdException2() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    assertNull(groupRepository.getGroupByChannelId(1));
+  }
+
+  /**
+   * Tests get group by channel id works.
+   */
+  @Test
+  public void testGetGroupByChannelId() {
+    SlackGroup group = groupRepository.getGroupByChannelId(1);
+    assertEquals("testing", group.getGroupName());
+    assertEquals(1, group.getGroupId());
+    assertEquals(1, group.getCreatorId());
+  }
+
 }
