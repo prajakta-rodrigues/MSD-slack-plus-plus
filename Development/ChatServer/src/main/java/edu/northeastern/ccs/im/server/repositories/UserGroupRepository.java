@@ -33,7 +33,7 @@ public class UserGroupRepository extends Repository {
     List<String> mods = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select handle, isModerator "
+      String query = "SELECT handle, isModerator "
           + "FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
           + "WHERE group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
@@ -57,16 +57,18 @@ public class UserGroupRepository extends Repository {
   /**
    * Returns all of the group members from the given channel id.
    *
-   * @param group_id the channel id whose group members are being sought
+   * @param groupId the channel id whose group members are being sought
    * @return the list of group members.
    */
-  public List<String> getGroupMembers(int group_id) {
+  public List<String> getGroupMembers(int groupId) {
     List<String> groupMembers = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select handle from slack.user u, slack.user_group g where u.id = g.user_id and g.group_id = ?";
+      String query =
+          "SELECT handle FROM slack.user_group ug JOIN slack.user u ON (ug.user_id = u.id) "
+              + "WHERE group_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-        preparedStmt.setInt(1, group_id);
+        preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
