@@ -60,6 +60,9 @@ public abstract class Prattle {
   /** Channels to its members. */
   private static Map<Integer, Set<ClientRunnable>> channelMembers;
 
+  /**
+   * Repositories holding JDBC queries.
+   */
   private static GroupRepository groupRepository;
 
   private static DirectMessageRepository dmRepository;
