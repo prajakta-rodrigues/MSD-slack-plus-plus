@@ -615,6 +615,9 @@ public abstract class Prattle {
         return "No user provided to friend.";
       }
       User newFriend = userRepository.getUserByUserName(toFriend);
+      if(newFriend == null) {
+        throw new IllegalArgumentException("The specified user does not exist");
+      }
       Integer toFriendId = newFriend.getUserId();
       if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
         friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true);
