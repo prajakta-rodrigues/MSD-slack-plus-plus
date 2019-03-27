@@ -123,12 +123,12 @@ public class NotificationRespositoryTest {
 
 
   /**
-   * Test add notification success.
+   * Test add notification success group id zero.
    *
    * @throws SQLException the SQL exception
    */
   @Test
-  public void testAddNotificationSuccess() throws SQLException {
+  public void testAddNotificationSuccessGroupIdZero() throws SQLException {
     PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
     Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
@@ -139,12 +139,37 @@ public class NotificationRespositoryTest {
         .setTimestamp(Mockito.anyInt(), Mockito.any(Timestamp.class));
     Mockito.when(preparedStmt.executeUpdate()).thenReturn(1);
     Notification notification = new Notification();
+    notification.setAssociatedGroupId(2);
     notification.setType(NotificationType.FRIEND_REQUEST);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
     assertTrue(notificationRepository.addNotification(notification));
   }
 
 
+  /**
+   * Test add notification success user id zero.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testAddNotificationSuccessUserIdZero() throws SQLException {
+    PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
+    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(preparedStmt).setNull(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(preparedStmt).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.doNothing().when(preparedStmt).setString(Mockito.anyInt(), Mockito.anyString());
+    Mockito.doNothing().when(preparedStmt)
+        .setTimestamp(Mockito.anyInt(), Mockito.any(Timestamp.class));
+    Mockito.when(preparedStmt.executeUpdate()).thenReturn(1);
+    Notification notification = new Notification();
+    notification.setAssociatedUserId(2);
+    notification.setType(NotificationType.FRIEND_REQUEST);
+    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    assertTrue(notificationRepository.addNotification(notification));
+  }
+  
+  
   /**
    * Test add notification exception.
    *
