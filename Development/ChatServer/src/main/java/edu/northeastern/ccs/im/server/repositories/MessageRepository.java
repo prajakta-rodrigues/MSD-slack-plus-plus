@@ -1,12 +1,12 @@
 package edu.northeastern.ccs.im.server.repositories;
 
 import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -60,26 +60,43 @@ public class MessageRepository extends Repository{
         List<Message> messages = new ArrayList<>();
         try {
             connection = dataSource.getConnection();
-            String query = "select * from slack.message where channel_id =? ORDER BY sent_date DESC LIMIT=?";
+            String query = "select msg.type,u.handle,msg.channel_id,msg.TEXT " +
+                    "from slack.message msg JOIN slack.user u ON (msg.sender_id=u.id)" +
+                    "where channel_id =? ORDER BY sent_date DESC LIMIT=?";
             try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
                 preparedStmt.setInt(1, channelId);
                 preparedStmt.setInt(2, numberOfMessages);
                 try (ResultSet rs = preparedStmt.executeQuery()) {
-
-                    List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-
-                    for (Map<String, Object> result : results) {
-                        Message message = Message.makeMessage(String.valueOf(result.get("type")),
-                                String.valueOf(result.get("sender_id")),
-                                Integer.parseInt(String.valueOf(result.get("channel_id"))),
-                                String.valueOf(result.get("TEXT")));
-                        messages.add(message);
-                    }
+                    messages = getMessagesFromResultSet(rs);
                     connection.close();
                 }
             }
+        } catch (SQLException e) {
+            LOGGER.log(Level.WARNING, e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return messages;
+    }
+
+
+
+    /**
+     * Gets the messages from result set.
+     *
+     * @param rs the result set
+     * @return the messages from result set
+     */
+    private List<Message> getMessagesFromResultSet(ResultSet rs) {
+        List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+        List<Message> messages = new ArrayList<>();
+        for (Map<String, Object> result : results) {
+            Message message = Message.makeMessage(String.valueOf(result.get("type")),
+                    String.valueOf(result.get("handle")),
+                    Integer.parseInt(String.valueOf(result.get("channel_id"))),
+                    String.valueOf(result.get("TEXT")));
+
+            messages.add(message);
         }
         return messages;
     }
