@@ -480,6 +480,9 @@ public abstract class Prattle {
         return "Client not found";
       } else if (channelId < 0) {
         return "Failed to create direct message. Try again later.";
+      } else if (!friendRequestRepository.areFriends(senderId, receiverId)) {
+        return "You are not friends with " + receiverName
+            + ". Send them a friend request to direct message.";
       } else {
         try {
           changeClientChannel(channelId, sender);

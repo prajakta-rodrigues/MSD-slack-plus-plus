@@ -105,5 +105,33 @@ public class FriendRequestRepository extends Repository {
     }
   }
 
+  /**
+   * Determines if the two given users are friends.
+   *
+   * @param senderId the first user's id
+   * @param receiverId the second user's id
+   * @return true if the two users are friends, false otherwise
+   */
+  public boolean areFriends(Integer senderId, Integer receiverId) {
+    boolean areFriends = false;
+    try {
+      connection = dataSource.getConnection();
+      String query = "select accepted from slack.friend_request WHERE sender_id = ? AND receiver_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, senderId);
+        preparedStmt.setInt(2, receiverId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            areFriends = (Boolean) result.get("accepted");
+          }
+          connection.close();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return areFriends;
+  }
 
 }
