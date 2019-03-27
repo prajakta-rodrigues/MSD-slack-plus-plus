@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.server.repositories;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,6 +53,15 @@ public class UserRepository extends Repository {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+		finally {
+	      if (null != connection) {
+	        try {
+	          connection.close();
+	        } catch (SQLException e) {
+	          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	        }
+	      }
+	    }
 		return user;
 	}
 
@@ -77,6 +87,15 @@ public class UserRepository extends Repository {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+		finally {
+	      if (null != connection) {
+	        try {
+	          connection.close();
+	        } catch (SQLException e) {
+	          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+	        }
+	      }
+	    }
 		return result == 1;
 	}
 	
@@ -106,6 +125,15 @@ public class UserRepository extends Repository {
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally {
+          if (null != connection) {
+            try {
+              connection.close();
+            } catch (SQLException e) {
+              LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+          }
         }
         return user;
     }

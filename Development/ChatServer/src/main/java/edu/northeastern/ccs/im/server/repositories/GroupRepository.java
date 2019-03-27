@@ -57,6 +57,15 @@ public class GroupRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
+    }
     return group;
 
   }
@@ -90,6 +99,15 @@ public class GroupRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
+    }
     return group;
   }
 
@@ -113,6 +131,15 @@ public class GroupRepository extends Repository {
       connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
     }
     return count > 0;
   }
@@ -141,6 +168,15 @@ public class GroupRepository extends Repository {
       connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
     }
     return hasMember;
   }
@@ -173,6 +209,15 @@ public class GroupRepository extends Repository {
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
+    }
     return groups.toString();
   }
 
@@ -202,6 +247,15 @@ public class GroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
     }
     return group;
 

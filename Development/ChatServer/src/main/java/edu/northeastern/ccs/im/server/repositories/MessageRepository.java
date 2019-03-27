@@ -47,6 +47,15 @@ public class MessageRepository extends Repository{
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
 
         }
+        finally {
+          if (null != connection) {
+            try {
+              connection.close();
+            } catch (SQLException e) {
+              LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+          }
+        }
         return result == 1;
     }
 
@@ -75,6 +84,15 @@ public class MessageRepository extends Repository{
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally {
+          if (null != connection) {
+            try {
+              connection.close();
+            } catch (SQLException e) {
+              LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+          }
         }
         return messages;
     }

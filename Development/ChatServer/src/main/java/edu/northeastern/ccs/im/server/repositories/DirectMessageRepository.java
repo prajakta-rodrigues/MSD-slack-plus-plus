@@ -53,6 +53,15 @@ public class DirectMessageRepository extends Repository {
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
+    }
     return channelId;
   }
 
@@ -81,6 +90,15 @@ public class DirectMessageRepository extends Repository {
       connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      if (null != connection) {
+        try {
+          connection.close();
+        } catch (SQLException e) {
+          LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+      }
     }
     return channelId;
   }
