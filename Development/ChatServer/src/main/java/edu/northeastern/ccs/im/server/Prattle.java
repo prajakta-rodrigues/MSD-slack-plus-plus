@@ -3,6 +3,9 @@ package edu.northeastern.ccs.im.server;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
+
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -84,6 +87,11 @@ public abstract class Prattle {
    */
   private static NotificationRepository notificationRepository;
 
+  /**
+   * The message repository.
+   */
+  private static MessageRepository messageRepository;
+
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
@@ -106,6 +114,7 @@ public abstract class Prattle {
     COMMANDS.put("/notification", new NotificationHandler());
     COMMANDS.put("/groupmembers", new GroupMembers());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
 
   }
 
@@ -119,6 +128,7 @@ public abstract class Prattle {
     int channelId = message.getChannelId();
     // Loop through all of our active threads
     if (channelMembers.containsKey(channelId)) {
+      messageRepository.saveMessage(message);
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
