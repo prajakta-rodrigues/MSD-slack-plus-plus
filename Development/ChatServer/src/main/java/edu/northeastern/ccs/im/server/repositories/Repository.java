@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.server.repositories;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
@@ -32,5 +34,16 @@ abstract class Repository {
    */
   Repository() {
     this.dataSource = DatabaseConnection.getDataSource();
+  }
+  
+  protected void closeConnection(Connection connection) {
+    if (null != connection) {
+      try {
+        connection.close();
+      } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+      }
+    }
+    
   }
 }
