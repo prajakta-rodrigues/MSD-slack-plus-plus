@@ -9,22 +9,22 @@ public class Notification {
 
   /** The id. */
   private int id;
-  
+
   /** The reciever id. */
   private int recieverId;
-  
+
   /** The associated user id of the user involved in the notification. */
   private int associatedUserId;
-  
+
   /** The type. */
   private NotificationType type;
-  
+
   /** The created date. */
   private Timestamp createdDate;
-  
+
   /** The is new represents if the notification is new. */
   private boolean isNew;
-  
+
   /** The associated group id of the group involved in the notification. */
   private int associatedGroupId;
 
