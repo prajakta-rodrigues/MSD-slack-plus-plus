@@ -67,8 +67,8 @@ public class FriendRequestRepository extends Repository {
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            if (result.get(receiverId).equals(receiverId)) {
-              hasPendingRequest = (Boolean) result.get("accepted");
+            if (result.get("receiver_id").equals(receiverId)) {
+              hasPendingRequest = true;
             }
           }
           connection.close();
@@ -88,21 +88,24 @@ public class FriendRequestRepository extends Repository {
    * @param accepted whether or not the request has been accepted
    * @return true if there is a pending request, false if not
    */
-  public void updatePendingFriendRequest(Integer senderId, Integer receiverId, boolean accepted) {
+  public boolean updatePendingFriendRequest(Integer senderId, Integer receiverId,
+      boolean accepted) {
+    int count = 0;
     try {
       connection = dataSource.getConnection();
-      String query = "update slack.friend_request set accepted = ? where sender_id = ? AND receiver_id = ? ";
+      String query = "insert into slack.friend_request (accepted, sender_id, receiver_id) values (?,?,?)";
+      //String query = "insert into slack.friend_request (accepted, sender_id, receiver_id) values (?,?,?) on duplicate key update accepted = ? where sender_id = ? AND receiver_id = ? ";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setBoolean(1, accepted);
         preparedStmt.setInt(2, senderId);
         preparedStmt.setInt(3, receiverId);
-        try (ResultSet rs = preparedStmt.executeQuery()) {
-          connection.close();
-        }
+        count = preparedStmt.executeUpdate();
+        connection.close();
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    return count == 1;
   }
 
   /**

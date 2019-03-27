@@ -480,10 +480,12 @@ public abstract class Prattle {
         return "Client not found";
       } else if (channelId < 0) {
         return "Failed to create direct message. Try again later.";
-      } else if (!friendRequestRepository.areFriends(senderId, receiverId)) {
-        return "You are not friends with " + receiverName
-            + ". Send them a friend request to direct message.";
-      } else {
+      }
+//      else if (!friendRequestRepository.areFriends(senderId, receiverId)) {
+//        return "You are not friends with " + receiverName
+//            + ". Send them a friend request to direct message.";
+//      }
+      else {
         try {
           changeClientChannel(channelId, sender);
         } catch (IllegalArgumentException e) {
@@ -628,20 +630,26 @@ public abstract class Prattle {
         return "No user provided to friend.";
       }
       User newFriend = userRepository.getUserByUserName(toFriend);
+      User currUser = userRepository.getUserByUserId(senderId);
+      String currUserHandle = currUser.getUserName();
       if (newFriend == null) {
         throw new IllegalArgumentException("The specified user does not exist");
       }
       Integer toFriendId = newFriend.getUserId();
       if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
-        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true);
-        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, true);
-        return senderId + " and " + toFriend + " are now friends.";
+        if ((!friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true)) ||
+            (!friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, true))) {
+          return "Something went wrong and we could not accept your friend request";
+        }
+        return currUserHandle + " and " + toFriend + " are now friends.";
       } else {
         Notification friendReq = Notification.makeFriendRequestNotification(senderId, toFriendId);
         notificationRepository.addNotification(friendReq);
-        friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, false);
-        friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false);
-        return senderId + " sent " + toFriend + " a friend request";
+        if ((!friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, false))
+            || (!friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false))) {
+          return "Something went wrong and we could not send your friend request.";
+        }
+        return currUserHandle + " sent " + toFriend + " a friend request";
       }
     }
 

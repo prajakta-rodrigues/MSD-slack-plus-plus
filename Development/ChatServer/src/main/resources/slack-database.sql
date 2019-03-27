@@ -103,3 +103,8 @@ constraint fk_group_notification_id foreign key(associated_group_id) references 
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
 
+create table slack.friend_request(sender_id int(15), receiver_id int(15), accepted boolean,
+sent_date timestamp, primary key(sender_id, receiver_id),
+constraint fk_friend_req_sender_id foreign key(sender_id) references slack.user(id),
+constraint fk_friend_req_receiver_id foreign key(receiver_id) references slack.user(id));
+
