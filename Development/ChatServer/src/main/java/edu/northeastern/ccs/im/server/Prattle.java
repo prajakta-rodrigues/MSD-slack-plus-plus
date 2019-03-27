@@ -637,5 +637,4 @@ public abstract class Prattle {
       return "Friends the user with the given handle.\nParameters: User to friend";
     }
   }
-  
 }

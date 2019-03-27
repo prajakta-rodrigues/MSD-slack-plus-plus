@@ -1,9 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
  * The Class Notification represents notification entity from database.
