@@ -60,6 +60,9 @@ ALTER TABLE slack.group
 		REFERENCES user(id),
 	ADD CONSTRAINT UNIQUE (channel_id);
     
+ALTER TABLE slack.message
+	ADD COLUMN text varchar(500) NOT NULL;
+    
 INSERT INTO slack.channel VALUES();
 INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null, null, null);
 INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
@@ -129,7 +132,7 @@ BEGIN
                 JOIN slack.user u ON (ug.user_id = u.id)
             WHERE (!u.is_active OR u.active_channel <> NEW.channel_id) 
 				AND g.channel_id = NEW.channel_id
-                AND user_id <> sender_id;
+                AND user_id <> NEW.sender_id;
         END IF;
 	END IF;
 END //
@@ -142,8 +145,3 @@ type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
-
-SELECT * FROM user;
-SELECT * FROM notification;
-SELECT * from message;
-DESCRIBE message;
