@@ -1,48 +1,31 @@
 package edu.northeastern.ccs.im.server;
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
  * The Class Notification represents notification entity from database.
  */
 public class Notification {
 
-  /**
-   * The id.
-   */
+  /** The id. */
   private int id;
 
-  /**
-   * The reciever id.
-   */
+  /** The reciever id. */
   private int recieverId;
 
-  /**
-   * The associated user id of the user involved in the notification.
-   */
+  /** The associated user id of the user involved in the notification. */
   private int associatedUserId;
 
-  /**
-   * The type.
-   */
+  /** The type. */
   private NotificationType type;
 
-  /**
-   * The created date.
-   */
+  /** The created date. */
   private Timestamp createdDate;
 
-  /**
-   * The is new represents if the notification is new.
-   */
+  /** The is new represents if the notification is new. */
   private boolean isNew;
 
-  /**
-   * The associated group id of the group involved in the notification.
-   */
+  /** The associated group id of the group involved in the notification. */
   private int associatedGroupId;
 
 
@@ -61,6 +44,7 @@ public class Notification {
   public int getRecieverId() {
     return recieverId;
   }
+
 
 
   /**
@@ -83,6 +67,7 @@ public class Notification {
   }
 
 
+
   /**
    * Sets the associated user id.
    *
@@ -102,6 +87,7 @@ public class Notification {
   }
 
 
+
   /**
    * Sets the created date.
    *
@@ -110,6 +96,7 @@ public class Notification {
   public void setCreatedDate(Timestamp createdDate) {
     this.createdDate = createdDate;
   }
+
 
 
   /**
@@ -122,6 +109,7 @@ public class Notification {
   }
 
 
+
   /**
    * Sets the new.
    *
@@ -132,6 +120,7 @@ public class Notification {
   }
 
 
+
   /**
    * Gets the associated group id.
    *
@@ -140,6 +129,7 @@ public class Notification {
   public int getAssociatedGroupId() {
     return associatedGroupId;
   }
+
 
 
   /**
@@ -187,21 +177,6 @@ public class Notification {
     this.id = id;
   }
 
-  /**
-   * Makes a friend request notification from the given sender id to the second given receiver id
-   *
-   * @param senderId the sender of the request
-   * @param receiverId the receiver of the request
-   * @return the friend request notification
-   */
-  public static Notification makeFriendRequestNotification(int senderId, int receiverId) {
-    Notification notification = new Notification();
-    notification.setType(NotificationType.FRIEND_REQUEST);
-    notification.setAssociatedUserId(senderId);
-    notification.setRecieverId(receiverId);
-    notification.setNew(true);
-    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    return notification;
-  }
+
 
 }
