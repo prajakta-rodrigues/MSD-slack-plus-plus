@@ -189,6 +189,7 @@ public abstract class Prattle {
         || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
+    userRepository.setActive(false, dead.getUserId());
   }
 
   /**
@@ -206,6 +207,7 @@ public abstract class Prattle {
   static void authenticateClient(ClientRunnable toAuthenticate) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
     channelMembers.get(GENERAL_ID).add(toAuthenticate);
+    userRepository.setActive(true, toAuthenticate.getUserId());
   }
 
   /**

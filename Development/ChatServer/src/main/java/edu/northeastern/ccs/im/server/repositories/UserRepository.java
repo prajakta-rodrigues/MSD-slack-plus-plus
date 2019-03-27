@@ -50,7 +50,7 @@ public class UserRepository extends Repository {
 					connection.close();
 				}
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		finally {
@@ -78,7 +78,7 @@ public class UserRepository extends Repository {
 				result = preparedStmt.executeUpdate();
 				connection.close();
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 		finally {
@@ -111,7 +111,7 @@ public class UserRepository extends Repository {
                     connection.close();
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         finally {
@@ -119,6 +119,55 @@ public class UserRepository extends Repository {
         }
         return user;
     }
-    
-	
+
+  /**
+   * Sets whether or not the user is active in the database or not.
+   *
+   * @param isActive the user's active state
+   * @param userId the user in question
+   * @return Whether or not the update was a success
+   */
+  public boolean setActive(boolean isActive, int userId) {
+    	int result = 0;
+    	try {
+    	  connection = dataSource.getConnection();
+    	  String query = "UPDATE slack.user SET is_active = ? WHERE id = ?";
+    	  try (PreparedStatement stmt = connection.prepareStatement(query)) {
+    	    stmt.setBoolean(1, isActive);
+    	    stmt.setInt(2, userId);
+    	    result = stmt.executeUpdate();
+        }
+      } catch (SQLException e) {
+    	  LOGGER.log(Level.SEVERE, e.getMessage(), e);
+      } finally {
+        closeConnection(connection);
+      }
+      return result > 0;
+		}
+
+
+  /**
+   * Sets the active channel Id of the user.
+   *
+   * @param activeChanelId the new channel id of the user.
+   * @param userId the user in question
+   * @return whether or not the update was a success.
+   */
+  public boolean setActiveChannel(int activeChanelId, int userId) {
+      int result = 0;
+      try {
+        connection = dataSource.getConnection();
+        String query = "UPDATE slack.user SET active_channel = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+          stmt.setInt(1, activeChanelId);
+          stmt.setInt(2, userId);
+          result = stmt.executeUpdate();
+        }
+      } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+      } finally {
+        closeConnection(connection);
+      }
+      return result > 0;
+    }
 }

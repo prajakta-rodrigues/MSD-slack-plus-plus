@@ -1,6 +1,5 @@
 package prattleTests;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
