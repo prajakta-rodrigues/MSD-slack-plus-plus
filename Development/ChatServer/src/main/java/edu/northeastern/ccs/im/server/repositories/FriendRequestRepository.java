@@ -105,5 +105,4 @@ public class FriendRequestRepository extends Repository {
     }
   }
 
-
 }
