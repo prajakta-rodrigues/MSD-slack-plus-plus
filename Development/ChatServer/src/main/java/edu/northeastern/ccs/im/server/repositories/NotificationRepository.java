@@ -51,6 +51,9 @@ public class NotificationRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      closeConnection(connection);
+    }
     return listNotifications;
   }
 
@@ -81,6 +84,9 @@ public class NotificationRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      closeConnection(connection);
+    }
     return result == 1;
   }
 
@@ -109,6 +115,9 @@ public class NotificationRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return listNotifications;
     
@@ -178,6 +187,9 @@ public class NotificationRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return result == 1;
 }

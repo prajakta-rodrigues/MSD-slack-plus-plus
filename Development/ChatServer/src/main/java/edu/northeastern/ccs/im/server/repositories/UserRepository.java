@@ -53,6 +53,9 @@ public class UserRepository extends Repository {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+		finally {
+          closeConnection(connection);
+	    }
 		return user;
 	}
 
@@ -78,6 +81,9 @@ public class UserRepository extends Repository {
 		} catch (SQLException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
+		finally {
+          closeConnection(connection);
+	    }
 		return result == 1;
 	}
 	
@@ -107,6 +113,9 @@ public class UserRepository extends Repository {
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        finally {
+          closeConnection(connection);
         }
         return user;
     }

@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.server.repositories;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,9 @@ public class UserGroupRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      closeConnection(connection);
+    }
     return mods;
   }
 
@@ -59,6 +63,9 @@ public class UserGroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return groupMembers;
   }
@@ -85,6 +92,9 @@ public class UserGroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return results;
   }

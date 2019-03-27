@@ -303,5 +303,66 @@ public class NotificationRespositoryTest {
 
   }
 
+  @Test
+  public void testGetAllNotificationsByReceiverIdNullConnection() throws SQLException {
+    Mockito.when(db.getConnection()).thenReturn(null);
+    List<Notification> listNotifications = notificationRepository.getAllNotificationsByReceiverId(1);
+    assertEquals(0, listNotifications.size());
+  }
+  
+  @Test
+  public void testaddNotificationNullConnection() throws SQLException {
+    Mockito.when(db.getConnection()).thenReturn(null);
+    boolean result = notificationRepository.addNotification(null);
+    assertFalse(result);
+  }
+  
+  @Test
+  public void testGetAllNewNotificationsByReceiverIdNullConnection() throws SQLException {
+    Mockito.when(db.getConnection()).thenReturn(null);
+    List<Notification> listNotifications = notificationRepository.getAllNewNotificationsByReceiverId(1);
+    assertEquals(0, listNotifications.size());
+  }
+
+  @Test
+  public void testmarkNotificationsAsNotNewNullConnection() throws SQLException {
+    Mockito.when(db.getConnection()).thenReturn(null);
+    boolean result = notificationRepository.markNotificationsAsNotNew(null);
+    assertFalse(result);
+  }
+
+  @Test
+  public void testGetAllNotificationsByReceiverIdExceptionCloseConnection() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    Mockito.doThrow(new SQLException()).when(connection).close();
+    List<Notification> listNotifications = notificationRepository.getAllNotificationsByReceiverId(1);
+    assertEquals(0, listNotifications.size());
+  }
+  
+  @Test
+  public void testaddNotificationExceptionCloseConnection() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    Mockito.doThrow(new SQLException()).when(connection).close();
+    boolean result = notificationRepository.addNotification(null);
+    assertFalse(result);
+  }
+  
+  @Test
+  public void testGetAllNewNotificationsByReceiverIdExceptionCloseConnection() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    Mockito.doThrow(new SQLException()).when(connection).close();
+    List<Notification> listNotifications = notificationRepository.getAllNewNotificationsByReceiverId(1);
+    assertEquals(0, listNotifications.size());
+  }
+
+  @Test
+  public void testmarkNotificationsAsNotNewExceptionCloseConnection() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    Mockito.doThrow(new SQLException()).when(connection).close();
+    boolean result = notificationRepository.markNotificationsAsNotNew(null);
+    assertFalse(result);
+  }
+  
+  
 
 }
