@@ -23,6 +23,8 @@ public class UserRepository extends Repository {
     super(ds);
   }
 
+  public UserRepository() { super(); }
+
 	/**
 	 * Gets the user by user name.
 	 *
@@ -74,7 +76,6 @@ public class UserRepository extends Repository {
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-
 		}
 		return result == 1;
 	}
@@ -82,7 +83,7 @@ public class UserRepository extends Repository {
     /**
      * Gets the user by user id.
      *
-     * @param userName the user id
+     * @param userId the user id
      * @return the user by user id
      */
     public User getUserByUserId(int userId) {
