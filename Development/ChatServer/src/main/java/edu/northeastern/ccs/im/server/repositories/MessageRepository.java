@@ -4,6 +4,7 @@ import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -48,13 +49,7 @@ public class MessageRepository extends Repository{
 
         }
         finally {
-          if (null != connection) {
-            try {
-              connection.close();
-            } catch (SQLException e) {
-              LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-          }
+          closeConnection(connection);
         }
         return result == 1;
     }
@@ -86,17 +81,10 @@ public class MessageRepository extends Repository{
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         finally {
-          if (null != connection) {
-            try {
-              connection.close();
-            } catch (SQLException e) {
-              LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-          }
+          closeConnection(connection);
         }
         return messages;
     }
-
 
 
     /**

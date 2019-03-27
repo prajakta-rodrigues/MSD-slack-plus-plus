@@ -43,13 +43,7 @@ public class UserGroupRepository extends Repository {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
-      if (null != connection) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-      }
+      closeConnection(connection);
     }
     return mods;
   }
@@ -71,13 +65,7 @@ public class UserGroupRepository extends Repository {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
-      if (null != connection) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-      }
+      closeConnection(connection);
     }
     return groupMembers;
   }
@@ -106,13 +94,7 @@ public class UserGroupRepository extends Repository {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
-      if (null != connection) {
-        try {
-          connection.close();
-        } catch (SQLException e) {
-          LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
-      }
+      closeConnection(connection);
     }
     return results;
   }
