@@ -140,13 +140,7 @@ public class UserRepository extends Repository {
       } catch (SQLException e) {
     	  LOGGER.log(Level.SEVERE, e.getMessage(), e);
       } finally {
-    	  if (connection != null) {
-          try {
-            connection.close();
-          } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-          }
-        }
+        closeConnection(connection);
       }
       return result > 0;
 		}
@@ -172,13 +166,7 @@ public class UserRepository extends Repository {
       } catch (SQLException e) {
         LOGGER.log(Level.SEVERE, e.getMessage(), e);
       } finally {
-        if (connection != null) {
-          try {
-            connection.close();
-          } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-          }
-        }
+        closeConnection(connection);
       }
       return result > 0;
     }
