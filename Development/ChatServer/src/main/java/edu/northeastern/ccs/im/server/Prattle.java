@@ -29,9 +29,6 @@ import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -322,7 +319,7 @@ public abstract class Prattle {
       SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
-        if (!groupRepository.groupHasMember(senderId, groupName)) {
+        if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
           return "You are not a member of this group";
         }
         int channelId = targetGroup.getChannelId();
