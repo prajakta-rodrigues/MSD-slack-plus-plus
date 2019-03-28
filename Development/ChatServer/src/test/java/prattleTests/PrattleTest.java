@@ -1,7 +1,6 @@
 package prattleTests;
 
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
-import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -483,15 +482,7 @@ public class PrattleTest {
     assertEquals(bot, callback.getName());
   }
 
-  /**
-   * Tests for multi-language support
-   */
-  @Test
-  public void testLanguageSupport() {
-    LanguageSupport ls = LanguageSupport.getInstance();
-    String translated =  ls.getLanguage("spanish","Print out the handles of the users in a group.");
-    Assert.assertEquals("Imprime los manejadores de los usuarios en un grupo.", translated);
-  }
+
 
   /**
    * Tests commands with extra params.
