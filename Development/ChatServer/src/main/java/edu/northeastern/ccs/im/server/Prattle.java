@@ -90,8 +90,6 @@ public abstract class Prattle {
   private static NotificationRepository notificationRepository;
 
 
-  private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
-
   /**
    * The Language support Instance.
    */
