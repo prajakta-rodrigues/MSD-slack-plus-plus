@@ -558,13 +558,10 @@ public abstract class Prattle {
     @Override
     public String apply(String ignoredParam, Integer senderId) {
       ClientRunnable currClient = getClient(senderId);
-      if (currClient == null) {
-        return "Your client is null";
-      }
       int currChannelId = currClient.getActiveChannelId();
       SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
       if (currGroup == null) {
-        return "Your group is non-existent";
+        return "Your group is non-existent.";
       }
       List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
       List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
