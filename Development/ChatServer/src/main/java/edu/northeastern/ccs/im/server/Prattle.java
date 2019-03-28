@@ -1,11 +1,5 @@
 package edu.northeastern.ccs.im.server;
 
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-import edu.northeastern.ccs.im.server.repositories.MessageRepository;
-
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -13,12 +7,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.List;
-import java.util.Map;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -27,13 +21,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
-import org.json.simple.JSONObject;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -122,6 +116,7 @@ public abstract class Prattle {
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
     COMMANDS.put("/groupmembers", new GroupMembers());
+    COMMANDS.put("/kick", new Kick());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
     messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
 
@@ -589,6 +584,43 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Print out the handles of the users in a group.";
+    }
+  }
+
+  /**
+   * Kick a member from a group.
+   */
+  private static class Kick implements Command {
+
+    @Override
+    public String apply(String memberToKick, Integer senderId) {
+      if (memberToKick == null) {
+        return "You have not specified a member to kick.";
+      }
+      ClientRunnable mod = getClient(senderId);
+      SlackGroup group = groupRepository.getGroupByChannelId(mod.getActiveChannelId());
+      if (group == null) {
+        return "You must set a group as your active channel to kick a member.";
+      }
+      List<String> moderators = userGroupRepository.getModerators(group.getGroupId());
+      boolean isModerator = moderators.contains(mod.getName());
+      if (!isModerator) {
+        return "You are not the moderator of this group.";
+      }
+      List<String> members = userGroupRepository.getGroupMembers(group.getGroupId());
+      User toKick = userRepository.getUserByUserName(memberToKick);
+      if (!members.contains(memberToKick) || toKick == null) {
+        return String.format("Could not find %s as a member of this group.", memberToKick);
+      }
+      return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
+              String.format("User %s successfully kicked from group.", toKick.getUserName()) :
+              String.format("Something went wrong. Failed to kick member %s.", toKick.getUserName());
+    }
+
+    @Override
+    public String description() {
+      return "As the moderator of your active group, kick a member from your group.\n" +
+              "Parameters: handle of the user to kick";
     }
   }
 }

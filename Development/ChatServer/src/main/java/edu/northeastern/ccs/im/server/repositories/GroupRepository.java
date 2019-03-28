@@ -194,7 +194,7 @@ public class GroupRepository extends Repository {
   /**
    * Gets the group by channel id.
    *
-   * @param channelId the group id
+   * @param channelId the channel id
    * @return the group by id
    */
   public SlackGroup getGroupByChannelId(int channelId) {
