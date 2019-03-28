@@ -1,5 +1,6 @@
 package prattleTests;
 
+import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,12 +46,14 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 
 /**
  * Created by venkateshkoka on 2/10/19. All the test cases
- */ 
+ */
 public class PrattleTest {
 
   private ClientRunnable cr1;
@@ -60,6 +63,9 @@ public class PrattleTest {
   private String bot = "Slackbot";
   private DirectMessageRepository dmRepository;
   private UserRepository userRepository;
+  private FriendRequestRepository friendRequestRepository;
+  private User omar;
+  private User mark;
 
   /**
    * Initialize the command data before each test
@@ -69,17 +75,17 @@ public class PrattleTest {
   public void initCommandData() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1) {
-    	@Override()
-    	protected void checkForInitialization() {
+      @Override()
+      protected void checkForInitialization() {
 
-    	}
+      }
     };
     NetworkConnection networkConnection2 = Mockito.mock(NetworkConnection.class);
     cr2 = new ClientRunnable(networkConnection2){
-    	@Override()
-    	protected void checkForInitialization() {
+      @Override()
+      protected void checkForInitialization() {
 
-    	}
+      }
     };
     cr1.setName("omar");
     cr2.setName("tuffaha");
@@ -101,41 +107,41 @@ public class PrattleTest {
     cr1.run();
     cr2.run();
     Field authenticatedClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("authenticated");
+        .getDeclaredField("authenticated");
     authenticatedClient.setAccessible(true);
 
     Field cm = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("channelMembers");
+        .getDeclaredField("channelMembers");
     cm.setAccessible(true);
 
     Field authenticate = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-            .getDeclaredField("authenticated");
+        .getDeclaredField("authenticated");
     authenticate.setAccessible(true);
     authenticate.set(cr1, true);
     authenticate.set(cr2, true);
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-            .getDeclaredField("initialized");
+        .getDeclaredField("initialized");
     initialized.setAccessible(true);
     initialized.set(cr1, true);
     initialized.set(cr2, true);
     Field userId = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-            .getDeclaredField("userId");
+        .getDeclaredField("userId");
     userId.setAccessible(true);
     userId.set(cr1, 2);
     userId.set(cr2, 1);
 
     Map<Integer, ClientRunnable> authenticated = (Hashtable<Integer, ClientRunnable>) authenticatedClient
-            .get(null);
+        .get(null);
     authenticated.put(2, cr1);
     authenticated.put(1, cr2);
 
     Map<Integer, Set<ClientRunnable>> channelMembers = (Hashtable<Integer, Set<ClientRunnable>>) cm
-            .get(null);
+        .get(null);
     channelMembers.get(1).add(cr1);
     channelMembers.get(1).add(cr2);
 
     Field wl = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-            .getDeclaredField("waitingList");
+        .getDeclaredField("waitingList");
     wl.setAccessible(true);
     waitingList1 = (ConcurrentLinkedQueue<Message>)wl.get(cr1);
     waitingList2 = (ConcurrentLinkedQueue<Message>)wl.get(cr2);
@@ -143,26 +149,33 @@ public class PrattleTest {
     GroupRepository groupRepository = new MockGroupRepository();
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("groupRepository");
+        .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
     dmRepository = Mockito.mock(DirectMessageRepository.class);
     userRepository = Mockito.mock(UserRepository.class);
+    friendRequestRepository = Mockito.mock(FriendRequestRepository.class);
 
-    User omar = new User(2, "omar", "password");
+    omar = new User(1, "omar", "password");
+    mark = new User(2, "mark", "password");
 
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("userRepository");
+        .getDeclaredField("userRepository");
     ur.setAccessible(true);
     ur.set(null, userRepository);
 
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
 
     Field dmr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("dmRepository");
+        .getDeclaredField("dmRepository");
     dmr.setAccessible(true);
     dmr.set(null, dmRepository);
+
+    Field frr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("friendRequestRepository");
+    frr.setAccessible(true);
+    frr.set(null, friendRequestRepository);
 
     Mockito.when(dmRepository.createDM(Mockito.anyInt(), Mockito.anyInt())).thenReturn(5);
     Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(10);
@@ -235,9 +248,9 @@ public class PrattleTest {
    */
   @Test
   public void testChatloggerTypes()
-          throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+      throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.ServerConstants")
-            .getDeclaredConstructor();
+        .getDeclaredConstructor();
     constructor.setAccessible(true);
     constructor.newInstance();
   }
@@ -252,9 +265,9 @@ public class PrattleTest {
    */
   @Test
   public void testMessageClass()
-          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
-            .getDeclaredMethod("makeHelloMessage", String.class);
+        .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "mike");
     Message msd1 = Message.makeBroadcastMessage("koka", "Hello There");
@@ -276,13 +289,13 @@ public class PrattleTest {
    */
   @Test
   public void testClientMessageClass()
-          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String jaffa = "jaffa";
     String hello = "hello";
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-            .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
+        .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-            .getDeclaredMethod("makeHelloMessage", String.class);
+        .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeHelloMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "HLO", jaffa, -1, hello);
@@ -290,7 +303,7 @@ public class PrattleTest {
     makeMessageMethod.invoke(null, "NAK", jaffa, -1, hello);
     makeHelloMessageMethod.invoke(null, jaffa);
     edu.northeastern.ccs.im.client.Message sc = edu.northeastern.ccs.im.client.Message
-            .makeLoginMessage("jaffa");
+        .makeLoginMessage("jaffa");
     sc.isAcknowledge();
     sc.isBroadcastMessage();
     sc.isDisplayMessage();
@@ -374,7 +387,7 @@ public class PrattleTest {
    */
   @Test
   public void testBuddy()
-          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String bud = "edu.northeastern.ccs.im.client.Buddy";
     String daffa = "daffa";
     String jaffa = "jaffa";
@@ -397,10 +410,10 @@ public class PrattleTest {
 
   @Test
   public void testStopServer() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-	  Field isReady = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("isReady");
-	  isReady.setAccessible(true);
-	  isReady.set(null, true);
-	  Prattle.stopServer();
+    Field isReady = Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("isReady");
+    isReady.setAccessible(true);
+    isReady.set(null, true);
+    Prattle.stopServer();
     assertFalse((boolean) isReady.get(null));
   }
 
@@ -477,14 +490,10 @@ public class PrattleTest {
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("/groups Print out the names of each Group you are a member of\n"));
-    assertTrue(callback.getText().contains("/creategroup Create a group with the given name.\n" +
-            "Parameters: Group name"));
-    assertTrue(callback.getText().contains("/group Change your current chat room to the specified Group.\n" +
-            "Parameters: group name"));
-    assertTrue(callback.getText().contains("/circle Print out the handles of the active users on the server"));
-    assertTrue(callback.getText().contains("/help Lists all of the available commands."));
     assertEquals(bot, callback.getName());
   }
+
+
 
   /**
    * Tests commands with extra params.
@@ -667,10 +676,10 @@ public class PrattleTest {
     Prattle.broadcastMessage(Message.makeMessage("BCT","omar", 2, "Hey T"));
     assertTrue(waitingList2.isEmpty());
   }
-  
+
   @Test
-  public void testNotificationCommandNullList() throws NoSuchFieldException, SecurityException, 
-  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public void testNotificationCommandNullList() throws NoSuchFieldException, SecurityException,
+      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
@@ -683,10 +692,10 @@ public class PrattleTest {
     assertEquals("No notifications to show" , callback.getText());
 
   }
-  
+
   @Test
-  public void testNotificationCommandEmptyList() throws NoSuchFieldException, SecurityException, 
-  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public void testNotificationCommandEmptyList() throws NoSuchFieldException, SecurityException,
+      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
@@ -700,16 +709,16 @@ public class PrattleTest {
     assertEquals("No notifications to show" , callback.getText());
 
   }
-  
+
   @Test
-  public void testNotificationCommandNotificationList() throws NoSuchFieldException, SecurityException, 
-  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+  public void testNotificationCommandNotificationList() throws NoSuchFieldException, SecurityException,
+      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
-    
+
     Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
@@ -717,7 +726,7 @@ public class PrattleTest {
     userRepoField.set(null, userRepository);
     User user = new User(2, "testY", "pwd");
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
-    
+
     List<Notification> list = new ArrayList<>();
     Notification e = new Notification();
     e.setId(1);
@@ -732,7 +741,7 @@ public class PrattleTest {
     assertTrue(waitingList2.isEmpty());
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
     Message callback = waitingList2.remove();
-    assertEquals("Notifications:\n" + 
+    assertEquals("Notifications:\n" +
         "testY has sent you a friend request.  NEW\n", callback.getText());
 
   }
@@ -741,12 +750,12 @@ public class PrattleTest {
     GroupRepository groupRepository = Mockito.mock(MockGroupRepository.class);
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-            .getDeclaredField("groupRepository");
+        .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyString()))
-            .thenReturn(false);
+        .thenReturn(false);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(new SlackGroup(1, "special_group"));
 
     ((MockGroupRepository) groupRepository).mockDb = new HashMap<>();
@@ -767,6 +776,7 @@ public class PrattleTest {
 
   @Test
   public void testDMExistingDM() {
+    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Message callback = waitingList2.remove();
     assertEquals("You are now messaging omar", callback.getText());
@@ -776,10 +786,24 @@ public class PrattleTest {
   @Test
   public void testDMnewDM() {
     Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
+    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Message callback = waitingList2.remove();
     assertEquals("You are now messaging omar", callback.getText());
     assertEquals(5, cr2.getActiveChannelId());
+  }
+
+  /**
+   * Tests that you cannot dm someone who is not your friend.
+   */
+  @Test
+  public void testDmNotFriend() {
+    Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 2, "/dm omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("You are not friends with omar. Send them a friend request to direct message.",
+        callback.getText());
+    assertEquals(1, cr2.getActiveChannelId());
   }
 
   @Test
@@ -794,9 +818,111 @@ public class PrattleTest {
 
   @Test
   public void testDMBetweenUsers() {
+    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
+    Mockito.when(friendRequestRepository.areFriends(2, 1)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
     assertEquals(10, cr1.getActiveChannelId());
     assertEquals(10, cr2.getActiveChannelId());
+  }
+
+  /**
+   * Tests that sending a friend request to a null doesn't work
+   */
+  @Test
+  public void testFriendCommandNullFriend() {
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/friend jake"));
+    Message callback = waitingList2.remove();
+    assertEquals("The specified user does not exist.", callback.getText());
+  }
+
+  /**
+   * Tests that sending a friend request doesn't work if they're already friends
+   */
+  @Test
+  public void testFriendAreFriends() {
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
+    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("You are already friends with omar.", callback.getText());
+  }
+
+  /**
+   * Tests that sending a friend request accepts it if there already is one sent to them by that
+   * user
+   */
+  @Test
+  public void testFriendHasPendingFriendRequest() {
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
+    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
+        .thenReturn(true);
+    Mockito
+        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+        .thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("mark and omar are now friends.", callback.getText());
+  }
+
+  /**
+   * Tests the accepting friend request failure condition.
+   */
+  @Test
+  public void testFriendHasPendingFriendRequestFailure() {
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
+    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
+        .thenReturn(true);
+    Mockito
+        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+        .thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("Something went wrong and we could not accept omar's friend request.",
+        callback.getText());
+  }
+
+  /**
+   * Tests that sending a friend request sends it if there already isn't one from that user
+   */
+  @Test
+  public void testFriendDoesntHasPendingFriendRequest() {
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
+    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
+        .thenReturn(false);
+    Mockito
+        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+        .thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("mark sent omar a friend request.", callback.getText());
+  }
+  /**
+   * Tests that the friends commands shows a list of friends
+   */
+  @Test
+  public void testFriends() {
+    List<Integer> friendIds = new ArrayList<>();
+    friendIds.add(1);
+    Mockito.when(friendRequestRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friends"));
+    Message callback = waitingList1.remove();
+    assertEquals("My friends:\nomar", callback.getText());
+  }
+
+  /**
+   * Tests that no friends shows a boom roasted message.
+   */
+  @Test
+  public void testNoFriends() {
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friends"));
+    Message callback = waitingList1.remove();
+    assertEquals("You have no friends. :(", callback.getText());
   }
 }

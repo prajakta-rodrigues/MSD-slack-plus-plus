@@ -637,7 +637,7 @@ public abstract class Prattle {
       User currUser = userRepository.getUserByUserId(senderId);
       String currUserHandle = currUser.getUserName();
       if (newFriend == null) {
-        return "The specified user does not exist";
+        return "The specified user does not exist.";
       }
       Integer toFriendId = newFriend.getUserId();
       if (senderId.equals(toFriendId)) { // adding oneself as a friend
@@ -653,7 +653,7 @@ public abstract class Prattle {
         return "Something went wrong and we could not accept " + toFriend + "'s friend request.";
       } else {
         if (successfulFriendRequestHandler(senderId, toFriendId, false)) {
-          return currUserHandle + " sent " + toFriend + " a friend request";
+          return currUserHandle + " sent " + toFriend + " a friend request.";
         }
         return "Something went wrong and we could not send your friend request.";
       }
