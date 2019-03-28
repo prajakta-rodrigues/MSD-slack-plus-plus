@@ -2,6 +2,9 @@ package prattleTests;
 
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
+
+import edu.northeastern.ccs.im.server.utility.LanguageSupport;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -504,11 +507,9 @@ public class PrattleTest {
     assertEquals(0, waitingList2.size());
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
-    assertTrue(callback.getText()
-        .contains("/groups Print out the names of each Group you are a member of\n"));
+    assertTrue(callback.getText().contains("/groups Print out the names of each Group you are a member of\n"));
     assertEquals(bot, callback.getName());
   }
-
 
   /**
    * Tests commands with extra params.
