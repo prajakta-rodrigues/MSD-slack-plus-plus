@@ -145,3 +145,11 @@ type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
+
+create table slack.group_invitation(invitee_id int(15)  NOT NULL,
+invitor_id int(15)  NOT NULL, group_id int(15) NOT NULL,
+created_date timestamp  NOT NULL, 
+primary key(invitee_id, invitor_id , group_id),
+constraint fk_invitee_id foreign key(invitee_id)  references slack.user(id), 
+constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
+constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
