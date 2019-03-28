@@ -1,0 +1,154 @@
+package edu.northeastern.ccs.im.server.repositories;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import javax.sql.DataSource;
+import edu.northeastern.ccs.im.server.GroupInvitation;
+import edu.northeastern.ccs.im.server.InviteesGroup;
+import edu.northeastern.ccs.im.server.InvitorsGroup;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
+public class GroupInviteRepository extends Repository {
+
+
+  public GroupInviteRepository(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
+  public boolean add(GroupInvitation groupInvitation) throws SQLException {
+    int result = 0;
+    try {
+      connection = dataSource.getConnection();
+      String query =
+          "insert into slack.group_invitation(invitor_id , invitee_id , group_id , created_date) values(?,?,?,?)";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, groupInvitation.getInvitorId());
+        preparedStmt.setInt(2, groupInvitation.getInviteeId());
+        preparedStmt.setInt(3, groupInvitation.getGroupId());
+        preparedStmt.setTimestamp(4, groupInvitation.getCreatedDate());
+        result = preparedStmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    }
+
+    return result == 1;
+
+  }
+
+  public List<InvitorsGroup> getGroupInvitationsByInviteeId(int inviteeId) {
+    InvitorsGroup groupInvitation = null;
+    List<InvitorsGroup> listGroupInvitation = new ArrayList<>();
+    try {
+      connection = dataSource.getConnection();
+      String query = "select u.handle, g.name from slack.user u, slack.group g, "
+          + "slack.group_invitation ug where ug.invitee_id = ?"
+          + " and u.id = ug.invitor_id and g.id = ug.group_id";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, inviteeId);
+
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            groupInvitation = new InvitorsGroup(String.valueOf(result.get("handle")), 
+                String.valueOf(result.get("name")));
+            listGroupInvitation.add(groupInvitation);
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    }
+    return listGroupInvitation;
+  }
+
+  public List<InviteesGroup> getGroupInvitationsByInvitorId(int invitorId) {
+    InviteesGroup groupInvitation = null;
+    List<InviteesGroup> listGroupInvitation = new ArrayList<>();
+    try {
+      connection = dataSource.getConnection();
+      String query = "select u.handle, g.name from slack.user u, slack.group g, "
+          + "slack.group_invitation ug where ug.invitor_id = ?"
+          + " and u.id = ug.invitee_id and g.id = ug.group_id";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, invitorId);
+
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            groupInvitation = new InviteesGroup(String.valueOf(result.get("handle")), 
+                String.valueOf(result.get("name")));
+            listGroupInvitation.add(groupInvitation);
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    }
+    return listGroupInvitation;
+  }
+  
+
+  public boolean acceptInvite(Integer userId, int groupId) throws SQLException {
+    int rs = 0;
+    boolean result = false;
+    try {
+      connection = dataSource.getConnection();
+      connection.setAutoCommit(false);
+      String query = "delete from slack.group_invitation where invitee_id = ? and group_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        preparedStmt.setInt(2, groupId);
+        rs = preparedStmt.executeUpdate();
+      }
+      
+      if(rs == 0) {
+        return result;
+      }
+      
+      result = insertIntoUserGroup(connection , userId , groupId);
+      connection.commit();  
+    }
+    catch(SQLException e) {
+      connection.rollback();
+      throw e;
+    }
+    catch(Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
+    }
+    return result;
+  }
+
+  private boolean insertIntoUserGroup(Connection connection, Integer userId, int groupId) throws SQLException {
+    int rs = 0;
+    String query = "insert into slack.user_group(user_id, group_id, isModerator, created_date) values(?,?,?,?)";
+    try(PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+      preparedStmt.setInt(1, userId);
+      preparedStmt.setInt(2, groupId);
+      preparedStmt.setBoolean(3, false);
+      preparedStmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+      rs = preparedStmt.executeUpdate();
+    }
+    return rs == 1;
+  }
+
+}

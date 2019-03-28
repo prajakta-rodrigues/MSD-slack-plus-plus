@@ -4,6 +4,8 @@ import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -98,4 +100,27 @@ public class UserGroupRepository extends Repository {
     }
     return results;
   }
+  
+  public boolean isModerator(int userId, int groupId) throws SQLException {
+    try {
+      connection = dataSource.getConnection();
+      String query = "select isModerator from slack.user_group where user_id = ? and group_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        preparedStmt.setInt(2, groupId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          connection.close();
+          return (Boolean) results.get(0).get("isModerator");
+        }
+      }
+    } catch (SQLException e) {
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    return false;
+  }
+  
+  
 }
