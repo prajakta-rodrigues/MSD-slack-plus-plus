@@ -331,7 +331,7 @@ public abstract class Prattle {
       SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
-        if (!groupRepository.groupHasMember(senderId, groupName)) {
+        if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
           return "You are not a member of this group";
         }
         int channelId = targetGroup.getChannelId();

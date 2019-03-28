@@ -51,7 +51,7 @@ public class GroupRepository extends Repository {
                 String.valueOf(result.get("name")),
                 (Integer) result.get("channel_id"));
           }
-          connection.close();
+          
         }
       }
     } catch (Exception e) {
@@ -87,7 +87,7 @@ public class GroupRepository extends Repository {
                 String.valueOf(result.get("name")),
                 (Integer) result.get("channel_id"));
           }
-          connection.close();
+          
         }
       }
     } catch (Exception e) {
@@ -116,7 +116,7 @@ public class GroupRepository extends Repository {
         preparedStmt.setString(3, group.getGroupName());
         count = preparedStmt.executeUpdate();
       }
-      connection.close();
+      
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
@@ -130,24 +130,23 @@ public class GroupRepository extends Repository {
    * Find if the group has the given member.
    *
    * @param memberId the id of the user in question
-   * @param groupName the name of the group
+   * @param groupId the name of the group
    * @return Whether or not the given userId is a member of the given group.
    */
-  public boolean groupHasMember(int memberId, String groupName) {
+  public boolean groupHasMember(int memberId, int groupId) {
     boolean hasMember = false;
     try {
       connection = dataSource.getConnection();
       String query = "SELECT user_id " +
-          "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id) " +
-          "WHERE g.name like ? AND user_id = ?";
+          "FROM slack.user_group " +
+          "WHERE group_id = ? AND user_id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-        preparedStmt.setString(1, groupName);
+        preparedStmt.setInt(1, groupId);
         preparedStmt.setInt(2, memberId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           hasMember = !DatabaseConnection.resultsList(rs).isEmpty();
         }
       }
-      connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
@@ -181,7 +180,6 @@ public class GroupRepository extends Repository {
           }
         }
       }
-      connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
@@ -212,7 +210,6 @@ public class GroupRepository extends Repository {
                 String.valueOf(result.get("name")),
                 (Integer) result.get("channel_id"));
           }
-          connection.close();
         }
       }
     } catch (Exception e) {

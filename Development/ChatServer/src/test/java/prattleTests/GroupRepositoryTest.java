@@ -113,19 +113,19 @@ public class GroupRepositoryTest {
 
   @Test
   public void testGroupHasMemberTrue() {
-    assertTrue(groupRepository.groupHasMember(1, "testing"));
+    assertTrue(groupRepository.groupHasMember(1, 1));
   }
 
   @Test
   public void testGroupHasMemberFalse() throws SQLException {
     Mockito.when(resultSet.next()).thenReturn(false);
-    assertFalse(groupRepository.groupHasMember(2, "testing"));
+    assertFalse(groupRepository.groupHasMember(2, 1));
   }
 
   @Test
   public void testGroupHasMemberException() throws SQLException {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
-    assertFalse(groupRepository.groupHasMember(2, "testing"));
+    assertFalse(groupRepository.groupHasMember(2, 1));
   }
 
   @Test
