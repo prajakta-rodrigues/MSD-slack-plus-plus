@@ -24,22 +24,22 @@ public class FriendRequestRepository extends Repository {
   }
 
   /**
-   * Returns a list of friends for the given userId
+   * Returns a list of friend ids for the given userId
    *
    * @param userId the user id of the sought user
-   * @return the list of friends
+   * @return the list of friend ids
    */
-  public List<String> getFriendsByUserId(int userId) {
-    List<String> myFriends = new ArrayList<>();
+  public List<Integer> getFriendsByUserId(int userId) {
+    List<Integer> myFriends = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select handle from slack.user u JOIN slack.friend_request fr ON (u.id = fr.sender_id) WHERE accepted = true, id = ?";
+      String query = "select * from slack.user u JOIN slack.friend_request fr on (u.id = fr.sender_id) WHERE accepted = true and id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, userId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            myFriends.add(String.valueOf(result.get("handle")));
+            myFriends.add((Integer) result.get("receiver_id"));
           }
           connection.close();
         }
@@ -81,20 +81,24 @@ public class FriendRequestRepository extends Repository {
   }
 
   /**
-   * Updates the friend request table for the given users based on the given boolean.
+   * Updates the friend request table for the given users based on the given boolean
    *
-   * @param senderId the user sending his request
-   * @param receiverId the user who is being sent a request
-   * @param accepted whether or not the request has been accepted
-   * @return true if there is a pending request, false if not
+   * @param senderId the user accepting a request
+   * @param receiverId the user who initially sent a friend request
+   * @param accepted true if the request has been accepted, false if it's sent for 1st time
+   * @return true if it was a successful update
    */
   public boolean updatePendingFriendRequest(Integer senderId, Integer receiverId,
       boolean accepted) {
     int count = 0;
+    String query;
     try {
       connection = dataSource.getConnection();
-      String query = "insert into slack.friend_request (accepted, sender_id, receiver_id) values (?,?,?)";
-      //String query = "insert into slack.friend_request (accepted, sender_id, receiver_id) values (?,?,?) on duplicate key update accepted = ? where sender_id = ? AND receiver_id = ? ";
+      if (accepted) {
+        query = "update slack.friend_request set accepted = ? where sender_id = ? and receiver_id = ?";
+      } else {
+        query = "insert into slack.friend_request (accepted, sender_id, receiver_id) values (?,?,?)";
+      }
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setBoolean(1, accepted);
         preparedStmt.setInt(2, senderId);

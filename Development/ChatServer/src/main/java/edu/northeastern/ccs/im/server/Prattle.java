@@ -480,12 +480,10 @@ public abstract class Prattle {
         return "Client not found";
       } else if (channelId < 0) {
         return "Failed to create direct message. Try again later.";
-      }
-//      else if (!friendRequestRepository.areFriends(senderId, receiverId)) {
-//        return "You are not friends with " + receiverName
-//            + ". Send them a friend request to direct message.";
-//      }
-      else {
+      } else if (!senderId.equals(receiverId) && !friendRequestRepository.areFriends(senderId, receiverId)) {
+        return "You are not friends with " + receiverName
+            + ". Send them a friend request to direct message.";
+      } else {
         try {
           changeClientChannel(channelId, sender);
         } catch (IllegalArgumentException e) {
@@ -592,16 +590,16 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String ignoredParam, Integer senderId) {
-      List<String> friends = friendRequestRepository.getFriendsByUserId(senderId);
+      List<Integer> friendIds = friendRequestRepository.getFriendsByUserId(senderId);
       StringBuilder listOfFriends;
-      if (friends.isEmpty()) {
+      if (friendIds.isEmpty()) {
         listOfFriends = new StringBuilder("You have no friends. :(");
       } else {
         listOfFriends = new StringBuilder("My friends:");
       }
-      for (String friend : friends) {
+      for (Integer friendId : friendIds) {
         listOfFriends.append("\n");
-        listOfFriends.append(friend);
+        listOfFriends.append(userRepository.getUserByUserId(friendId).getUserName());
       }
       return listOfFriends.toString();
     }
@@ -626,36 +624,56 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String toFriend, Integer senderId) {
-      if (toFriend == null) {
-        return "No user provided to friend.";
-      }
       User newFriend = userRepository.getUserByUserName(toFriend);
       User currUser = userRepository.getUserByUserId(senderId);
       String currUserHandle = currUser.getUserName();
       if (newFriend == null) {
-        throw new IllegalArgumentException("The specified user does not exist");
+        return "The specified user does not exist";
       }
       Integer toFriendId = newFriend.getUserId();
+      if (senderId.equals(toFriendId)) { // adding oneself as a friend
+        return "You cannot be friends with yourself on this app. xD";
+      }
+      if (friendRequestRepository.areFriends(senderId, toFriendId)) { // already friends
+        return "You are already friends with " + toFriend + ".";
+      }
       if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
-        if ((!friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, true)) ||
-            (!friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, true))) {
-          return "Something went wrong and we could not accept your friend request";
+        if (successfulFriendRequestHandler(senderId, toFriendId, true)) {
+          return currUserHandle + " and " + toFriend + " are now friends.";
         }
-        return currUserHandle + " and " + toFriend + " are now friends.";
+        return "Something went wrong and we could not accept " + toFriend + "'s friend request.";
       } else {
-        Notification friendReq = Notification.makeFriendRequestNotification(senderId, toFriendId);
-        notificationRepository.addNotification(friendReq);
-        if ((!friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, false))
-            || (!friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, false))) {
-          return "Something went wrong and we could not send your friend request.";
+        if (successfulFriendRequestHandler(senderId, toFriendId, false)) {
+          return currUserHandle + " sent " + toFriend + " a friend request";
         }
-        return currUserHandle + " sent " + toFriend + " a friend request";
+        return "Something went wrong and we could not send your friend request.";
       }
     }
 
     @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
+    }
+
+    /**
+     * Determines if the friend request was successfully handled
+     *
+     * @param senderId the sender of the request
+     * @param toFriendId the other end of the request
+     * @param accepted whether or no the request is being accepted
+     * @return true if successfully handled, false otherwise
+     */
+    private boolean successfulFriendRequestHandler(int senderId, int toFriendId, boolean accepted) {
+      if ((friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, accepted)) &&
+          (friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, accepted))) {
+        NotificationType type =
+            accepted ? NotificationType.FRIEND_REQUEST_APPROVED : NotificationType.FRIEND_REQUEST;
+        Notification friendReqNotification = Notification
+            .makeFriendRequestNotification(senderId, toFriendId, type);
+        notificationRepository.addNotification(friendReqNotification);
+        return true;
+      }
+      return false;
     }
   }
 }

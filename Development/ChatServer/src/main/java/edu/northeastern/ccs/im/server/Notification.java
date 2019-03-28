@@ -190,11 +190,12 @@ public class Notification {
    *
    * @param senderId the sender of the request
    * @param receiverId the receiver of the request
+   * @param type the type of friend request notification
    * @return the friend request notification
    */
-  public static Notification makeFriendRequestNotification(int senderId, int receiverId) {
+  public static Notification makeFriendRequestNotification(int senderId, int receiverId, NotificationType type) {
     Notification notification = new Notification();
-    notification.setType(NotificationType.FRIEND_REQUEST);
+    notification.setType(type);
     notification.setAssociatedUserId(senderId);
     notification.setRecieverId(receiverId);
     notification.setNew(true);
