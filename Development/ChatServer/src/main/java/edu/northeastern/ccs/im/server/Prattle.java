@@ -607,9 +607,8 @@ public abstract class Prattle {
       if (!isModerator) {
         return "You are not the moderator of this group.";
       }
-      List<String> members = userGroupRepository.getGroupMembers(group.getGroupId());
       User toKick = userRepository.getUserByUserName(memberToKick);
-      if (!members.contains(memberToKick) || toKick == null) {
+      if (groupRepository.groupHasMember(group.getGroupId(), memberToKick) || toKick == null) {
         return String.format("Could not find %s as a member of this group.", memberToKick);
       }
       return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
