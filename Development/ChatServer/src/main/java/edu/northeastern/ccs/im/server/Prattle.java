@@ -13,12 +13,12 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -32,6 +32,8 @@ import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.utility.LanguageSupport;
+import org.json.simple.JSONObject;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -87,10 +89,17 @@ public abstract class Prattle {
    */
   private static NotificationRepository notificationRepository;
 
+
+  /**
+   * The Language support Instance.
+   */
+  private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
+
   /**
    * The message repository.
    */
   private static MessageRepository messageRepository;
+
 
   // All of the static initialization occurs in this "method"
   static {
@@ -447,8 +456,9 @@ public abstract class Prattle {
     @Override
     public String apply(String ignoredParam, Integer senderId) {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
+
       for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
-        String nextLine = "\n" + command.getKey() + " " + command.getValue().description();
+        String nextLine = "\n" + command.getKey() + " " + languageSupport.getLanguage("english",command.getValue().description());
         availableCOMMANDS.append(nextLine);
       }
       return availableCOMMANDS.toString();

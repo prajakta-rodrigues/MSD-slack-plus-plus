@@ -1,5 +1,9 @@
 package prattleTests;
 
+
+import edu.northeastern.ccs.im.server.utility.LanguageSupport;
+import org.junit.After;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -477,14 +481,10 @@ public class PrattleTest {
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
     assertTrue(callback.getText().contains("/groups Print out the names of each Group you are a member of\n"));
-    assertTrue(callback.getText().contains("/creategroup Create a group with the given name.\n" +
-            "Parameters: Group name"));
-    assertTrue(callback.getText().contains("/group Change your current chat room to the specified Group.\n" +
-            "Parameters: group name"));
-    assertTrue(callback.getText().contains("/circle Print out the handles of the active users on the server"));
-    assertTrue(callback.getText().contains("/help Lists all of the available commands."));
     assertEquals(bot, callback.getName());
   }
+
+
 
   /**
    * Tests commands with extra params.
