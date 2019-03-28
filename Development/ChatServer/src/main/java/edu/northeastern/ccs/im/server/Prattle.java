@@ -188,10 +188,14 @@ public abstract class Prattle {
   public static void removeClient(ClientRunnable dead) {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
+    int channelId = dead.getActiveChannelId();
     if (authenticated.remove(dead.getUserId()) != null
         || !active.remove(dead)
-        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+        || !channelMembers.get(channelId).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
+    }
+    if (channelMembers.get(channelId).isEmpty()) {
+      channelMembers.remove(channelId);
     }
     userRepository.setActive(false, dead.getUserId());
   }
