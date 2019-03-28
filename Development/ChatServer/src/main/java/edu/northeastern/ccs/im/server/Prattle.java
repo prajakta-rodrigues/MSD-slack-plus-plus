@@ -29,11 +29,8 @@ import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
-import org.json.simple.JSONObject;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -325,6 +322,7 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String groupName, Integer senderId) {
+      List<Message> messages;
       if (groupName == null) {
         return "No Group Name provided";
       }
@@ -337,10 +335,17 @@ public abstract class Prattle {
         int channelId = targetGroup.getChannelId();
         try {
           changeClientChannel(channelId, sender);
+          messages = messageRepository.getLatestMessagesFromChannel(channelId,ServerConstants.LATEST_MESSAGES_COUNT);
         } catch (IllegalArgumentException e) {
           return e.getMessage();
         }
-        return String.format("Active channel set to Group %s", targetGroup.getGroupName());
+        StringBuilder latestMessages =
+                new StringBuilder(String.format("Active channel set to Group %s", targetGroup.getGroupName()));
+        for(Message msg:messages){
+          String nextLine = "\n" + msg.getName() + ":" + msg.getText();
+          latestMessages.append(nextLine);
+        }
+        return latestMessages.toString();
       } else {
         return String.format("Group %s does not exist", groupName);
       }

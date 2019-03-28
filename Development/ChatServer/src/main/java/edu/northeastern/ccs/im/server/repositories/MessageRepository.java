@@ -66,7 +66,7 @@ public class MessageRepository extends Repository{
             connection = dataSource.getConnection();
             String query = "select msg.type,u.handle,msg.channel_id,msg.TEXT " +
                     "from slack.message msg JOIN slack.user u ON (msg.sender_id=u.id)" +
-                    "where channel_id =? ORDER BY sent_date DESC LIMIT=?";
+                    "where channel_id =? ORDER BY sent_date DESC LIMIT ?";
             try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
                 preparedStmt.setInt(1, channelId);
                 preparedStmt.setInt(2, numberOfMessages);
