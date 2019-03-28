@@ -7,7 +7,7 @@ password varchar(20), account_created_date timestamp, type varchar(20)) ENGINE=I
 
 create table slack.channel(id int(15) AUTO_INCREMENT primary key) ENGINE=INNODB;
 
-create table slack.message(id int(15) primary key, sender_id int(15) , type varchar(20), 
+create table slack.message(id int(15) AUTO_INCREMENT primary key, sender_id int(15) , type varchar(20),
 sent_date timestamp, channel_id int(15), 
 constraint fk_message_channel_id foreign key(channel_id)  references slack.channel(id), 
 constraint fk_message_user_id foreign key(sender_id) references slack.user(id)) ENGINE=INNODB;
@@ -49,14 +49,22 @@ ALTER TABLE slack.user MODIFY COLUMN password VARCHAR(100);
 ALTER TABLE slack.user
  ADD CONSTRAINT unique_handle UNIQUE (handle);
  
+ALTER TABLE slack.user
+	ADD COLUMN is_active TINYINT DEFAULT 0,
+    ADD COLUMN active_channel int(15) DEFAULT 1,
+    ADD CONSTRAINT FOREIGN KEY(active_channel) REFERENCES slack.channel(id);
+ 
 ALTER TABLE slack.group
 	ADD COLUMN creator_id int(15) NOT NULL,
     ADD CONSTRAINT FOREIGN KEY (creator_id)
 		REFERENCES user(id),
 	ADD CONSTRAINT UNIQUE (channel_id);
     
+ALTER TABLE slack.message
+	ADD COLUMN text varchar(500) NOT NULL;
+    
 INSERT INTO slack.channel VALUES();
-INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null);
+INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null, null, null);
 INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
         
 delimiter //
@@ -95,11 +103,45 @@ BEGIN
 	INSERT INTO slack.user_group VALUES (NEW.id, 1, FALSE, CURTIME());
 END //
 
+CREATE TRIGGER slack.notify_msg_receivers AFTER INSERT ON slack.message
+FOR EACH ROW
+BEGIN
+	DECLARE isDM TINYINT;
+    DECLARE receiver int(15);
+    DECLARE user1 int(15);
+    DECLARE user2 int(15);
+    DECLARE notificationType varchar(20);
+    
+    SET notificationType = 'UNREAD_MESSAGES';
+    
+	IF NEW.type LIKE 'BCT' THEN
+		SELECT (count(*) > 0), user1_id, user2_id 
+        INTO isDM, user1, user2
+        FROM direct_message 
+        WHERE channel_id = NEW.channel_id;
+        
+        IF isDM THEN
+			SET receiver = IF (NEW.sender_id = user1, user2, user1);
+            INSERT INTO slack.notification (receiver_id, associated_user_id, type, created_date, new) 
+			VALUES (receiver, NEW.sender_id, notificationType, CURDATE(), TRUE);
+		ELSE
+			INSERT INTO slack.notification (receiver_id, associated_group_id, type, created_date, new)
+			SELECT user_id, group_id, notificationType, CURDATE(), TRUE
+            FROM slack.group g 
+				JOIN slack.user_group ug ON (g.id = ug.group_id)
+                JOIN slack.user u ON (ug.user_id = u.id)
+            WHERE (!u.is_active OR u.active_channel <> NEW.channel_id) 
+				AND g.channel_id = NEW.channel_id
+                AND user_id <> NEW.sender_id;
+        END IF;
+	END IF;
+END //
+
 delimiter ;
+
 		
 create table slack.notification(id int(15) primary key auto_increment, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
 type varchar(30) not null, created_date timestamp, new boolean,
 constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
 constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
 constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
-
