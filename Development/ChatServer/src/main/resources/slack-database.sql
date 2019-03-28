@@ -7,7 +7,7 @@ password varchar(20), account_created_date timestamp, type varchar(20)) ENGINE=I
 
 create table slack.channel(id int(15) AUTO_INCREMENT primary key) ENGINE=INNODB;
 
-create table slack.message(id int(15) primary key, sender_id int(15) , type varchar(20), 
+create table slack.message(id int(15) AUTO_INCREMENT primary key, sender_id int(15) , type varchar(20),
 sent_date timestamp, channel_id int(15), 
 constraint fk_message_channel_id foreign key(channel_id)  references slack.channel(id), 
 constraint fk_message_user_id foreign key(sender_id) references slack.user(id)) ENGINE=INNODB;

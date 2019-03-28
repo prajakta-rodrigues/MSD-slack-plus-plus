@@ -4,6 +4,9 @@ import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
+
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -79,6 +82,8 @@ public abstract class Prattle {
   private static NotificationRepository notificationRepository;
 
   private static FriendRequestRepository friendRequestRepository;
+  
+  private static MessageRepository messageRepository;
 
   private static final Map<String, Command> COMMANDS;
 
@@ -107,6 +112,7 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
 
   }
 
@@ -120,6 +126,7 @@ public abstract class Prattle {
     int channelId = message.getChannelId();
     // Loop through all of our active threads
     if (channelMembers.containsKey(channelId)) {
+      messageRepository.saveMessage(message);
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
