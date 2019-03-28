@@ -399,5 +399,6 @@ public class ClientRunnable implements Runnable {
    */
   public void setActiveChannelId(int channelId) {
     this.activeChannelId = channelId;
+    userRepository.setActiveChannel(channelId, this.userId);
   }
 }

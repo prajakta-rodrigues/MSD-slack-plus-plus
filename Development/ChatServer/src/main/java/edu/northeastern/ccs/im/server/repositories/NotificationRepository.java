@@ -51,6 +51,9 @@ public class NotificationRepository extends Repository {
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
+    finally {
+      closeConnection(connection);
+    }
     return listNotifications;
   }
 
@@ -68,8 +71,16 @@ public class NotificationRepository extends Repository {
           + "associated_group_id, type, new, created_date) values(?,?,?,?,?,?)";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, notification.getRecieverId());
-        preparedStmt.setNull(2, Types.INTEGER);
-        preparedStmt.setNull(3, Types.INTEGER);
+        if (0 == notification.getAssociatedUserId()) {
+          preparedStmt.setNull(2, Types.INTEGER);
+        } else {
+          preparedStmt.setInt(2, notification.getAssociatedUserId());
+        }
+        if (0 == notification.getAssociatedGroupId()) {
+          preparedStmt.setNull(3, Types.INTEGER);
+        } else {
+          preparedStmt.setInt(3, notification.getAssociatedGroupId());
+        }
         preparedStmt.setString(4, notification.getType().name());
         preparedStmt.setBoolean(5, notification.isNew());
         preparedStmt.setTimestamp(6, notification.getCreatedDate());
@@ -80,6 +91,9 @@ public class NotificationRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return result == 1;
   }
@@ -109,6 +123,9 @@ public class NotificationRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return listNotifications;
     
@@ -178,6 +195,9 @@ public class NotificationRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
     }
     return result == 1;
 }

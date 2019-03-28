@@ -3,6 +3,9 @@ package edu.northeastern.ccs.im.server;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
+
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -82,6 +85,11 @@ public abstract class Prattle {
 
   private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
 
+  /**
+   * The message repository.
+   */
+  private static MessageRepository messageRepository;
+
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
@@ -104,6 +112,7 @@ public abstract class Prattle {
     COMMANDS.put("/notification", new NotificationHandler());
     COMMANDS.put("/groupmembers", new GroupMembers());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
 
   }
 
@@ -117,6 +126,7 @@ public abstract class Prattle {
     int channelId = message.getChannelId();
     // Loop through all of our active threads
     if (channelMembers.containsKey(channelId)) {
+      messageRepository.saveMessage(message);
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
@@ -177,6 +187,7 @@ public abstract class Prattle {
         || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
+    userRepository.setActive(false, dead.getUserId());
   }
 
   /**
@@ -194,6 +205,7 @@ public abstract class Prattle {
   static void authenticateClient(ClientRunnable toAuthenticate) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
     channelMembers.get(GENERAL_ID).add(toAuthenticate);
+    userRepository.setActive(true, toAuthenticate.getUserId());
   }
 
   /**
