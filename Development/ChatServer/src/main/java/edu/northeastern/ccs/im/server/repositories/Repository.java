@@ -35,7 +35,7 @@ abstract class Repository {
   Repository() {
     this.dataSource = DatabaseConnection.getDataSource();
   }
-
+  
   protected void closeConnection(Connection connection) {
     if (null != connection) {
       try {
@@ -44,6 +44,6 @@ abstract class Repository {
         LOGGER.log(Level.SEVERE, e.getMessage(), e);
       }
     }
-
   }
 }
+

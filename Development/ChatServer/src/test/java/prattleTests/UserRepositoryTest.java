@@ -181,5 +181,106 @@ public class UserRepositoryTest {
     assertEquals(1, user.getUserId());
   }
 
+  @Test
+  public void testSetActiveTrue() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
 
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    assertTrue(userRepository.setActive(true, 1));
+  }
+
+  @Test
+  public void testSetActiveFalse() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    assertTrue(userRepository.setActive(false, 1));
+  }
+
+  @Test
+  public void testSetActiveFail() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenReturn(0);
+    assertFalse(userRepository.setActive(false, 1));
+  }
+
+  @Test
+  public void testSetActiveException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    assertFalse(userRepository.setActive(true, 1));
+  }
+
+  @Test
+  public void testSetActiveChannelSuccess() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    assertTrue(userRepository.setActiveChannel(1, 1));
+  }
+
+  @Test
+  public void testSetActiveChannelFail() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenReturn(0);
+    assertFalse(userRepository.setActiveChannel(1, 1));
+  }
+
+  @Test
+  public void testSetActiveChannelException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+
+    Mockito.when(value.executeUpdate()).thenThrow(new SQLException());
+    assertFalse(userRepository.setActiveChannel(1, 1));
+  }
 }
