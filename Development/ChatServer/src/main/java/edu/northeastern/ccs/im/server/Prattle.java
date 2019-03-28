@@ -89,6 +89,9 @@ public abstract class Prattle {
    */
   private static NotificationRepository notificationRepository;
 
+
+  private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
+
   /**
    * The Language support Instance.
    */
@@ -98,6 +101,7 @@ public abstract class Prattle {
    * The message repository.
    */
   private static MessageRepository messageRepository;
+
 
   // All of the static initialization occurs in this "method"
   static {
