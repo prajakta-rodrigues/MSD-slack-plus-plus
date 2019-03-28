@@ -1,12 +1,12 @@
 package prattleTests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
-import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,11 +25,6 @@ public class FriendRequestRepositoryTest {
    * The friend request repository.
    */
   private FriendRequestRepository friendRequestRepository;
-
-  /**
-   * The user repository
-   */
-  private UserRepository userRepository;
 
   /**
    * The executed query
@@ -53,11 +48,10 @@ public class FriendRequestRepositoryTest {
    */
   @Before
   public void initData()
-      throws SQLException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+      throws SQLException, ClassNotFoundException, NoSuchFieldException {
     /* The db. */
     DataSource db = Mockito.mock(DataSource.class);
     friendRequestRepository = new FriendRequestRepository(db);
-    userRepository = Mockito.mock(UserRepository.class);
     connection = Mockito.mock(Connection.class);
     Mockito.when(db.getConnection()).thenReturn(connection);
     value = Mockito.mock(PreparedStatement.class);
@@ -80,16 +74,9 @@ public class FriendRequestRepositoryTest {
     Mockito.when(metaData.getColumnName(3)).thenReturn("accepted");
     Mockito.when(metaData.getColumnName(4)).thenReturn("sent_date");
 
-    User omar = new User(1, "omar", "password");
-    User mark = new User(2, "mark", "password");
-
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("userRepository");
     ur.setAccessible(true);
-    ur.set(null, userRepository);
-
-    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
-    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(mark);
   }
 
   /**
@@ -110,7 +97,7 @@ public class FriendRequestRepositoryTest {
    */
   @Test
   public void testGetFriendByUserIdException2() throws SQLException {
-    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
@@ -123,7 +110,7 @@ public class FriendRequestRepositoryTest {
   @Test
   public void testGetFriendByUserId() {
     List<Integer> friendIds = friendRequestRepository.getFriendsByUserId(1);
-    assertEquals(friendIds.size(), 1);
+    assertEquals(1, friendIds.size());
   }
 
   @Test
@@ -141,7 +128,7 @@ public class FriendRequestRepositoryTest {
   @Test
   public void testHasPendingFriendRequestException() throws SQLException {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    friendRequestRepository.hasPendingFriendRequest(1, 2);
+    assertFalse(friendRequestRepository.hasPendingFriendRequest(1, 2));
   }
 
   /**
@@ -151,38 +138,73 @@ public class FriendRequestRepositoryTest {
    */
   @Test
   public void testHasPendingFriendRequestException2() throws SQLException {
-    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
-    friendRequestRepository.hasPendingFriendRequest(1, 2);
+    assertFalse(friendRequestRepository.hasPendingFriendRequest(1, 2));
   }
 
   /**
-   * Tests SQL exception for updatePendingFriendRequestException.
+   * Tests hasPendingFriendRequest.
+   *
+   * @throws SQLException the SQL Exception
+   */
+  @Test
+  public void testHasPendingFriendRequest() throws SQLException {
+    Mockito.when(resultSet.getObject(1)).thenReturn(1);
+    Mockito.when(resultSet.getObject(2)).thenReturn(2);
+    Mockito.when(resultSet.getObject(3)).thenReturn(false);
+    assertTrue(friendRequestRepository.hasPendingFriendRequest(1, 2));
+  }
+
+  /**
+   * Tests hasPendingFriendRequest.
+   *
+   * @throws SQLException the SQL Exception
+   */
+  @Test
+  public void testHasPendingFriendRequest2() throws SQLException {
+    Mockito.when(resultSet.getObject(1)).thenReturn(1);
+    Mockito.when(resultSet.getObject(2)).thenReturn(2);
+    Mockito.when(resultSet.getObject(3)).thenReturn(false);
+    assertFalse(friendRequestRepository.hasPendingFriendRequest(2, 1));
+  }
+
+  /**
+   * Tests SQL exception for updatePendingFriendRequest
    *
    * @throws SQLException the SQL Exception
    */
   @Test
   public void testUpdatePendingFriendRequestException() throws SQLException {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    friendRequestRepository.updatePendingFriendRequest(1, 2, true);
-    friendRequestRepository.updatePendingFriendRequest(1, 2, false);
+    assertFalse(friendRequestRepository.updatePendingFriendRequest(1, 2, false));
+    assertFalse(friendRequestRepository.updatePendingFriendRequest(1, 2, true));
   }
 
   /**
-   * Tests SQL exception for updatePendingFriendRequestException.
+   * Tests updatePendingFriendRequest
+   */
+  @Test
+  public void testUpdatePendingFriendRequest2() {
+    assertTrue(friendRequestRepository.updatePendingFriendRequest(1, 2, true));
+    assertTrue(friendRequestRepository.updatePendingFriendRequest(1, 2, false));
+  }
+
+  /**
+   * Tests SQL exception for updatePendingFriendRequest
    *
    * @throws SQLException the SQL Exception
    */
   @Test
   public void testUpdatePendingFriendRequestException2() throws SQLException {
-    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
-    friendRequestRepository.updatePendingFriendRequest(1, 2, true);
-    friendRequestRepository.updatePendingFriendRequest(1, 2, false);
+    assertFalse(friendRequestRepository.updatePendingFriendRequest(1, 2, false));
+    assertFalse(friendRequestRepository.updatePendingFriendRequest(1, 2, true));
   }
 
   /**
@@ -193,7 +215,7 @@ public class FriendRequestRepositoryTest {
   @Test
   public void testAreFriendsException() throws SQLException {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    friendRequestRepository.areFriends(1, 2);
+    assertFalse(friendRequestRepository.areFriends(1, 2));
   }
 
   /**
@@ -203,11 +225,29 @@ public class FriendRequestRepositoryTest {
    */
   @Test
   public void testAreFriendsException2() throws SQLException {
-    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
-    friendRequestRepository.areFriends(1, 2);
+    assertFalse(friendRequestRepository.areFriends(1, 2));
   }
 
+  /**
+   * Tests are not friends
+   */
+  @Test
+  public void testAreNotFriends() {
+    assertFalse(friendRequestRepository.areFriends(1, 2));
+  }
+
+  /**
+   * Tests are friends
+   *
+   * @throws SQLException the SQL Exception
+   */
+  @Test
+  public void testAreFriends() throws SQLException {
+    Mockito.when(resultSet.getObject(3)).thenReturn(true);
+    assertTrue(friendRequestRepository.areFriends(1, 2));
+  }
 }

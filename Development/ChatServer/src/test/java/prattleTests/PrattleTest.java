@@ -68,7 +68,6 @@ public class PrattleTest {
   private UserRepository userRepository;
   private FriendRequestRepository friendRequestRepository;
   private UserGroupRepository userGroupRepository;
-  private GroupRepository groupRepository;
   private User omar;
   private User mark;
 
@@ -152,7 +151,7 @@ public class PrattleTest {
     waitingList1 = (ConcurrentLinkedQueue<Message>) wl.get(cr1);
     waitingList2 = (ConcurrentLinkedQueue<Message>) wl.get(cr2);
 
-    groupRepository = new MockGroupRepository();
+    GroupRepository groupRepository = new MockGroupRepository();
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("groupRepository");
