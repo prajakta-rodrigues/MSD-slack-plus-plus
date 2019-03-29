@@ -7,7 +7,9 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.antlr.stringtemplate.StringTemplate;
+import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
@@ -22,12 +24,16 @@ public class NotificationConvertor {
   /** The group repository. */
   private static GroupRepository groupRepository;
   
+  /** The user group repository */
+  private static GroupInviteRepository groupInviteRepository;
+  
   /** The Constant LOGGER. */
   static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
 
   static {
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
     groupRepository = new GroupRepository(DatabaseConnection.getDataSource());
+    groupInviteRepository = new GroupInviteRepository(DatabaseConnection.getDataSource());
   }
   
   /**
@@ -65,6 +71,11 @@ public class NotificationConvertor {
               updateMap(groupMessages, group.getGroupName());
             }
             break;
+          case GROUP_INVITE:
+            result.append(getTextForGroupInvite(notification.getAssociatedGroupId(), 
+                notification.getAssociatedUserId(), notification.isNew()));
+            result.append("\n");
+            break;
           default:
             break;
         }
@@ -80,6 +91,23 @@ public class NotificationConvertor {
     } catch (Exception e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
       result.append("Error while fetching notifications");
+    }
+    return result.toString();
+  }
+
+  private static String getTextForGroupInvite(int associatedGroupId, int associatedUserId,
+      boolean isNew) {
+    User user = userRepository.getUserByUserId(associatedUserId);
+    SlackGroup group = groupRepository.getGroupById(associatedGroupId);
+    StringTemplate stringTemplate = NotificationType.GROUP_INVITE.getText();
+    stringTemplate.removeAttribute("name");
+    stringTemplate.removeAttribute("group");
+    stringTemplate.setAttribute("name", user.getUserName());
+    stringTemplate.setAttribute("group", group.getGroupName());
+    StringBuilder result = new StringBuilder();
+    result.append(stringTemplate.toString());
+    if (isNew) {
+      result.append("  " + "NEW");
     }
     return result.toString();
   }

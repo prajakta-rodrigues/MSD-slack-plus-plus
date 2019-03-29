@@ -186,6 +186,19 @@ public class Notification {
     this.id = id;
   }
 
+  
+  public static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
+    Notification notification = new Notification();
+    notification.setAssociatedGroupId(groupId);
+    notification.setAssociatedUserId(senderId);
+    notification.setRecieverId(inviteeId);
+    notification.setType(NotificationType.GROUP_INVITE);
+    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    notification.setNew(true);
+    return notification;
+  }
+
+
   /**
    * Makes a friend request notification from the given sender id to the second given receiver id
    *

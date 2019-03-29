@@ -26,12 +26,6 @@ channel_id int(15) UNIQUE NOT NULL references slack.channel(id), constraint fk_u
 constraint fk_user2_id foreign key(user2_id) references slack.user(id),
 primary key(user1_id,user2_id), unique(user2_id,user1_id)) ENGINE=InnoDB;
 
-create table slack.notification(id int(15) primary key auto_increment, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
-type varchar(30) not null, created_date timestamp, new boolean,
-constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
-constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
-constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
-
 CREATE TABLE friend_request(
     sender_id int(15) NOT NULL,
     receiver_id int(15) NOT NULL,
@@ -205,5 +199,19 @@ END //
 
 delimiter ;
 
+		
+create table slack.notification(id int(15) primary key auto_increment, receiver_id int(15) not null,associated_user_id int(15), associated_group_id int(15),
+type varchar(30) not null, created_date timestamp, new boolean,
+constraint fk_group_notification_id foreign key(associated_group_id) references slack.group(id),
+constraint fk_receiver_notification_id foreign key(receiver_id) references slack.user(id),
+constraint fk_user_notification_id foreign key(associated_user_id) references slack.user(id)) ENGINE=INNODB;
+
+create table slack.group_invitation(invitee_id int(15)  NOT NULL,
+invitor_id int(15)  NOT NULL, group_id int(15) NOT NULL,
+created_date timestamp  NOT NULL, 
+primary key(invitee_id, invitor_id , group_id),
+constraint fk_invitee_id foreign key(invitee_id)  references slack.user(id), 
+constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
+constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
 
 
