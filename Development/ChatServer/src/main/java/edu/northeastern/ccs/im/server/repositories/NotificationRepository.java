@@ -34,7 +34,7 @@ public class NotificationRepository extends Repository {
    * @param receiverId the receiver id
    * @return the all notifications by receiver id
    */
-  public List<Notification> getAllNotificationsByReceiverId(int receiverId) { 
+  public List<Notification> getAllNotificationsByReceiverId(int receiverId) {
     List<Notification> listNotifications = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
@@ -115,7 +115,7 @@ public class NotificationRepository extends Repository {
         preparedStmt.setBoolean(2, true);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           listNotifications = getNotificationsFromResultSet(rs);
-          
+
           connection.close();
         }
       }
@@ -128,7 +128,7 @@ public class NotificationRepository extends Repository {
       closeConnection(connection);
     }
     return listNotifications;
-    
+
   }
 
   /**
@@ -154,8 +154,8 @@ public class NotificationRepository extends Repository {
             Integer.parseInt(String.valueOf(result.get("associated_group_id"))));
       }
       if (result.get("created_date")!= null) {
-      notification
-          .setCreatedDate(Timestamp.valueOf(String.valueOf(result.get("created_date"))));
+        notification
+            .setCreatedDate(Timestamp.valueOf(String.valueOf(result.get("created_date"))));
       }
       notification.setType(NotificationType.valueOf(String.valueOf(result.get("type"))));
       notification.setNew(Boolean.parseBoolean(String.valueOf(result.get("new"))));
@@ -200,6 +200,6 @@ public class NotificationRepository extends Repository {
       closeConnection(connection);
     }
     return result == 1;
-}
-  
+  }
+
 }

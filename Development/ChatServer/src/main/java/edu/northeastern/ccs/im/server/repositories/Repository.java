@@ -44,6 +44,6 @@ abstract class Repository {
         LOGGER.log(Level.SEVERE, e.getMessage(), e);
       }
     }
-    
   }
 }
+
