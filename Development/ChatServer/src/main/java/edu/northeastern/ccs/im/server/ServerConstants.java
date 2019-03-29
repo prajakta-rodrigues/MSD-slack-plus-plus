@@ -39,6 +39,9 @@ public class ServerConstants {
 	public static final int LATEST_MESSAGES_COUNT = 10;
 
 	static final int GENERAL_ID = 1;
+	
+	/** Delay for notifications */
+	public static final int CHECK_NOTIFICATION_DELAY = 30000;
 
 	/** Private constructor to prevent anyone from creating one of these. */
 	private ServerConstants() {

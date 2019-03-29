@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -76,6 +77,8 @@ public class ClientRunnable implements Runnable {
   
   private NotificationRepository notificationRepository;
 
+  private GregorianCalendar notificationCalendar;
+
   /**
    * Whether this client has been authenticated to send messages to other users
    */
@@ -103,6 +106,7 @@ public class ClientRunnable implements Runnable {
 
     userRepository = new UserRepository();
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    notificationCalendar = new GregorianCalendar();
   }
 
   /**
@@ -262,13 +266,18 @@ public class ClientRunnable implements Runnable {
    * Checks for new notifications for user.
    */
   private void handleNotifications() {
-    List<Notification> listNotifications = notificationRepository.getAllNewNotificationsByReceiverId(userId);
-    if(listNotifications != null && !listNotifications.isEmpty()) {
-      Message sendMsg;
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-          "You have new notifications: \n" + NotificationConvertor.getNotificationsAsText(listNotifications));
-      enqueueMessage(sendMsg);
-      notificationRepository.markNotificationsAsNotNew(listNotifications);
+    if (authenticated && notificationCalendar.before(new GregorianCalendar())) {
+      List<Notification> listNotifications =
+          notificationRepository.getAllNewNotificationsByReceiverId(userId);
+      if (listNotifications != null && !listNotifications.isEmpty()) {
+        Message sendMsg;
+        sendMsg =
+            Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "You have new notifications: \n"
+                + NotificationConvertor.getNotificationsAsText(listNotifications));
+        enqueueMessage(sendMsg);
+        notificationRepository.markNotificationsAsNotNew(listNotifications);
+      }
+      notificationCalendar.setTimeInMillis(notificationCalendar.getTimeInMillis() + ServerConstants.CHECK_NOTIFICATION_DELAY);
     }
   }
 
