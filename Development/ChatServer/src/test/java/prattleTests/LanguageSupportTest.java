@@ -25,6 +25,6 @@ public class LanguageSupportTest {
     public void testLanguageSupport() {
         LanguageSupport ls = LanguageSupport.getInstance();
         String translated =  ls.getLanguage("spanish","Print out the handles of the users in a group.");
-        Assert.assertEquals("Imprime los manejadores de los usuarios en un grupo.", translated);
+        Assert.assertEquals("Print out the handles of the users in a group.", translated);
     }
 }
