@@ -7,9 +7,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.antlr.stringtemplate.StringTemplate;
-import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
@@ -23,17 +21,13 @@ public class NotificationConvertor {
   
   /** The group repository. */
   private static GroupRepository groupRepository;
-  
-  /** The user group repository */
-  private static GroupInviteRepository groupInviteRepository;
-  
+    
   /** The Constant LOGGER. */
   static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
 
   static {
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
     groupRepository = new GroupRepository(DatabaseConnection.getDataSource());
-    groupInviteRepository = new GroupInviteRepository(DatabaseConnection.getDataSource());
   }
   
   /**
@@ -95,6 +89,14 @@ public class NotificationConvertor {
     return result.toString();
   }
 
+  /**
+   * Gets the text for group invite.
+   *
+   * @param associatedGroupId the associated group id for the notification
+   * @param associatedUserId the associated user id for the notification
+   * @param isNew the if the notification is new
+   * @return the text for group invite
+   */
   private static String getTextForGroupInvite(int associatedGroupId, int associatedUserId,
       boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
