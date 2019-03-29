@@ -342,7 +342,7 @@ public abstract class Prattle {
         StringBuilder latestMessages =
                 new StringBuilder(String.format("Active channel set to Group %s", targetGroup.getGroupName()));
         for(Message msg:messages){
-          String nextLine = "\n" + msg.getName() + ":" + msg.getText();
+          String nextLine = "\n" + msg.getName() + " : " + msg.getText();
           latestMessages.append(nextLine);
         }
         return latestMessages.toString();
