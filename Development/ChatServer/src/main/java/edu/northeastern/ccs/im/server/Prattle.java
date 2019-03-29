@@ -83,25 +83,31 @@ public abstract class Prattle {
    */
   private static GroupRepository groupRepository;
 
+  /** The dm repository. */
   private static DirectMessageRepository dmRepository;
 
+  /** The user repository. */
   private static UserRepository userRepository;
 
+  /** The user group repository. */
   private static UserGroupRepository userGroupRepository;
 
+  /** The notification repository. */
   private static NotificationRepository notificationRepository;
 
+  /** The friend request repository. */
   private static FriendRequestRepository friendRequestRepository;
 
+  /** The message repository. */
   private static MessageRepository messageRepository;
 
+  /** The friend repository. */
   private static FriendRepository friendRepository;
 
+  /** The Constant COMMANDS. */
   private static final Map<String, Command> COMMANDS;
 
-  /**
-   * The groupInvite Repository;
-   */
+  /** The groupInvite Repository;. */
   private static GroupInviteRepository groupInviteRepository;
 
   /**
@@ -220,8 +226,7 @@ public abstract class Prattle {
   public static void removeClient(ClientRunnable dead) {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
-    int channelId = dead.getActiveChannelId();
-    if (authenticated.remove(dead.getUserId()) != null
+    if (authenticated.remove(dead.getUserId()) == null
         || !active.remove(dead)
         || !channelMembers.get(channelId).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
@@ -329,6 +334,12 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Change client channel.
+   *
+   * @param channelId the channel id
+   * @param client the client
+   */
   private static void changeClientChannel(int channelId, ClientRunnable client) {
     if (client == null) {
       throw new IllegalArgumentException("Client not found");
@@ -354,9 +365,6 @@ public abstract class Prattle {
   private static class
   Group implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer senderId) {
       List<Message> messages;
@@ -384,15 +392,15 @@ public abstract class Prattle {
           String nextLine = "\n" + msg.getName() + " : " + msg.getText();
           latestMessages.append(nextLine);
         }
+        if(!messages.isEmpty()){
+          latestMessages.append("\n" + "-------------------------");
+        }
         return latestMessages.toString();
       } else {
         return String.format("Group %s does not exist", params[0]);
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Change your current chat room to the specified Group.\nParameters: group name";
@@ -404,18 +412,12 @@ public abstract class Prattle {
    */
   private static class Groups implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
-    @Override
+     @Override
     public String apply(String param[], Integer senderId) {
       return groupRepository.groupsHavingMember(senderId);
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
-    @Override
+     @Override
     public String description() {
       return "Print out the names of each Group you are a member of";
     }
@@ -426,9 +428,6 @@ public abstract class Prattle {
    */
   private static class CreateGroup implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer senderId) {
       if (params == null || params.length < 1) {
@@ -445,9 +444,6 @@ public abstract class Prattle {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
@@ -462,7 +458,7 @@ public abstract class Prattle {
     /**
      * Lists all of the active users on the server.
      *
-     * @param ignoredParam Ignored parameter.
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the list of active users as a String.
      */
@@ -476,9 +472,6 @@ public abstract class Prattle {
       return activeUsers.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Print out the handles of the active users on the server";
@@ -493,7 +486,7 @@ public abstract class Prattle {
     /**
      * Lists all of the available COMMANDS.
      *
-     * @param ignoredParam Ignored parameter.
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the list of active users as a String.
      */
@@ -509,9 +502,6 @@ public abstract class Prattle {
       return availableCOMMANDS.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Lists all of the available commands.";
@@ -526,7 +516,7 @@ public abstract class Prattle {
     /**
      * Starts a direct message with the specified user, if possible.
      *
-     * @param receiverName name of the receiver.
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the list of active users as a String.
      */
@@ -570,11 +560,7 @@ public abstract class Prattle {
    */
   private static class NotificationHandler implements Command {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
+   
     @Override
     public String apply(String params[], Integer senderId) {
 
@@ -588,11 +574,7 @@ public abstract class Prattle {
       return "Notifications:\n" + result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
+ 
     @Override
     public String description() {
       return "Shows recent notifications";
@@ -601,14 +583,14 @@ public abstract class Prattle {
   }
 
   /**
-   * List all the group members in a group
+   * List all the group members in a group.
    */
   private static class GroupMembers implements Command {
 
     /**
-     * Lists all the group members in a group
+     * Lists all the group members in a group.
      *
-     * @param ignoredParam Ignored parameter.
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the list of active users as a String.
      */
@@ -639,33 +621,36 @@ public abstract class Prattle {
     }
   }
   
+  /**
+   * The Class SendGroupInvite sends group invite.
+   */
   private static class SendGroupInvite implements Command {
 
+ 
     @Override
     public String apply(String params[], Integer senderId) {
       if (null == params) {
         return "No username or group given";
       }
-
-      int groupId = -1;
+      SlackGroup group = null;
       if (params.length == 2) {
         String groupName = params[1];
-        SlackGroup group = groupRepository.getGroupByName(groupName);
-        groupId = group.getGroupId();
+        group = groupRepository.getGroupByName(groupName);
       } else if (params.length == 1) {
         ClientRunnable currClient = getClient(senderId);
         if (currClient == null) {
           return "Your client is null";
         }
         int currChannelId = currClient.getActiveChannelId();
-        SlackGroup group = groupRepository.getGroupByChannelId(currChannelId);
-        if (null == group) {
-          return "Group doesn't exist";
-        }
-        groupId = group.getGroupId();
+        group = groupRepository.getGroupByChannelId(currChannelId);
       } else {
         return "Command message not recogized";
       }
+      if (null == group) {
+        return "Group doesn't exist";
+      }
+      int groupId = group.getGroupId();
+
       boolean isModerator = false;
 
       try {
@@ -702,6 +687,7 @@ public abstract class Prattle {
       }
       return "Failed to send invite";
     }
+     
      @Override
     public String description() {
       return "Send out group invite to user.\n Parameters : handle, groupName";
@@ -716,7 +702,7 @@ public abstract class Prattle {
     /**
      * Lists all of the active users on the server.
      *
-     * @param ignoredParam ignored parameter.
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the two users being noted as friends as a String.
      */
@@ -743,6 +729,9 @@ public abstract class Prattle {
 
   }
 
+  /**
+   * The Class GroupInvites for checking invitations received.
+   */
   private static class GroupInvites implements Command {
 
     @Override
@@ -765,7 +754,11 @@ public abstract class Prattle {
 
   }
 
+  /**
+   * The Class GroupSentInvites for checking all sent invitations.
+   */
   private static class GroupSentInvites implements Command {
+    
     @Override
     public String apply(String[] params, Integer senderId) {
       List<InviteesGroup> listInvites =
@@ -786,6 +779,9 @@ public abstract class Prattle {
 
   }
 
+  /**
+   * The Class AcceptGroupInvite for accepting group invites.
+   */
   private static class AcceptGroupInvite implements Command {
 
     @Override
@@ -814,22 +810,24 @@ public abstract class Prattle {
       if (result) {
         return "Invite accepted successfully!";
       }
-      return "Error while processing request";
+      return "You do not have an invite to the group";
   }
+   
    @Override
       public String description() {
         return "Accepts group invite request. \n Parameters : groupname";
       }
   }
+  
   /**
-   * Friends a User
+   * Friends a User.
    */
   private static class Friend implements Command {
 
     /**
      * Lists all of the active users on the server.
      *
-     * @param toFriend the desired friend's handle
+     * @param params the params
      * @param senderId the id of the sender.
      * @return the two users being noted as friends as a String.
      */

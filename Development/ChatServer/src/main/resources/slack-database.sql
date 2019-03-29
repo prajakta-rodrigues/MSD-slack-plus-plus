@@ -154,8 +154,10 @@ BEGIN
         
         IF isDM THEN
 			SET receiver = IF (NEW.sender_id = user1, user2, user1);
-            INSERT INTO slack.notification (receiver_id, associated_user_id, type, created_date, new) 
-			VALUES (receiver, NEW.sender_id, notificationType, CURDATE(), TRUE);
+            INSERT INTO slack.notification (receiver_id, associated_user_id, type, created_date, new)
+            SELECT id, NEW.sender_id, notificationType, CURDATE(), TRUE
+            FROM slack.user
+            WHERE id = receiver AND (!is_active OR active_channel <> NEW.channel_id);
 		ELSE
 			INSERT INTO slack.notification (receiver_id, associated_group_id, type, created_date, new)
 			SELECT user_id, group_id, notificationType, CURDATE(), TRUE

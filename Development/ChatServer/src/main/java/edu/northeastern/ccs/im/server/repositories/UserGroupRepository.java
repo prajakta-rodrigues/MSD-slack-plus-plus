@@ -100,6 +100,15 @@ public class UserGroupRepository extends Repository {
     return results;
   }
   
+  
+  /**
+   * Checks if given user is moderator of given group.
+   *
+   * @param userId the user id of the user
+   * @param groupId the group id of the group
+   * @return true, if is moderator
+   * @throws SQLException the SQL exception
+   */
   public boolean isModerator(int userId, int groupId) throws SQLException {
     try {
       connection = dataSource.getConnection();

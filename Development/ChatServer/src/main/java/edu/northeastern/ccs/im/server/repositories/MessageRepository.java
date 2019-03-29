@@ -100,7 +100,7 @@ public class MessageRepository extends Repository{
             Message message = Message.makeMessage(String.valueOf(result.get("type")),
                     String.valueOf(result.get("handle")),
                     Integer.parseInt(String.valueOf(result.get("channel_id"))),
-                    String.valueOf(result.get("TEXT")));
+                    String.valueOf(result.get("text")));
 
             messages.add(message);
         }
