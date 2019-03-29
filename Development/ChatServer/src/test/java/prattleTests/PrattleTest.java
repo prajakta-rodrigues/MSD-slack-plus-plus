@@ -1281,21 +1281,124 @@ public class PrattleTest {
     assertEquals("You must set a group as your active channel to kick a member.", callback.getText());
   }
 
- 
-
   /**
-   * Tests that the groupMembers with a null group
+   * Tests that removing a group member when a user is not moderator.
    */
   @Test
-  public void testGroupMembersCommand2()
-          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+  public void testRemoveUserWhenNotModerator() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
             .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/groupMembers"));
-    Message callback = waitingList1.remove();
-    assertEquals("Your group is non-existent.", callback.getText());
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    List<String> moderators = new ArrayList<>();
+    moderators.add("pmar");
+    Mockito.when(userGroupRepository.getModerators(Mockito.anyInt())).thenReturn(moderators);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("You are not the moderator of this group.", callback.getText());
   }
+
+  /**
+   * Tests exception while removing a group member.
+   */
+  @Test
+  public void testRemoveUserException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    List<String> moderators = new ArrayList<>();
+    moderators.add("pmar");
+    Mockito.when(userGroupRepository.getModerators(Mockito.anyInt())).thenThrow(new IllegalArgumentException());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("You are not the moderator of this group.", callback.getText());
+  }
+
+  /**
+   * Tests User null exception while removing a group member.
+   */
+  @Test
+  public void testUserByUsernameNullException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("Could not find clobb as a member of this group.", callback.getText());
+  }
+
+  /**
+   * Tests  user not in Group while removing a group member.
+   */
+  @Test
+  public void testUserNotInGroup() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
+    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("Could not find clobb as a member of this group.", callback.getText());
+  }
+
+  /**
+   * Tests  user removed from group.
+   */
+  @Test
+  public void testUserRemovedFromGroup() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
+    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Mockito.when(userGroupRepository.removeMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("User omar successfully kicked from group.", callback.getText());
+  }
+
+  /**
+   * Tests  user removed from group exception.
+   */
+  @Test
+  public void testUserRemovedFromGroupException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = new SlackGroup(0,"koka");
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
+    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("Something went wrong. Failed to kick member omar.", callback.getText());
+  }
+
 }

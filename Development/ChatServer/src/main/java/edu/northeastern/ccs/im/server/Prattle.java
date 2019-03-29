@@ -885,8 +885,8 @@ public abstract class Prattle {
   private static class Kick implements Command {
 
     @Override
-    public String apply(String memberToKick, Integer senderId) {
-      if (memberToKick == null) {
+    public String apply(String[] params, Integer senderId) {
+      if (params == null) {
         return "You have not specified a member to kick.";
       }
       ClientRunnable mod = getClient(senderId);
@@ -894,14 +894,20 @@ public abstract class Prattle {
       if (group == null) {
         return "You must set a group as your active channel to kick a member.";
       }
-      List<String> moderators = userGroupRepository.getModerators(group.getGroupId());
-      boolean isModerator = moderators.contains(mod.getName());
+      boolean isModerator = false;
+      try {
+         isModerator = userGroupRepository.isModerator(senderId,group.getGroupId());
+      }catch(Exception e) {
+        return "Error while checking if you are moderator";
+      }
+
       if (!isModerator) {
         return "You are not the moderator of this group.";
       }
-      User toKick = userRepository.getUserByUserName(memberToKick);
-      if (groupRepository.groupHasMember(group.getGroupId(), memberToKick) || toKick == null) {
-        return String.format("Could not find %s as a member of this group.", memberToKick);
+
+      User toKick = userRepository.getUserByUserName(params[0]);
+      if (toKick == null || !groupRepository.groupHasMember(group.getGroupId(), toKick.getUserId())) {
+        return String.format("Could not find %s as a member of this group.", params[0]);
       }
       return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
               String.format("User %s successfully kicked from group.", toKick.getUserName()) :
