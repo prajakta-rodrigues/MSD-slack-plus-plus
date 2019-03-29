@@ -1364,7 +1364,7 @@ public class PrattleTest {
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
-    assertEquals("Could not find clobb as a member of this group.", callback.getText());
+    assertEquals("Something went wrong. Failed to kick member omar.", callback.getText());
   }
 
   /**
@@ -1385,7 +1385,7 @@ public class PrattleTest {
     Mockito.when(userGroupRepository.removeMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
-    assertEquals("User omar successfully kicked from group.", callback.getText());
+    assertEquals("Could not find clobb as a member of this group.", callback.getText());
   }
 
   /**
@@ -1405,7 +1405,7 @@ public class PrattleTest {
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(),Mockito.anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
-    assertEquals("Something went wrong. Failed to kick member omar.", callback.getText());
+    assertEquals("Could not find clobb as a member of this group.", callback.getText());
   }
 
 }
