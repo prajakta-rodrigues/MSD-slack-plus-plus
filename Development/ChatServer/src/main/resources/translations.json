@@ -1,34 +1,84 @@
 {
     "english":{
-      "Change your current chat room to the specified Group. \nParameters: group name":
+      "Change your current chat room to the specified Group.\nParameters: group name":
       "Change your current chat room to the specified Group. \nParameters: group name",
+      "Send out group invite to user.\n Parameters : handle, groupName":
+              "Send out group invite to user.\n Parameters : handle, groupName",
+      "Print out the names of all of my friends.":
+              "Print out the names of all of my friends.",
+      "Create a group with the given name.\nParameters: Group name":
+              "Create a group with the given name.\nParameters: Group name",
       "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Start a DM with the given user.\nParameters: user id":
+      "Start a DM with the given user.\nParameters: user id",
+      "Friends the user with the given handle.\nParameters: User to friend":
+      "Friends the user with the given handle.\nParameters: User to friend",
       "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
       "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
       "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
       "Lists all of the available commands.":"Lists all of the available commands.",
       "Shows recent notifications":"Shows recent notifications",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Check all the group invites received":
+      "Check all the group invites received",
       "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
     },
     "french":{
-      "Change your current chat room to the specified Group. \nParameters: group name":"french Change your current chat room to the specified Group. \nParameters: group name",
-      "Print out the names of each Group you are a member of":"french Print out the names of each Group you are a member of",
-      "Create a group with the given name. \nParameters: Group name":"french Create a group with the given name. \nParameters: Group name",
+      "Change your current chat room to the specified Group.\nParameters: group name":
+      "Change your current chat room to the specified Group. \nParameters: group name",
+      "Send out group invite to user.\n Parameters : handle, groupName":
+      "Send out group invite to user.\n Parameters : handle, groupName",
+      "Print out the names of all of my friends.":
+      "Print out the names of all of my friends.",
+      "Create a group with the given name.\nParameters: Group name":
+      "Create a group with the given name.\nParameters: Group name",
+      "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Start a DM with the given user.\nParameters: user id":
+      "Start a DM with the given user.\nParameters: user id",
+      "Friends the user with the given handle.\nParameters: User to friend":
+      "Friends the user with the given handle.\nParameters: User to friend",
+      "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
       "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
       "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
       "Lists all of the available commands.":"Lists all of the available commands.",
       "Shows recent notifications":"Shows recent notifications",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Check all the group invites received":
+      "Check all the group invites received",
       "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
     },
     "spanish":{
-      "Change your current chat room to the specified Group. \nParameters: group name":"Cambia tu sala de chat actual al grupo especificado. \n Parametros: nombre del grupo",
-      "Print out the names of each Group you are a member of":"Imprima los nombres de cada grupo al que pertenece.",
-      "Create a group with the given name. \nParameters: Group name":"Crea un grupo con el nombre dado. \n Parametros: nombre del grupo",
-      "Print out the handles of the active users on the server":"Imprime los manejadores de los usuarios activos en el servidor.",
-      "Start a DM with the given user. \nParameters: user id":"Iniciar un DM con el usuario dado Parametros: ID de usuario",
-      "Lists all of the available commands.":"Enumera todos los comandos disponibles.",
-      "Shows recent notifications":"Muestra notificaciones recientes",
-      "Print out the handles of the users in a group.":"Imprime los manejadores de los usuarios en un grupo."
+      "Change your current chat room to the specified Group.\nParameters: group name":
+      "Change your current chat room to the specified Group. \nParameters: group name",
+      "Send out group invite to user.\n Parameters : handle, groupName":
+      "Send out group invite to user.\n Parameters : handle, groupName",
+      "Print out the names of all of my friends.":
+      "Print out the names of all of my friends.",
+      "Create a group with the given name.\nParameters: Group name":
+      "Create a group with the given name.\nParameters: Group name",
+      "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Start a DM with the given user.\nParameters: user id":
+      "Start a DM with the given user.\nParameters: user id",
+      "Friends the user with the given handle.\nParameters: User to friend":
+      "Friends the user with the given handle.\nParameters: User to friend",
+      "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
+      "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
+      "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
+      "Lists all of the available commands.":"Lists all of the available commands.",
+      "Shows recent notifications":"Shows recent notifications",
+      "Accepts group invite request. \n Parameters : groupname":
+      "Accepts group invite request. \n Parameters : groupname",
+      "Check all the group invites received":
+      "Check all the group invites received",
+      "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
     }
 
 }
