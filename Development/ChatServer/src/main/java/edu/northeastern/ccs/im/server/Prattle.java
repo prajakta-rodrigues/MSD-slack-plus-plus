@@ -1,5 +1,13 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.FriendRepository;
+import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
+
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -11,6 +19,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +32,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
+import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
@@ -77,23 +89,25 @@ public abstract class Prattle {
 
   private static UserGroupRepository userGroupRepository;
 
-  private static final Map<String, Command> COMMANDS;
-  /**
-   * The notification repository.
-   */
   private static NotificationRepository notificationRepository;
 
+  private static FriendRequestRepository friendRequestRepository;
+
+  private static MessageRepository messageRepository;
+
+  private static FriendRepository friendRepository;
+
+  private static final Map<String, Command> COMMANDS;
+
+  /**
+   * The groupInvite Repository;
+   */
+  private static GroupInviteRepository groupInviteRepository;
 
   /**
    * The Language support Instance.
    */
   private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
-
-  /**
-   * The message repository.
-   */
-  private static MessageRepository messageRepository;
-
 
   // All of the static initialization occurs in this "method"
   static {
@@ -104,6 +118,12 @@ public abstract class Prattle {
     dmRepository = new DirectMessageRepository();
     userRepository = new UserRepository();
     userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
+    friendRequestRepository = new FriendRequestRepository(DatabaseConnection.getDataSource());
+    friendRepository = new FriendRepository(DatabaseConnection.getDataSource());
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
+    groupInviteRepository = new GroupInviteRepository(DatabaseConnection.getDataSource());
+
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -116,6 +136,12 @@ public abstract class Prattle {
     COMMANDS.put("/help", new Help());
     COMMANDS.put("/notification", new NotificationHandler());
     COMMANDS.put("/groupmembers", new GroupMembers());
+    COMMANDS.put("/invite", new SendGroupInvite());
+    COMMANDS.put("/invites", new GroupInvites());
+    COMMANDS.put("/sentinvites", new GroupSentInvites());
+    COMMANDS.put("/accept", new AcceptGroupInvite());
+    COMMANDS.put("/friend", new Friend());
+    COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
     messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
@@ -154,11 +180,17 @@ public abstract class Prattle {
     String[] messageContents = message.getText().split(" ");
     String command = messageContents[0];
     String commandLower = command.toLowerCase();
-    String param = messageContents.length > 1 ? messageContents[1] : null;
+    String param =
+        messageContents.length > 1 ? message.getText().substring(message.getText().indexOf(' ') + 1)
+            : null;
+    String params[] = null;
+    if (param != null) {
+      params = param.split(" ");
+    }
     int senderId = message.getUserId();
 
     String callbackContents = COMMANDS.keySet().contains(commandLower)
-        ? COMMANDS.get(commandLower).apply(param, senderId)
+        ? COMMANDS.get(commandLower).apply(params, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
     ClientRunnable client = getClient(senderId);
@@ -298,7 +330,9 @@ public abstract class Prattle {
   }
 
   private static void changeClientChannel(int channelId, ClientRunnable client) {
-    if (client == null) { throw new IllegalArgumentException("Client not found"); }
+    if (client == null) {
+      throw new IllegalArgumentException("Client not found");
+    }
     int oldChannel = client.getActiveChannelId();
     client.setActiveChannelId(channelId);
     if (channelMembers.containsKey(channelId)) {
@@ -324,25 +358,35 @@ public abstract class Prattle {
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
-    public String apply(String groupName, Integer senderId) {
-      if (groupName == null) {
+    public String apply(String params[], Integer senderId) {
+      List<Message> messages;
+      if (params == null || params.length == 0) {
         return "No Group Name provided";
       }
-      SlackGroup targetGroup = groupRepository.getGroupByName(groupName);
+      SlackGroup targetGroup = groupRepository.getGroupByName(params[0]);
       ClientRunnable sender = getClient(senderId);
       if (targetGroup != null) {
-        if (!groupRepository.groupHasMember(senderId, groupName)) {
+        if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
           return "You are not a member of this group";
         }
         int channelId = targetGroup.getChannelId();
         try {
           changeClientChannel(channelId, sender);
+          messages = messageRepository
+              .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
         } catch (IllegalArgumentException e) {
           return e.getMessage();
         }
-        return String.format("Active channel set to Group %s", targetGroup.getGroupName());
+        StringBuilder latestMessages =
+            new StringBuilder(
+                String.format("Active channel set to Group %s", targetGroup.getGroupName()));
+        for (Message msg : messages) {
+          String nextLine = "\n" + msg.getName() + " : " + msg.getText();
+          latestMessages.append(nextLine);
+        }
+        return latestMessages.toString();
       } else {
-        return String.format("Group %s does not exist", groupName);
+        return String.format("Group %s does not exist", params[0]);
       }
     }
 
@@ -364,7 +408,7 @@ public abstract class Prattle {
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
-    public String apply(String param, Integer senderId) {
+    public String apply(String param[], Integer senderId) {
       return groupRepository.groupsHavingMember(senderId);
     }
 
@@ -386,15 +430,15 @@ public abstract class Prattle {
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
-    public String apply(String groupName, Integer senderId) {
-      if (groupName == null) {
+    public String apply(String params[], Integer senderId) {
+      if (params == null || params.length < 1) {
         return "No Group Name provided";
       }
-      if (groupRepository.getGroupByName(groupName) != null) {
+      if (groupRepository.getGroupByName(params[0]) != null) {
         return "A group with this name already exists";
       }
-      if (groupRepository.addGroup(new SlackGroup(senderId, groupName))) {
-        return String.format("Group %s created", groupName);
+      if (groupRepository.addGroup(new SlackGroup(senderId, params[0]))) {
+        return String.format("Group %s created", params[0]);
       } else {
         // need a better way to handle write failures.
         return "Something went wrong and your group was not created.";
@@ -423,7 +467,7 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, Integer senderId) {
+    public String apply(String params[], Integer senderId) {
       StringBuilder activeUsers = new StringBuilder("Active Users:");
       for (ClientRunnable activeUser : authenticated.values()) {
         activeUsers.append("\n");
@@ -454,11 +498,12 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, Integer senderId) {
+    public String apply(String params[], Integer senderId) {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
 
       for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
-        String nextLine = "\n" + command.getKey() + " " + languageSupport.getLanguage("english",command.getValue().description());
+        String nextLine = "\n" + command.getKey() + " " + languageSupport
+            .getLanguage("english", command.getValue().description());
         availableCOMMANDS.append(nextLine);
       }
       return availableCOMMANDS.toString();
@@ -486,26 +531,31 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String receiverName, Integer senderId) {
-      User receiver = userRepository.getUserByUserName(receiverName);
+    public String apply(String[] params, Integer senderId) {
+      if (params == null || params.length < 1) {
+        return "No user name provided";
+      }
+      User receiver = userRepository.getUserByUserName(params[0]);
       if (receiver == null) {
-        return String.format("User %s not found!", receiverName);
+        return String.format("User %s not found!", params[0]);
       }
       int receiverId = receiver.getUserId();
       int existingId = dmRepository.getDMChannel(senderId, receiverId);
       int channelId = existingId > 0 ? existingId : dmRepository.createDM(senderId, receiverId);
       ClientRunnable sender = getClient(senderId);
-      if (sender == null) {
-        return "Client not found";
-      } else if (channelId < 0) {
+      if (channelId < 0) {
         return "Failed to create direct message. Try again later.";
+      } else if (!senderId.equals(receiverId) && !friendRepository
+          .areFriends(senderId, receiverId)) {
+        return "You are not friends with " + params[0]
+            + ". Send them a friend request to direct message.";
       } else {
         try {
           changeClientChannel(channelId, sender);
         } catch (IllegalArgumentException e) {
           return e.getMessage();
         }
-        return String.format("You are now messaging %s", receiverName);
+        return String.format("You are now messaging %s", params[0]);
       }
     }
 
@@ -526,7 +576,7 @@ public abstract class Prattle {
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
      */
     @Override
-    public String apply(String noParam, Integer senderId) {
+    public String apply(String params[], Integer senderId) {
 
       List<Notification> listNotifications =
           notificationRepository.getAllNotificationsByReceiverId(senderId);
@@ -563,15 +613,12 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String ignoredParam, Integer senderId) {
+    public String apply(String params[], Integer senderId) {
       ClientRunnable currClient = getClient(senderId);
-      if (currClient == null) {
-        return "Your client is null";
-      }
       int currChannelId = currClient.getActiveChannelId();
       SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
       if (currGroup == null) {
-        return "Your group is non-existent";
+        return "Your group is non-existent.";
       }
       List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
       List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
@@ -589,6 +636,246 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Print out the handles of the users in a group.";
+    }
+  }
+  
+  private static class SendGroupInvite implements Command {
+
+    @Override
+    public String apply(String params[], Integer senderId) {
+      if (null == params) {
+        return "No username or group given";
+      }
+
+      int groupId = -1;
+      if (params.length == 2) {
+        String groupName = params[1];
+        SlackGroup group = groupRepository.getGroupByName(groupName);
+        groupId = group.getGroupId();
+      } else if (params.length == 1) {
+        ClientRunnable currClient = getClient(senderId);
+        if (currClient == null) {
+          return "Your client is null";
+        }
+        int currChannelId = currClient.getActiveChannelId();
+        SlackGroup group = groupRepository.getGroupByChannelId(currChannelId);
+        if (null == group) {
+          return "Group doesn't exist";
+        }
+        groupId = group.getGroupId();
+      } else {
+        return "Command message not recogized";
+      }
+      boolean isModerator = false;
+
+      try {
+        isModerator = userGroupRepository.isModerator(senderId, groupId);
+      } catch (SQLException ex) {
+        return "Unable to send request";
+      }
+
+      if (!isModerator) {
+        return "You are not a moderator of given group";
+      }
+
+      User user = userRepository.getUserByUserName(params[0]);
+
+      if (null == user) {
+        return "Invited user doesn't exist";
+      }
+      int inviteeId = user.getUserId();
+
+      GroupInvitation groupInvitation =
+          new GroupInvitation(senderId, inviteeId, groupId, Timestamp.valueOf(LocalDateTime.now()));
+      boolean result = false;
+      try {
+        result = groupInviteRepository.add(groupInvitation);
+      } catch (SQLException e) {
+        if (e.getErrorCode() == ErrorCodes.MYSQL_DUPLICATE_PK) {
+          return "You have already invited the user";
+        }
+      }
+      if (result) {
+        Notification notification = Notification.makeGroupInviteNotification(groupId, senderId, inviteeId);
+        notificationRepository.addNotification(notification);
+        return "Invite sent successfully";
+      }
+      return "Failed to send invite";
+    }
+     @Override
+    public String description() {
+      return "Send out group invite to user.\n Parameters : handle, groupName";
+    }
+  }
+
+  /**
+   * Displays all of a User's friends.
+   */
+  private static class Friends implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param ignoredParam ignored parameter.
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String params[], Integer senderId) {
+      List<Integer> friendIds = friendRepository.getFriendsByUserId(senderId);
+      StringBuilder listOfFriends;
+      if (friendIds.isEmpty()) {
+        listOfFriends = new StringBuilder("You have no friends. :(");
+      } else {
+        listOfFriends = new StringBuilder("My friends:");
+      }
+      for (Integer friendId : friendIds) {
+        listOfFriends.append("\n");
+        listOfFriends.append(userRepository.getUserByUserId(friendId).getUserName());
+      }
+      return listOfFriends.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Print out the names of all of my friends.";
+    }
+
+  }
+
+  private static class GroupInvites implements Command {
+
+    @Override
+    public String apply(String params[], Integer senderId) {
+      List<InvitorsGroup> listInvites =
+          groupInviteRepository.getGroupInvitationsByInviteeId(senderId);
+      StringBuilder result = new StringBuilder();
+      result.append("Invitations:\n");
+      for (InvitorsGroup invite : listInvites) {
+        result.append(String.format("Moderator %s invites you to join group %s",
+            invite.getInvitorHandle(), invite.getGroupName()) + "\n");
+      }
+      return result.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Check all the group invites received";
+    }
+
+  }
+
+  private static class GroupSentInvites implements Command {
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      List<InviteesGroup> listInvites =
+          groupInviteRepository.getGroupInvitationsByInvitorId(senderId);
+      StringBuilder result = new StringBuilder();
+      result.append("Invitations sent:\n");
+      for (InviteesGroup invite : listInvites) {
+        result.append(String.format("Invite sent to user %s for group %s",
+            invite.getInviteeHandle(), invite.getGroupName()) + "\n");
+      }
+      return result.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Displays all the group invites sent by you to other users";
+    }
+
+  }
+
+  private static class AcceptGroupInvite implements Command {
+
+    @Override
+    public String apply(String params[], Integer userId) {
+
+      if (null == params) {
+        return "No group specified";
+      }
+
+      SlackGroup group = groupRepository.getGroupByName(params[0]);
+
+      if (group == null) {
+        return "Specified group doesn't exist";
+      }
+
+      boolean result = false;
+
+      try {
+        result = groupInviteRepository.acceptInvite(userId, group.getGroupId());      
+      } catch (SQLException e) {
+        if (e.getErrorCode() == ErrorCodes.MYSQL_DUPLICATE_PK) {
+          return "You are already part of the group";
+        }
+      }
+
+      if (result) {
+        return "Invite accepted successfully!";
+      }
+      return "Error while processing request";
+  }
+   @Override
+      public String description() {
+        return "Accepts group invite request. \n Parameters : groupname";
+      }
+  }
+  /**
+   * Friends a User
+   */
+  private static class Friend implements Command {
+
+    /**
+     * Lists all of the active users on the server.
+     *
+     * @param toFriend the desired friend's handle
+     * @param senderId the id of the sender.
+     * @return the two users being noted as friends as a String.
+     */
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      if (null == params) {
+        return "No user specified";
+      }
+
+      User newFriend = userRepository.getUserByUserName(params[0]);
+      User currUser = userRepository.getUserByUserId(senderId);
+      String currUserHandle = currUser.getUserName();
+      if (newFriend == null) {
+        return "The specified user does not exist.";
+      }
+      Integer toFriendId = newFriend.getUserId();
+      if (senderId.equals(toFriendId)) { // adding oneself as a friend
+        return "You cannot be friends with yourself on this app. xD";
+      }
+      if (friendRepository.areFriends(senderId, toFriendId)) { // already friends
+        return "You are already friends with " + params[0] + ".";
+      }
+      if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
+        if (friendRepository.successfullyAcceptFriendRequest(senderId, toFriendId)) {
+          Notification friendRequestNotif = Notification
+              .makeFriendRequestNotification(senderId, toFriendId,
+                  NotificationType.FRIEND_REQUEST_APPROVED);
+          notificationRepository.addNotification(friendRequestNotif);
+          return currUserHandle + " and " + params[0] + " are now friends.";
+        }
+        return "Something went wrong and we could not accept " + params[0] + "'s friend request.";
+      } else {
+        if (friendRequestRepository.successfullySendFriendRequest(senderId, toFriendId)) {
+          Notification friendRequestNotif = Notification
+              .makeFriendRequestNotification(senderId, toFriendId, NotificationType.FRIEND_REQUEST);
+          notificationRepository.addNotification(friendRequestNotif);
+
+          return currUserHandle + " sent " + params[0] + " a friend request.";
+        }
+        return "You already sent " + params[0] + " a friend request.";
+      }
+    }
+
+    @Override
+    public String description() {
+      return "Friends the user with the given handle.\nParameters: User to friend";
     }
   }
 

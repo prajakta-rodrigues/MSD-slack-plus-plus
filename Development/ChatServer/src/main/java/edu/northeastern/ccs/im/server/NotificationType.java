@@ -15,7 +15,10 @@ public enum NotificationType {
   FRIEND_REQUEST_APPROVED(new StringTemplate("$name$ has accepted your friend request.",DefaultTemplateLexer.class)), 
   
   /** The unread messages. */
-  UNREAD_MESSAGES(new StringTemplate("You have $count$ unread messages from $name$",DefaultTemplateLexer.class));
+  UNREAD_MESSAGES(new StringTemplate("You have $count$ unread messages from $name$",DefaultTemplateLexer.class)),
+  
+  /*Group invite*/
+  GROUP_INVITE(new StringTemplate("You have been invited to group $group$ by moderator $name$", DefaultTemplateLexer.class));
 
   /** The text. */
   private final StringTemplate text;
