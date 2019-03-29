@@ -76,7 +76,6 @@ public class PrattleTest {
   private DirectMessageRepository dmRepository;
   private UserRepository userRepository;
   private GroupRepository groupRepository;
-  private UserGroupRepository userGroupRepository;
   private GroupInviteRepository groupInviteRepository;
   private NotificationRepository notificationRepository;
   
