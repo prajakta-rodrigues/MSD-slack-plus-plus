@@ -373,7 +373,7 @@ public abstract class Prattle {
           latestMessages.append(nextLine);
         }
         if(!messages.isEmpty()){
-          latestMessages.append("\n" + "--------------------------");
+          latestMessages.append("\n" + "-------------------------");
         }
         return latestMessages.toString();
       } else {
