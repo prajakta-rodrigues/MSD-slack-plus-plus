@@ -616,7 +616,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup o"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group o"));
     Message callback = waitingList1.remove();
-    assertEquals("Active channel set to Group o", callback.getText());
+    assertTrue( callback.getText().contains("Active channel set to Group o"));
   }
 
   @Test
