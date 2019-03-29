@@ -44,6 +44,7 @@ import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -64,6 +65,7 @@ public class PrattleTest {
   private String bot = "Slackbot";
   private DirectMessageRepository dmRepository;
   private UserRepository userRepository;
+  private UserGroupRepository userGroupRepository;
 
   /**
    * Initialize the command data before each test
@@ -798,5 +800,50 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
     assertEquals(10, cr1.getActiveChannelId());
     assertEquals(10, cr2.getActiveChannelId());
+  }
+
+  /**
+   * Tests that removing a group member who is not in the group
+   */
+  @Test
+  public void testRemoveUserWithoutName() {
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/kick"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have not specified a member to kick.", callback.getText());
+  }
+
+  /**
+   * Tests that removing a group member when a group doesn't exist
+   */
+  @Test
+  public void testRemoveUserWithoutGroup() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    SlackGroup slackGroup = null;
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
+    Message callback = waitingList2.remove();
+    assertEquals("You must set a group as your active channel to kick a member.", callback.getText());
+  }
+
+ 
+
+  /**
+   * Tests that the groupMembers with a null group
+   */
+  @Test
+  public void testGroupMembersCommand2()
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/groupMembers"));
+    Message callback = waitingList1.remove();
+    assertEquals("Your group is non-existent.", callback.getText());
   }
 }
