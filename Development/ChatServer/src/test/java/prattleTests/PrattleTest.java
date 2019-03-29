@@ -1,5 +1,6 @@
 package prattleTests;
 
+import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import org.junit.AfterClass;
@@ -48,7 +49,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -67,6 +67,7 @@ public class PrattleTest {
   private DirectMessageRepository dmRepository;
   private UserRepository userRepository;
   private FriendRequestRepository friendRequestRepository;
+  private FriendRepository friendRepository;
   private UserGroupRepository userGroupRepository;
   private User omar;
   private User mark;
@@ -162,6 +163,7 @@ public class PrattleTest {
     userRepository = Mockito.mock(UserRepository.class);
     friendRequestRepository = Mockito.mock(FriendRequestRepository.class);
     userGroupRepository = Mockito.mock(UserGroupRepository.class);
+    friendRepository = Mockito.mock(FriendRepository.class);
 
     omar = new User(1, "omar", "password");
     mark = new User(2, "mark", "password");
@@ -182,6 +184,11 @@ public class PrattleTest {
         .getDeclaredField("friendRequestRepository");
     frr.setAccessible(true);
     frr.set(null, friendRequestRepository);
+
+    Field fr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("friendRepository");
+    fr.setAccessible(true);
+    fr.set(null, friendRepository);
 
     Field ugr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("userGroupRepository");
@@ -569,6 +576,20 @@ public class PrattleTest {
   }
 
   @Test
+  public void testCreateGroupFails()
+      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    Mockito.when(groupRepository.addGroup(any())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup myGroup"));
+    Message callback = waitingList2.remove();
+    assertEquals("Something went wrong and your group was not created.", callback.getText());
+  }
+
+  @Test
   public void testCreateGroupSpecialCharacters() {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup !@578"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/groups"));
@@ -794,7 +815,7 @@ public class PrattleTest {
 
   @Test
   public void testDMExistingDM() {
-    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
+    Mockito.when(friendRepository.areFriends(1, 2)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Message callback = waitingList2.remove();
     assertEquals("You are now messaging omar", callback.getText());
@@ -804,7 +825,7 @@ public class PrattleTest {
   @Test
   public void testDMnewDM() {
     Mockito.when(dmRepository.getDMChannel(Mockito.anyInt(), Mockito.anyInt())).thenReturn(-1);
-    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
+    Mockito.when(friendRepository.areFriends(1, 2)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Message callback = waitingList2.remove();
     assertEquals("You are now messaging omar", callback.getText());
@@ -836,8 +857,8 @@ public class PrattleTest {
 
   @Test
   public void testDMBetweenUsers() {
-    Mockito.when(friendRequestRepository.areFriends(1, 2)).thenReturn(true);
-    Mockito.when(friendRequestRepository.areFriends(2, 1)).thenReturn(true);
+    Mockito.when(friendRepository.areFriends(1, 2)).thenReturn(true);
+    Mockito.when(friendRepository.areFriends(2, 1)).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/dm omar"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dm tuffaha"));
     assertEquals(10, cr1.getActiveChannelId());
@@ -856,13 +877,14 @@ public class PrattleTest {
     assertEquals("The specified user does not exist.", callback.getText());
   }
 
+
   /**
    * Tests that sending a friend request doesn't work if they're already friends
    */
   @Test
   public void testFriendAreFriends() {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
-    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(true);
+    Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("You are already friends with omar.", callback.getText());
@@ -875,11 +897,10 @@ public class PrattleTest {
   @Test
   public void testFriendHasPendingFriendRequest() {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
-    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
         .thenReturn(true);
-    Mockito
-        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+    Mockito.when(friendRepository.successfullyAcceptFriendRequest(anyInt(), anyInt()))
         .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
@@ -892,11 +913,10 @@ public class PrattleTest {
   @Test
   public void testFriendHasPendingFriendRequestFailure() {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
-    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
         .thenReturn(true);
-    Mockito
-        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+    Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
         .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
@@ -910,11 +930,10 @@ public class PrattleTest {
   @Test
   public void testFriendDoesntHasPendingFriendRequest() {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
-    Mockito.when(friendRequestRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
         .thenReturn(false);
-    Mockito
-        .when(friendRequestRepository.updatePendingFriendRequest(anyInt(), anyInt(), anyBoolean()))
+    Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
         .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
@@ -928,7 +947,7 @@ public class PrattleTest {
   public void testFriends() {
     List<Integer> friendIds = new ArrayList<>();
     friendIds.add(1);
-    Mockito.when(friendRequestRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
+    Mockito.when(friendRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friends"));
     Message callback = waitingList1.remove();
