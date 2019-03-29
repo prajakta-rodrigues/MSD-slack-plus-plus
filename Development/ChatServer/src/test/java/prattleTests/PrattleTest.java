@@ -240,7 +240,7 @@ public class PrattleTest {
     }
 
     @Override
-    public boolean groupHasMember(int id, String groupName) {
+    public boolean groupHasMember(int id, int groupId) {
       return true;
     }
 
@@ -661,7 +661,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup o"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group o"));
     Message callback = waitingList1.remove();
-    assertEquals("Active channel set to Group o", callback.getText());
+    assertTrue( callback.getText().contains("Active channel set to Group o"));
   }
 
   @Test
@@ -793,10 +793,9 @@ public class PrattleTest {
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
-    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyString()))
-        .thenReturn(false);
-    Mockito.when(groupRepository.getGroupByName(Mockito.anyString()))
-        .thenReturn(new SlackGroup(1, "special_group"));
+    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
+            .thenReturn(false);
+    Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(new SlackGroup(1, "special_group"));
 
     ((MockGroupRepository) groupRepository).mockDb = new HashMap<>();
 
