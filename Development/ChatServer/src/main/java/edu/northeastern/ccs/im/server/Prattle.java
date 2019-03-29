@@ -723,7 +723,7 @@ public abstract class Prattle {
     @Override
     public String apply(String params[], Integer userId) {
 
-      if (null == params || params.length < 1) {
+      if (null == params) {
         return "No group specified";
       }
 
