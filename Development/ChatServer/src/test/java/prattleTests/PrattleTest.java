@@ -4,7 +4,6 @@ import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,9 +49,7 @@ import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -1281,8 +1278,7 @@ public class PrattleTest {
             .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = null;
-    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
+    Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(null);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("You must set a group as your active channel to kick a member.", callback.getText());
@@ -1320,8 +1316,6 @@ public class PrattleTest {
     gr.set(null, groupRepository);
     SlackGroup slackGroup = new SlackGroup(0,"koka");
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
-    List<String> moderators = new ArrayList<>();
-    moderators.add("pmar");
     Mockito.when(userGroupRepository.getModerators(Mockito.anyInt())).thenThrow(new IllegalArgumentException());
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
