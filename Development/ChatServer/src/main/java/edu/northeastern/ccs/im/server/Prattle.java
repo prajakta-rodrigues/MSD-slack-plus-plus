@@ -902,7 +902,7 @@ public abstract class Prattle {
       }
 
       User toKick = userRepository.getUserByUserName(params[0]);
-      if (toKick == null || !groupRepository.groupHasMember(group.getGroupId(), toKick.getUserId())) {
+      if (toKick == null || groupRepository.groupHasMember(group.getGroupId(), toKick.getUserId())) {
         return String.format("Could not find %s as a member of this group.", params[0]);
       }
       return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
