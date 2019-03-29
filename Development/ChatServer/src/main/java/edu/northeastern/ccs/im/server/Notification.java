@@ -1,7 +1,5 @@
 package edu.northeastern.ccs.im.server;
 
-import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -187,6 +185,14 @@ public class Notification {
   }
 
   
+  /**
+   * Make group invite notification.
+   *
+   * @param groupId the group id
+   * @param senderId the sender of the request
+   * @param inviteeId the invitee id
+   * @return the notification
+   */
   public static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
     Notification notification = new Notification();
     notification.setAssociatedGroupId(groupId);
@@ -200,7 +206,7 @@ public class Notification {
 
 
   /**
-   * Makes a friend request notification from the given sender id to the second given receiver id
+   * Makes a friend request notification from the given sender id to the second given receiver id.
    *
    * @param senderId the sender of the request
    * @param receiverId the receiver of the request

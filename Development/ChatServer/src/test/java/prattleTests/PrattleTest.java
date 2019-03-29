@@ -1028,7 +1028,7 @@ public class PrattleTest {
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
-    assertEquals("Error while processing request" , callback.getText());
+    assertEquals("You do not have an invite to the group" , callback.getText());
 
   }
   
@@ -1045,7 +1045,7 @@ public class PrattleTest {
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt())).thenThrow(new SQLException());
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
-    assertEquals("Error while processing request" , callback.getText());
+    assertEquals("You do not have an invite to the group" , callback.getText());
 
   }
   

@@ -16,13 +16,29 @@ import edu.northeastern.ccs.im.server.InviteesGroup;
 import edu.northeastern.ccs.im.server.InvitorsGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+/**
+ * The Class GroupInviteRepository provides methods for accessing database 
+ * entity group_invitations.
+ */
 public class GroupInviteRepository extends Repository {
 
 
+  /**
+   * Instantiates a new group invite repository.
+   *
+   * @param dataSource the data source
+   */
   public GroupInviteRepository(DataSource dataSource) {
     this.dataSource = dataSource;
   }
 
+  /**
+   * Adds the group invitation.
+   *
+   * @param groupInvitation the group invitation
+   * @return true, if successful
+   * @throws SQLException when any error is propagated from database
+   */
   public boolean add(GroupInvitation groupInvitation) throws SQLException {
     int result = 0;
     try {
@@ -46,6 +62,12 @@ public class GroupInviteRepository extends Repository {
 
   }
 
+  /**
+   * Gets the group invitations by invitee id.
+   *
+   * @param inviteeId the id of the invitee of the invite
+   * @return the group invitations by invitee id
+   */
   public List<InvitorsGroup> getGroupInvitationsByInviteeId(int inviteeId) {
     InvitorsGroup groupInvitation = null;
     List<InvitorsGroup> listGroupInvitation = new ArrayList<>();
@@ -75,6 +97,12 @@ public class GroupInviteRepository extends Repository {
     return listGroupInvitation;
   }
 
+  /**
+   * Gets the group invitations by invitor id.
+   *
+   * @param invitorId the invitor id of the invite
+   * @return the group invitations by invitor id
+   */
   public List<InviteesGroup> getGroupInvitationsByInvitorId(int invitorId) {
     InviteesGroup groupInvitation = null;
     List<InviteesGroup> listGroupInvitation = new ArrayList<>();
@@ -105,6 +133,14 @@ public class GroupInviteRepository extends Repository {
   }
   
 
+  /**
+   * Accept invite for given parameters.
+   *
+   * @param userId the user id of the invite
+   * @param groupId the group id of the invite
+   * @return true, if successful
+   * @throws SQLException when any error is propagated from database
+   */
   public boolean acceptInvite(Integer userId, int groupId) throws SQLException {
     int rs = 0;
     boolean result = false;
@@ -138,6 +174,15 @@ public class GroupInviteRepository extends Repository {
     return result;
   }
 
+  /**
+   * Insert into user group.
+   *
+   * @param connection the connection
+   * @param userId the user id of the invite
+   * @param groupId the group id of the invite
+   * @return true, if successful
+   * @throws SQLException when any error is propagated from database
+   */
   private boolean insertIntoUserGroup(Connection connection, Integer userId, int groupId) throws SQLException {
     int rs = 0;
     String query = "insert into slack.user_group(user_id, group_id, isModerator, created_date) values(?,?,?,?)";
