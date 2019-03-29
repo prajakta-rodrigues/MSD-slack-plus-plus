@@ -1,13 +1,17 @@
 package edu.northeastern.ccs.im.server;
 
+import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
-
 import org.mindrot.jbcrypt.BCrypt;
-
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
+
+import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
@@ -32,7 +36,7 @@ public class ClientRunnable implements Runnable {
   /**
    * Id for the active channel that the client is sending messages to.
    */
-  private int activeChannelId = 0;
+  private int activeChannelId = GENERAL_ID;
 
   /**
    * Id for the user for whom we use this ClientRunnable to communicate.
@@ -69,7 +73,11 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
+  
+  private NotificationRepository notificationRepository;
+
+  private GregorianCalendar notificationCalendar;
 
   /**
    * Whether this client has been authenticated to send messages to other users
@@ -96,7 +104,9 @@ public class ClientRunnable implements Runnable {
 
     authenticated = false;
 
-    userRepository = new UserRepository(DatabaseConnection.getDataSource());
+    userRepository = new UserRepository();
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    notificationCalendar = new GregorianCalendar();
   }
 
   /**
@@ -119,7 +129,7 @@ public class ClientRunnable implements Runnable {
         sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
             "User is not registered with system. Enter Password for user");
       }
-      
+
       initialized = true;
       // Update the time until we terminate this client due to inactivity.
       timer.updateAfterInitialization();
@@ -130,17 +140,17 @@ public class ClientRunnable implements Runnable {
   }
 
   private void authenticateUser(Message msg) {
-    Message sendMsg; 
+    Message sendMsg;
     User user = userRepository.getUserByUserName(msg.getName());
-    if(user == null) {
-    	sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-    	          "Illegal Message");
-        enqueueMessage(sendMsg);
-        return;
+    if (user == null) {
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Illegal Message");
+      enqueueMessage(sendMsg);
+      return;
     }
     if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
       setName(user.getUserName());
       userId = user.getUserId();
+      Prattle.authenticateClient(this);
       // Set that the client is initialized.
       authenticated = true;
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
@@ -151,7 +161,6 @@ public class ClientRunnable implements Runnable {
       authenticated = false;
     }
     enqueueMessage(sendMsg);
-
   }
 
   private boolean userExists(String userName) {
@@ -180,27 +189,6 @@ public class ClientRunnable implements Runnable {
   protected boolean sendMessage(Message message) {
     ChatLogger.info("\t" + message);
     return connection.sendMessage(message);
-  }
-
-  /**
-   * Try allowing this user to set his/her user name to the given username.
-   *
-   * @param userName The new value to which we will try to set userName.
-   * @return True if the username is deemed acceptable; false otherwise
-   */
-  private boolean setUserName(String userName) {
-    boolean result = false;
-    // Now make sure this name is legal.
-    if (userName != null) {
-      // Optimistically set this users ID number.
-      setName(userName);
-      userId = hashCode();
-      result = true;
-    } else {
-      // Clear this name; we cannot use it. *sigh*
-      userId = -1;
-    }
-    return result;
   }
 
   /**
@@ -259,7 +247,8 @@ public class ClientRunnable implements Runnable {
     if (!initialized) {
       checkForInitialization();
     } else {
-      handleIncomingMessages(); 
+      handleIncomingMessages();
+      handleNotifications();
       handleOutgoingMessages();
     }
     // Finally, check if this client have been inactive for too long and,
@@ -274,13 +263,32 @@ public class ClientRunnable implements Runnable {
   }
 
   /**
+   * Checks for new notifications for user.
+   */
+  private void handleNotifications() {
+    if (authenticated && notificationCalendar.before(new GregorianCalendar())) {
+      List<Notification> listNotifications =
+          notificationRepository.getAllNewNotificationsByReceiverId(userId);
+      if (listNotifications != null && !listNotifications.isEmpty()) {
+        Message sendMsg;
+        sendMsg =
+            Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "You have new notifications: \n"
+                + NotificationConvertor.getNotificationsAsText(listNotifications));
+        enqueueMessage(sendMsg);
+        notificationRepository.markNotificationsAsNotNew(listNotifications);
+      }
+      notificationCalendar.setTimeInMillis(notificationCalendar.getTimeInMillis() + ServerConstants.CHECK_NOTIFICATION_DELAY);
+    }
+  }
+
+  /**
    * Checks incoming messages and performs appropriate actions based on the type of message.
    */
   private void handleIncomingMessages() {
     // Client has already been initialized, so we should first check
     // if there are any input
     // messages.
-    Iterator<Message> messageIter = connection.iterator(); 
+    Iterator<Message> messageIter = connection.iterator();
     if (messageIter.hasNext()) {
       // Get the next message
       Message msg = messageIter.next();
@@ -305,34 +313,37 @@ public class ClientRunnable implements Runnable {
   }
 
   private void respondToMessage(Message msg) {
-	// Check for our "special messages"
-      if (authenticated && msg.isBroadcastMessage()) {
-        // Check for our "special messages"
-        Prattle.broadcastMessage(msg);
-      } else if (authenticated && msg.isCommandMessage()) {
-        Prattle.commandMessage(msg);
-      } else if (msg.isAuthenticate()) {
-        authenticateUser(msg);
-      } else if (msg.isRegister()) {
-        registerUser(msg);
-      }	
-}
+    // Check for our "special messages"
+    if (authenticated && msg.isBroadcastMessage()) {
+      // Check for our "special messages"
+      Prattle.broadcastMessage(msg);
+    } else if (authenticated && msg.isCommandMessage()) {
+      Prattle.commandMessage(msg);
+    } else if (msg.isAuthenticate()) {
+      authenticateUser(msg);
+    } else if (msg.isRegister()) {
+      registerUser(msg);
+    }
+  }
 
-private void registerUser(Message msg) {
+  private void registerUser(Message msg) {
     Message sendMsg;
-    int id = hashCode();
+    int id = (msg.getName().hashCode() & 0xfffffff);
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
     if (result) {
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration done. Continue to message.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
+      Prattle.authenticateClient(this);
       authenticated = true;
- 
+
     } else {
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "Registration failed. Try connecting after some time.");
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+          "Registration failed. Try connecting after some time.");
     }
-    
+
     enqueueMessage(sendMsg);
   }
 
@@ -397,5 +408,6 @@ private void registerUser(Message msg) {
    */
   public void setActiveChannelId(int channelId) {
     this.activeChannelId = channelId;
+    userRepository.setActiveChannel(channelId, this.userId);
   }
 }

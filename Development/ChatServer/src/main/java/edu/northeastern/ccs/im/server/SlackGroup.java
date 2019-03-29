@@ -1,44 +1,54 @@
 package edu.northeastern.ccs.im.server;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Class representing a SlackGroup.  This class is subject to a lot of change once the database is
- * integrated.
+ * Class representing a SlackGroup entity corresponding to database. 
  */
 public class SlackGroup {
 
-  /**
-   * Collection of moderators of this Group
-   */
-  private Set<String> moderators = Collections.synchronizedSet(new HashSet<>());
   // Name of this group. Group names are unique across the server.
   private String groupName;
   // Channel Id associated with this group. Represented the GroupChat that goes with this Group.
   private final int channelId;
+  // Identifier of the group creator's user id
+  private final int creatorId;
+  // Unique integer identifier for this group.
+  private final int groupId;
 
   /**
-   * Constructs a group for the first time, instantiating the creator, the name of the group, and
-   * the channelId. Meant to be constructed using the ChannelFactory to enforce validity of
-   * attributes.
-   *
-   * @param creatorId Identifier of the User who created this Group
-   * @param groupName name of the group
-   * @param channelId integer channel Id
+   * Constructs a new group
+   * @param groupId id of the group
+   * @param creatorId id of the creator.
+   * @param groupName name of the group.
+   * @param channelId int channel
    */
-  SlackGroup(String creatorId, String groupName, int channelId) {
+  public SlackGroup(int groupId, int creatorId, String groupName, int channelId) {
+    this.groupId = groupId;
+    this.creatorId = creatorId;
     this.groupName = groupName;
     this.channelId = channelId;
-    this.moderators.add(creatorId);
   }
 
-  String getGroupName() {
+  /**
+   * Constructor used for inserting into groups table.
+   * @param creatorId The userId of the creator
+   * @param groupName The name of the newly created group.
+   */
+  public SlackGroup(int creatorId, String groupName) {
+    this((groupName.hashCode() & 0xfffffff), creatorId, groupName, -1);
+  }
+
+  public String getGroupName() {
     return groupName;
   }
 
   int getChannelId() {
     return channelId;
   }
+
+  public int getGroupId() { return groupId; }
+
+  public int getCreatorId() { return creatorId; }
+
+
 }

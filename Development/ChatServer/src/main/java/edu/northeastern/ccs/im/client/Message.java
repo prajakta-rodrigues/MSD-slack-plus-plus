@@ -94,6 +94,11 @@ public class Message {
   private String msgSender;
 
   /**
+   * Integer identifier of the sender.
+   */
+  private int userId;
+
+  /**
    * The second argument used in the message.
    */
   private String msgText;
@@ -105,15 +110,17 @@ public class Message {
    *
    * @param handle Handle for the type of message being created.
    * @param srcName Name of the individual sending this message
+   * @param senderId id of the sender
    * @param text Text of the instant message
    */
-  private Message(MessageType handle, String srcName, String text) {
+  private Message(MessageType handle, String srcName, int senderId, String text) {
     msgType = handle;
     // Save the properly formatted identifier for the user sending the
     // message.
     msgSender = srcName;
     // Save the text of the message.
     msgText = text;
+    this.userId = senderId;
   }
 
   /**
@@ -122,7 +129,7 @@ public class Message {
    * @param handle Handle for the type of message being created.
    */
   private Message(MessageType handle) {
-    this(handle, null, null);
+    this(handle, null, -1, null);
   }
 
   /**
@@ -134,7 +141,18 @@ public class Message {
    *        server.
    */
   private Message(MessageType handle, String srcName) {
-    this(handle, srcName, null);
+    this(handle, srcName, -1, null);
+  }
+
+  /**
+   * Creates a new message that contains the handle, sendername, and text.
+   *
+   * @param handle handle of the message
+   * @param srcName name of the sender
+   * @param text text of the message
+   */
+  private Message(MessageType handle, String srcName, String text) {
+    this(handle, srcName, -1, text);
   }
 
   /**
@@ -150,22 +168,24 @@ public class Message {
    * Create a new message broadcasting an announcement to the world.
    *
    * @param myName Name of the sender of this very important missive.
+   * @param myId id of the sender
    * @param text Text of the message that will be sent to all users
    * @return Instance of Message that transmits text to all logged in users.
    */
-  public static Message makeBroadcastMessage(String myName, String text) {
-    return new Message(MessageType.BROADCAST, myName, text);
+  public static Message makeBroadcastMessage(String myName, int myId, String text) {
+    return new Message(MessageType.BROADCAST, myName, myId, text);
   }
 
   /**
    * Create a new command message to interact with the application.
    *
    * @param myName Name of the sender of the sender of this command.
+   * @param myId id of the sender
    * @param text Text of the command.
    * @return Instance of Message that is a command.
    */
-  public static Message makeCommandMessage(String myName, String text) {
-    return new Message(MessageType.COMMAND, myName, text);
+  public static Message makeCommandMessage(String myName, int myId ,String text) {
+    return new Message(MessageType.COMMAND, myName, myId, text);
   }
 
   /**
@@ -206,23 +226,24 @@ public class Message {
    *
    * @param handle Handle of the message to be generated.
    * @param srcName Name of the originator of the message (may be null)
+   * @param senderId integer identifier of the sender.
    * @param text Text sent in this message (may be null)
    * @return Instance of Message (or its subclasses) representing the handle, name, & text.
    */
-  public static Message makeMessage(String handle, String srcName, String text) {
+  public static Message makeMessage(String handle, String srcName, int senderId, String text) {
     Message result = null;
     if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
       result = makeQuitMessage(srcName);
     } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
       result = makeLoginMessage(srcName);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
-      result = makeBroadcastMessage(srcName, text);
+      result = makeBroadcastMessage(srcName, senderId, text);
     } else if (handle.compareTo(MessageType.ACKNOWLEDGE.toString()) == 0) {
       result = makeAcknowledgeMessage(srcName);
     } else if (handle.compareTo(MessageType.NO_ACKNOWLEDGE.toString()) == 0) {
       result = makeNoAcknowledgeMessage();
     } else if (handle.compareTo(MessageType.COMMAND.toString()) == 0) {
-      result = makeCommandMessage(srcName, text);
+      result = makeCommandMessage(srcName, senderId, text);
     } else if(handle.compareTo(MessageType.AUTHENTICATE.toString()) == 0) {
       result = makeAuthenticateMessage(srcName, text);
     } else if(handle.compareTo(MessageType.REGISTER.toString()) == 0) {
@@ -374,6 +395,7 @@ public class Message {
     } else {
       result += " " + NULL_OUTPUT.length() + " " + NULL_OUTPUT;
     }
+    result += " " + String.valueOf(userId).length() + " " + userId;
     if (msgText != null) {
       result += " " + msgText.length() + " " + msgText;
     } else {
