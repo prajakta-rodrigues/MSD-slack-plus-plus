@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
@@ -87,8 +88,10 @@ public abstract class Prattle {
   private static NotificationRepository notificationRepository;
 
   private static FriendRequestRepository friendRequestRepository;
-  
+
   private static MessageRepository messageRepository;
+
+  private static FriendRepository friendRepository;
 
   private static final Map<String, Command> COMMANDS;
 
@@ -107,6 +110,10 @@ public abstract class Prattle {
     userRepository = new UserRepository();
     userGroupRepository = new UserGroupRepository(DatabaseConnection.getDataSource());
     friendRequestRepository = new FriendRequestRepository(DatabaseConnection.getDataSource());
+    friendRepository = new FriendRepository(DatabaseConnection.getDataSource());
+    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
+
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
@@ -121,9 +128,6 @@ public abstract class Prattle {
     COMMANDS.put("/groupmembers", new GroupMembers());
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
-    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
-    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
-
   }
 
   /**
@@ -496,11 +500,10 @@ public abstract class Prattle {
       int existingId = dmRepository.getDMChannel(senderId, receiverId);
       int channelId = existingId > 0 ? existingId : dmRepository.createDM(senderId, receiverId);
       ClientRunnable sender = getClient(senderId);
-      if (sender == null) {
-        return "Client not found";
-      } else if (channelId < 0) {
+      if (channelId < 0) {
         return "Failed to create direct message. Try again later.";
-      } else if (!senderId.equals(receiverId) && !friendRequestRepository.areFriends(senderId, receiverId)) {
+      } else if (!senderId.equals(receiverId) && !friendRepository
+          .areFriends(senderId, receiverId)) {
         return "You are not friends with " + receiverName
             + ". Send them a friend request to direct message.";
       } else {
@@ -607,7 +610,7 @@ public abstract class Prattle {
      */
     @Override
     public String apply(String ignoredParam, Integer senderId) {
-      List<Integer> friendIds = friendRequestRepository.getFriendsByUserId(senderId);
+      List<Integer> friendIds = friendRepository.getFriendsByUserId(senderId);
       StringBuilder listOfFriends;
       if (friendIds.isEmpty()) {
         listOfFriends = new StringBuilder("You have no friends. :(");
@@ -651,46 +654,29 @@ public abstract class Prattle {
       if (senderId.equals(toFriendId)) { // adding oneself as a friend
         return "You cannot be friends with yourself on this app. xD";
       }
-      if (friendRequestRepository.areFriends(senderId, toFriendId)) { // already friends
+      if (friendRepository.areFriends(senderId, toFriendId)) { // already friends
         return "You are already friends with " + toFriend + ".";
       }
       if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
-        if (successfulFriendRequestHandler(senderId, toFriendId, true)) {
+        if (friendRepository.successfullyAcceptFriendRequest(senderId, toFriendId)) {
+          Notification.makeFriendRequestNotification(senderId, toFriendId,
+              NotificationType.FRIEND_REQUEST_APPROVED);
           return currUserHandle + " and " + toFriend + " are now friends.";
         }
         return "Something went wrong and we could not accept " + toFriend + "'s friend request.";
       } else {
-        if (successfulFriendRequestHandler(senderId, toFriendId, false)) {
+        if (friendRequestRepository.successfullySendFriendRequest(senderId, toFriendId)) {
+          Notification
+              .makeFriendRequestNotification(senderId, toFriendId, NotificationType.FRIEND_REQUEST);
           return currUserHandle + " sent " + toFriend + " a friend request.";
         }
-        return "Something went wrong and we could not send your friend request.";
+        return "You already sent " + toFriend + " a friend request.";
       }
     }
 
     @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
-    }
-
-    /**
-     * Determines if the friend request was successfully handled
-     *
-     * @param senderId the sender of the request
-     * @param toFriendId the other end of the request
-     * @param accepted whether or no the request is being accepted
-     * @return true if successfully handled, false otherwise
-     */
-    private boolean successfulFriendRequestHandler(int senderId, int toFriendId, boolean accepted) {
-      if ((friendRequestRepository.updatePendingFriendRequest(senderId, toFriendId, accepted)) &&
-          (friendRequestRepository.updatePendingFriendRequest(toFriendId, senderId, accepted))) {
-        NotificationType type =
-            accepted ? NotificationType.FRIEND_REQUEST_APPROVED : NotificationType.FRIEND_REQUEST;
-        Notification friendReqNotification = Notification
-            .makeFriendRequestNotification(senderId, toFriendId, type);
-        notificationRepository.addNotification(friendReqNotification);
-        return true;
-      }
-      return false;
     }
   }
 }

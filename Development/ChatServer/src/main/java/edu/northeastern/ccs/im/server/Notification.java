@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -42,7 +44,6 @@ public class Notification {
    * The associated group id of the group involved in the notification.
    */
   private int associatedGroupId;
-
 
   /**
    * Instantiates a new notification.
@@ -193,13 +194,15 @@ public class Notification {
    * @param type the type of friend request notification
    * @return the friend request notification
    */
-  public static Notification makeFriendRequestNotification(int senderId, int receiverId, NotificationType type) {
+  public static void makeFriendRequestNotification(int senderId, int receiverId,
+      NotificationType type) {
     Notification notification = new Notification();
     notification.setType(type);
     notification.setAssociatedUserId(senderId);
     notification.setRecieverId(receiverId);
     notification.setNew(true);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    return notification;
+    NotificationRepository notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    notificationRepository.addNotification(notification);
   }
 }
