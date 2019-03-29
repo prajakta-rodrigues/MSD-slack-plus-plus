@@ -1,25 +1,14 @@
 package prattleTests;
 
-import edu.northeastern.ccs.im.client.CommandLineMain;
-import edu.northeastern.ccs.im.client.IMConnection;
 import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageType;
-import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
-import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.sql.DataSource;
-import java.io.StringReader;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 import static org.junit.Assert.assertEquals;
@@ -76,7 +65,6 @@ public class MessageRepositoryTest {
         Mockito.when(value.executeUpdate()).thenReturn(1);
         Mockito.doNothing().when(connection).close();
         assertTrue(messageRepository.saveMessage(Message.makeMessage("BCT", "koka", 1,"hello people")));
-
     }
 
     /**
@@ -106,7 +94,6 @@ public class MessageRepositoryTest {
      */
     @Test
     public void testAddMessageSQLException() throws SQLException {
-        PreparedStatement value = Mockito.mock(PreparedStatement.class);
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
         Mockito.doNothing().when(connection).close();
         assertFalse(messageRepository.saveMessage(Message.makeMessage("BCT", "koka", 1,"hello people")));
@@ -119,7 +106,6 @@ public class MessageRepositoryTest {
      */
     @Test
     public void testAddMessageAnyException() throws SQLException {
-        PreparedStatement value = Mockito.mock(PreparedStatement.class);
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new IllegalArgumentException());
         Mockito.doNothing().when(connection).close();
         assertFalse(messageRepository.saveMessage(Message.makeMessage("BCT", "koka", 1,"hello people")));
@@ -165,8 +151,6 @@ public class MessageRepositoryTest {
     @Test
     public void testGetMessagesFromChannelSQLException() throws SQLException {
         PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
-        ResultSet resultSet = Mockito.mock(ResultSet.class);
-        ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
         Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
         Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
@@ -185,8 +169,6 @@ public class MessageRepositoryTest {
     @Test
     public void testGetMessagesFromChannelAnyException() throws SQLException {
         PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
-        ResultSet resultSet = Mockito.mock(ResultSet.class);
-        ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
         Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
         Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
         Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());

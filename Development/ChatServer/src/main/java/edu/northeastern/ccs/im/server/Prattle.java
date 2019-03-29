@@ -15,15 +15,15 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -33,9 +33,12 @@ import java.util.concurrent.TimeUnit;
 
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
+import edu.northeastern.ccs.im.server.repositories.GroupRepository;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-
+import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
@@ -145,6 +148,8 @@ public abstract class Prattle {
     COMMANDS.put("/accept", new AcceptGroupInvite());
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
+    COMMANDS.put("/kick", new Kick());
+
   }
 
   /**
@@ -182,7 +187,7 @@ public abstract class Prattle {
     String param =
         messageContents.length > 1 ? message.getText().substring(message.getText().indexOf(' ') + 1)
             : null;
-    String params[] = null;
+    String[] params = null;
     if (param != null) {
       params = param.split(" ");
     }
@@ -219,9 +224,10 @@ public abstract class Prattle {
   public static void removeClient(ClientRunnable dead) {
     // Test and see if the thread was in our list of active clients so that we
     // can remove it.
+
     if (authenticated.remove(dead.getUserId()) == null
-        || !active.remove(dead)
-        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+            || !active.remove(dead)
+            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
     userRepository.setActive(false, dead.getUserId());
@@ -251,8 +257,7 @@ public abstract class Prattle {
    * perform all of the I/O with that client. This class relies on the server not receiving too many
    * requests -- it does not include any code to limit the number of extant threads.
    *
-   * @param args String arguments to the server from the command line. At present the only legal
-   * (and required) argument is the port on which this server should list.
+   * @param args String arguments to the server from the command line. At present the only legal (and required) argument is the port on which this server should list.
    */
   public static void main(String[] args) {
     // Connect to the socket on the appropriate port to which this server connects.
@@ -355,7 +360,7 @@ public abstract class Prattle {
   private static class Group implements Command {
 
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       List<Message> messages;
       if (params == null || params.length == 0) {
         return "No Group Name provided";
@@ -402,7 +407,7 @@ public abstract class Prattle {
   private static class Groups implements Command {
 
      @Override
-    public String apply(String param[], Integer senderId) {
+    public String apply(String[] param, Integer senderId) {
       return groupRepository.groupsHavingMember(senderId);
     }
 
@@ -418,7 +423,7 @@ public abstract class Prattle {
   private static class CreateGroup implements Command {
 
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       if (params == null || params.length < 1) {
         return "No Group Name provided";
       }
@@ -452,7 +457,7 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       StringBuilder activeUsers = new StringBuilder("Active Users:");
       for (ClientRunnable activeUser : authenticated.values()) {
         activeUsers.append("\n");
@@ -480,7 +485,7 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
 
       for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
@@ -551,7 +556,7 @@ public abstract class Prattle {
 
    
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
 
       List<Notification> listNotifications =
           notificationRepository.getAllNotificationsByReceiverId(senderId);
@@ -584,7 +589,7 @@ public abstract class Prattle {
      * @return the list of active users as a String.
      */
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       ClientRunnable currClient = getClient(senderId);
       int currChannelId = currClient.getActiveChannelId();
       SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
@@ -617,11 +622,11 @@ public abstract class Prattle {
 
  
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       if (null == params) {
         return "No username or group given";
       }
-      SlackGroup group = null;
+      SlackGroup group;
       if (params.length == 2) {
         String groupName = params[1];
         group = groupRepository.getGroupByName(groupName);
@@ -640,7 +645,7 @@ public abstract class Prattle {
       }
       int groupId = group.getGroupId();
 
-      boolean isModerator = false;
+      boolean isModerator;
 
       try {
         isModerator = userGroupRepository.isModerator(senderId, groupId);
@@ -696,7 +701,7 @@ public abstract class Prattle {
      * @return the two users being noted as friends as a String.
      */
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       List<Integer> friendIds = friendRepository.getFriendsByUserId(senderId);
       StringBuilder listOfFriends;
       if (friendIds.isEmpty()) {
@@ -724,7 +729,7 @@ public abstract class Prattle {
   private static class GroupInvites implements Command {
 
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       List<InvitorsGroup> listInvites =
           groupInviteRepository.getGroupInvitationsByInviteeId(senderId);
       StringBuilder result = new StringBuilder();
@@ -774,7 +779,7 @@ public abstract class Prattle {
   private static class AcceptGroupInvite implements Command {
 
     @Override
-    public String apply(String params[], Integer userId) {
+    public String apply(String[] params, Integer userId) {
 
       if (null == params) {
         return "No group specified";
@@ -863,6 +868,59 @@ public abstract class Prattle {
     @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
+    }
+  }
+
+  /**
+   * Kick a member from a group.
+   */
+  private static class Kick implements Command {
+
+    /**
+     * removes users from the group.
+     *
+     * @param params the params
+     * @param senderId the id of the sender.
+     * @return the used removed form group as string.
+     */
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      if (params == null) {
+        return "You have not specified a member to kick.";
+      }
+      ClientRunnable mod = getClient(senderId);
+      SlackGroup group = groupRepository.getGroupByChannelId(mod.getActiveChannelId());
+      if (group == null) {
+        return "You must set a group as your active channel to kick a member.";
+      }
+      boolean isModerator;
+      try {
+         isModerator = userGroupRepository.isModerator(senderId,group.getGroupId());
+      }catch(Exception e) {
+        return "Error while checking if you are moderator";
+      }
+
+      if (!isModerator) {
+        return "You are not the moderator of this group.";
+      }
+
+      User toKick = userRepository.getUserByUserName(params[0]);
+      if(toKick == null) {
+        return "user does not exist";
+      }
+
+      if (!groupRepository.groupHasMember(toKick.getUserId(),group.getGroupId())) {
+        return String.format("Could not find %s as a member of this group.", params[0]);
+      }
+      return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
+              String.format("User %s successfully kicked from group.", toKick.getUserName()) :
+              String.format("Something went wrong. Failed to kick member %s.", toKick.getUserName());
+    }
+
+    @Override
+    public String description() {
+      return "As the moderator of your active group, kick a member from your group.\n" +
+              "Parameters: handle of the user to kick";
     }
   }
 }

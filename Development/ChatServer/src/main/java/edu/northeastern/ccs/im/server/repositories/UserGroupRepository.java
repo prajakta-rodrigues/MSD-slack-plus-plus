@@ -4,8 +4,6 @@ import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,10 +87,9 @@ public class UserGroupRepository extends Repository {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           results = DatabaseConnection.resultsList(rs);
-          connection.close();
         }
       }
-    } catch (Exception e) {
+    } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
@@ -132,4 +129,28 @@ public class UserGroupRepository extends Repository {
   }
   
   
+
+  /**
+   * Removes a member from a group.
+   * @param groupId the group to remove the user from.
+   * @param userId the user to remove.
+   * @return whether or not the delete was a success.s
+   */
+  public boolean removeMember(int groupId, int userId) {
+    String query = "DELETE FROM slack.user_group WHERE group_id = ? AND user_id = ?";
+    int result = 0;
+    try {
+      connection = dataSource.getConnection();
+      try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        stmt.setInt(1, groupId);
+        stmt.setInt(2, userId);
+        result = stmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return result > 0;
+  }
 }
