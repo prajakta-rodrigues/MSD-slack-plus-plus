@@ -607,6 +607,13 @@ public class PrattleTest {
     assertEquals(bot, callback.getName());
     assertTrue(callback.getText().contains("general"));
   }
+  @Test
+  public void testCreateGroupSuccess() {
+    Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup o"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group o"));
+    Message callback = waitingList1.remove();
+    assertTrue( callback.getText().contains("Active channel set to Group o"));
+  }
 
   @Test
   public void testCreateGroupFails()

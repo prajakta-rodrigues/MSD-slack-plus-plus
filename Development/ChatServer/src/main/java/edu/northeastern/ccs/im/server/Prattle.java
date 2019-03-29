@@ -372,6 +372,9 @@ public abstract class Prattle {
           String nextLine = "\n" + msg.getName() + " : " + msg.getText();
           latestMessages.append(nextLine);
         }
+        if(!messages.isEmpty()){
+          latestMessages.append("\n" + "-------------------------");
+        }
         return latestMessages.toString();
       } else {
         return String.format("Group %s does not exist", params[0]);
