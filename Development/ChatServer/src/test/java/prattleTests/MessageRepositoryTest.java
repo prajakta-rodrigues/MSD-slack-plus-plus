@@ -76,7 +76,6 @@ public class MessageRepositoryTest {
         Mockito.when(value.executeUpdate()).thenReturn(1);
         Mockito.doNothing().when(connection).close();
         assertTrue(messageRepository.saveMessage(Message.makeMessage("BCT", "koka", 1,"hello people")));
-
     }
 
     /**

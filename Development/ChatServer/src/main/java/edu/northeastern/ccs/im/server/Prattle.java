@@ -317,7 +317,8 @@ public abstract class Prattle {
   /**
    * Change sender's active channel to the specified Group.
    */
-  private static class Group implements Command {
+  private static class
+  Group implements Command {
 
     /* (non-Javadoc)
      * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)

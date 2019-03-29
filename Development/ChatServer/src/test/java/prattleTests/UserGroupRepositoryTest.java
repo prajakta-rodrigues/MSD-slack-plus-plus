@@ -168,6 +168,50 @@ public class UserGroupRepositoryTest {
     userGroupRepository.getGroupMembers(-1);
   }
 
+  /**
+   * Test Kick members from group Exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testKickMembersException() throws SQLException {
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.when(value.executeQuery()).thenThrow(new SQLException());
+    Mockito.doNothing().when(connection).close();
+    userGroupRepository.removeMember(-1,-1);
+  }
+
+  /**
+   * Test Kick members from group Exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testKickMembersException2() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    userGroupRepository.removeMember(-1,-1);
+  }
+
+
+  /**
+   * Test remove group member.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testRemoveGroupMember() throws SQLException {
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    Mockito.doNothing().when(connection).close();
+    assertTrue(userGroupRepository.removeMember(-1,-1));
+  }
+
 }
 
 
