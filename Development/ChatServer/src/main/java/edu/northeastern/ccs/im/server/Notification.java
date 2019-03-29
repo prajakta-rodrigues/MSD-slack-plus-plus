@@ -194,7 +194,7 @@ public class Notification {
    * @param type the type of friend request notification
    * @return the friend request notification
    */
-  public static void makeFriendRequestNotification(int senderId, int receiverId,
+  public static Notification makeFriendRequestNotification(int senderId, int receiverId,
       NotificationType type) {
     Notification notification = new Notification();
     notification.setType(type);
@@ -202,7 +202,6 @@ public class Notification {
     notification.setRecieverId(receiverId);
     notification.setNew(true);
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-    NotificationRepository notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
-    notificationRepository.addNotification(notification);
+    return notification;
   }
 }

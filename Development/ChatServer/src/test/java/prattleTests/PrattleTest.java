@@ -4,7 +4,6 @@ import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
-import edu.northeastern.ccs.im.server.utility.LanguageSupport;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -513,7 +512,8 @@ public class PrattleTest {
     assertEquals(0, waitingList2.size());
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
-    assertTrue(callback.getText().contains("/groups Print out the names of each Group you are a member of\n"));
+    assertTrue(callback.getText()
+        .contains("/groups Print out the names of each Group you are a member of\n"));
     assertEquals(bot, callback.getName());
   }
 
@@ -661,7 +661,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/createGroup o"));
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group o"));
     Message callback = waitingList1.remove();
-    assertTrue( callback.getText().contains("Active channel set to Group o"));
+    assertTrue(callback.getText().contains("Active channel set to Group o"));
   }
 
   @Test
@@ -794,8 +794,9 @@ public class PrattleTest {
     gr.set(null, groupRepository);
 
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-            .thenReturn(false);
-    Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(new SlackGroup(1, "special_group"));
+        .thenReturn(false);
+    Mockito.when(groupRepository.getGroupByName(Mockito.anyString()))
+        .thenReturn(new SlackGroup(1, "special_group"));
 
     ((MockGroupRepository) groupRepository).mockDb = new HashMap<>();
 
@@ -979,7 +980,7 @@ public class PrattleTest {
     Mockito.when(groupRepository.addGroup(any())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/createGroup hello"));
     Mockito.when(groupRepository.getGroupByName(anyString())).thenReturn(helloGroup);
-    Mockito.when(groupRepository.groupHasMember(anyInt(), anyString())).thenReturn(true);
+    Mockito.when(groupRepository.groupHasMember(anyInt(), anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/group hello"));
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(helloGroup);
     List<String> mods = new ArrayList<>();

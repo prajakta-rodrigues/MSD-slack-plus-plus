@@ -340,13 +340,15 @@ public abstract class Prattle {
         int channelId = targetGroup.getChannelId();
         try {
           changeClientChannel(channelId, sender);
-          messages = messageRepository.getLatestMessagesFromChannel(channelId,ServerConstants.LATEST_MESSAGES_COUNT);
+          messages = messageRepository
+              .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
         } catch (IllegalArgumentException e) {
           return e.getMessage();
         }
         StringBuilder latestMessages =
-                new StringBuilder(String.format("Active channel set to Group %s", targetGroup.getGroupName()));
-        for(Message msg:messages){
+            new StringBuilder(
+                String.format("Active channel set to Group %s", targetGroup.getGroupName()));
+        for (Message msg : messages) {
           String nextLine = "\n" + msg.getName() + " : " + msg.getText();
           latestMessages.append(nextLine);
         }
@@ -468,7 +470,8 @@ public abstract class Prattle {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
 
       for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
-        String nextLine = "\n" + command.getKey() + " " + languageSupport.getLanguage("english",command.getValue().description());
+        String nextLine = "\n" + command.getKey() + " " + languageSupport
+            .getLanguage("english", command.getValue().description());
         availableCOMMANDS.append(nextLine);
       }
       return availableCOMMANDS.toString();
@@ -664,15 +667,19 @@ public abstract class Prattle {
       }
       if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
         if (friendRepository.successfullyAcceptFriendRequest(senderId, toFriendId)) {
-          Notification.makeFriendRequestNotification(senderId, toFriendId,
-              NotificationType.FRIEND_REQUEST_APPROVED);
+          Notification friendRequestNotif = Notification
+              .makeFriendRequestNotification(senderId, toFriendId,
+                  NotificationType.FRIEND_REQUEST_APPROVED);
+          notificationRepository.addNotification(friendRequestNotif);
           return currUserHandle + " and " + toFriend + " are now friends.";
         }
         return "Something went wrong and we could not accept " + toFriend + "'s friend request.";
       } else {
         if (friendRequestRepository.successfullySendFriendRequest(senderId, toFriendId)) {
-          Notification
+          Notification friendRequestNotif = Notification
               .makeFriendRequestNotification(senderId, toFriendId, NotificationType.FRIEND_REQUEST);
+          notificationRepository.addNotification(friendRequestNotif);
+
           return currUserHandle + " sent " + toFriend + " a friend request.";
         }
         return "You already sent " + toFriend + " a friend request.";
