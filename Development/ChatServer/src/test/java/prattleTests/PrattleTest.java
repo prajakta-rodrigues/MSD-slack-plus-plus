@@ -207,7 +207,7 @@ public class PrattleTest {
     }
 
     @Override
-    public boolean groupHasMember(int id, String groupName) {
+    public boolean groupHasMember(int id, int groupId) {
       return true;
     }
 
@@ -745,7 +745,7 @@ public class PrattleTest {
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
-    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyString()))
+    Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(false);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(new SlackGroup(1, "special_group"));
 
