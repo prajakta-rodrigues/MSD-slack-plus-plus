@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * The Class Notification represents notification entity from database.
@@ -177,6 +178,17 @@ public class Notification {
     this.id = id;
   }
 
+  
+  public static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
+    Notification notification = new Notification();
+    notification.setAssociatedGroupId(groupId);
+    notification.setAssociatedUserId(senderId);
+    notification.setRecieverId(inviteeId);
+    notification.setType(NotificationType.GROUP_INVITE);
+    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    notification.setNew(true);
+    return notification;
+  }
 
 
 }

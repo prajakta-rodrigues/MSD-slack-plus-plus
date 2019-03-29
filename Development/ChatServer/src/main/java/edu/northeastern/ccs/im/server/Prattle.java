@@ -661,13 +661,7 @@ public abstract class Prattle {
         }
       }
       if (result) {
-        Notification notification = new Notification();
-        notification.setAssociatedGroupId(groupId);
-        notification.setAssociatedUserId(senderId);
-        notification.setRecieverId(inviteeId);
-        notification.setType(NotificationType.GROUP_INVITE);
-        notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
-        notification.setNew(true);
+        Notification notification = Notification.makeGroupInviteNotification(groupId, senderId, inviteeId);
         notificationRepository.addNotification(notification);
         return "Invite sent successfully";
       }
@@ -705,7 +699,7 @@ public abstract class Prattle {
 
   private static class GroupSentInvites implements Command {
     @Override
-    public String apply(String params[], Integer senderId) {
+    public String apply(String[] params, Integer senderId) {
       List<InviteesGroup> listInvites =
           groupInviteRepository.getGroupInvitationsByInvitorId(senderId);
       StringBuilder result = new StringBuilder();
@@ -729,7 +723,7 @@ public abstract class Prattle {
     @Override
     public String apply(String params[], Integer userId) {
 
-      if (null == params[0]) {
+      if (null == params || params.length < 1) {
         return "No group specified";
       }
 
