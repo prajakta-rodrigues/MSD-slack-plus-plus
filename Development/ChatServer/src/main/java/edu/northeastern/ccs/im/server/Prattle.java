@@ -149,8 +149,6 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
-    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
-    messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
 
   }
 
@@ -360,8 +358,7 @@ public abstract class Prattle {
   /**
    * Change sender's active channel to the specified Group.
    */
-  private static class
-  Group implements Command {
+  private static class Group implements Command {
 
     @Override
     public String apply(String params[], Integer senderId) {
