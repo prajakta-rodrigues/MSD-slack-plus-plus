@@ -354,9 +354,6 @@ public abstract class Prattle {
    */
   private static class Group implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer senderId) {
       List<Message> messages;
@@ -390,9 +387,6 @@ public abstract class Prattle {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Change your current chat room to the specified Group.\nParameters: group name";
@@ -404,18 +398,12 @@ public abstract class Prattle {
    */
   private static class Groups implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
-    @Override
+     @Override
     public String apply(String param[], Integer senderId) {
       return groupRepository.groupsHavingMember(senderId);
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
-    @Override
+     @Override
     public String description() {
       return "Print out the names of each Group you are a member of";
     }
@@ -426,9 +414,6 @@ public abstract class Prattle {
    */
   private static class CreateGroup implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer senderId) {
       if (params == null || params.length < 1) {
@@ -445,9 +430,6 @@ public abstract class Prattle {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Create a group with the given name.\nParameters: Group name";
@@ -476,9 +458,6 @@ public abstract class Prattle {
       return activeUsers.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Print out the handles of the active users on the server";
@@ -509,9 +488,6 @@ public abstract class Prattle {
       return availableCOMMANDS.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Lists all of the available commands.";
@@ -559,9 +535,6 @@ public abstract class Prattle {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Start a DM with the given user.\nParameters: user id";
@@ -573,11 +546,7 @@ public abstract class Prattle {
    */
   private static class NotificationHandler implements Command {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
+   
     @Override
     public String apply(String params[], Integer senderId) {
 
@@ -591,11 +560,7 @@ public abstract class Prattle {
       return "Notifications:\n" + result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
+ 
     @Override
     public String description() {
       return "Shows recent notifications";
@@ -636,9 +601,6 @@ public abstract class Prattle {
       return groupMembers.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Print out the handles of the users in a group.";
@@ -650,9 +612,7 @@ public abstract class Prattle {
    */
   private static class SendGroupInvite implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
+ 
     @Override
     public String apply(String params[], Integer senderId) {
       if (null == params) {
@@ -714,9 +674,6 @@ public abstract class Prattle {
       return "Failed to send invite";
     }
      
-     /* (non-Javadoc)
-      * @see edu.northeastern.ccs.im.server.Command#description()
-      */
      @Override
     public String description() {
       return "Send out group invite to user.\n Parameters : handle, groupName";
@@ -751,9 +708,6 @@ public abstract class Prattle {
       return listOfFriends.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Print out the names of all of my friends.";
@@ -766,9 +720,6 @@ public abstract class Prattle {
    */
   private static class GroupInvites implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer senderId) {
       List<InvitorsGroup> listInvites =
@@ -782,9 +733,6 @@ public abstract class Prattle {
       return result.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Check all the group invites received";
@@ -797,9 +745,6 @@ public abstract class Prattle {
    */
   private static class GroupSentInvites implements Command {
     
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String[] params, Integer senderId) {
       List<InviteesGroup> listInvites =
@@ -813,9 +758,6 @@ public abstract class Prattle {
       return result.toString();
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Displays all the group invites sent by you to other users";
@@ -828,9 +770,6 @@ public abstract class Prattle {
    */
   private static class AcceptGroupInvite implements Command {
 
-    /* (non-Javadoc)
-     * @see java.util.function.BiFunction#apply(java.lang.Object, java.lang.Object)
-     */
     @Override
     public String apply(String params[], Integer userId) {
 
@@ -860,9 +799,6 @@ public abstract class Prattle {
       return "You do not have an invite to the group";
   }
    
-   /* (non-Javadoc)
-    * @see edu.northeastern.ccs.im.server.Command#description()
-    */
    @Override
       public String description() {
         return "Accepts group invite request. \n Parameters : groupname";
@@ -921,9 +857,6 @@ public abstract class Prattle {
       }
     }
 
-    /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.Command#description()
-     */
     @Override
     public String description() {
       return "Friends the user with the given handle.\nParameters: User to friend";
