@@ -33,12 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
-import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
@@ -83,31 +79,49 @@ public abstract class Prattle {
    */
   private static GroupRepository groupRepository;
 
-  /** The dm repository. */
+  /**
+   * The dm repository.
+   */
   private static DirectMessageRepository dmRepository;
 
-  /** The user repository. */
+  /**
+   * The user repository.
+   */
   private static UserRepository userRepository;
 
-  /** The user group repository. */
+  /**
+   * The user group repository.
+   */
   private static UserGroupRepository userGroupRepository;
 
-  /** The notification repository. */
+  /**
+   * The notification repository.
+   */
   private static NotificationRepository notificationRepository;
 
-  /** The friend request repository. */
+  /**
+   * The friend request repository.
+   */
   private static FriendRequestRepository friendRequestRepository;
 
-  /** The message repository. */
+  /**
+   * The message repository.
+   */
   private static MessageRepository messageRepository;
 
-  /** The friend repository. */
+  /**
+   * The friend repository.
+   */
   private static FriendRepository friendRepository;
 
-  /** The Constant COMMANDS. */
+  /**
+   * The Constant COMMANDS.
+   */
   private static final Map<String, Command> COMMANDS;
 
-  /** The groupInvite Repository;. */
+  /**
+   * The groupInvite Repository;.
+   */
   private static GroupInviteRepository groupInviteRepository;
 
   /**
@@ -226,8 +240,8 @@ public abstract class Prattle {
     // can remove it.
 
     if (authenticated.remove(dead.getUserId()) == null
-            || !active.remove(dead)
-            || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
+        || !active.remove(dead)
+        || !channelMembers.get(dead.getActiveChannelId()).remove(dead)) {
       ChatLogger.info("Could not find a thread that I tried to remove!\n");
     }
     userRepository.setActive(false, dead.getUserId());
@@ -257,7 +271,8 @@ public abstract class Prattle {
    * perform all of the I/O with that client. This class relies on the server not receiving too many
    * requests -- it does not include any code to limit the number of extant threads.
    *
-   * @param args String arguments to the server from the command line. At present the only legal (and required) argument is the port on which this server should list.
+   * @param args String arguments to the server from the command line. At present the only legal
+   * (and required) argument is the port on which this server should list.
    */
   public static void main(String[] args) {
     // Connect to the socket on the appropriate port to which this server connects.
@@ -386,7 +401,7 @@ public abstract class Prattle {
           String nextLine = "\n" + msg.getName() + " : " + msg.getText();
           latestMessages.append(nextLine);
         }
-        if(!messages.isEmpty()){
+        if (!messages.isEmpty()) {
           latestMessages.append("\n" + "-------------------------");
         }
         return latestMessages.toString();
@@ -406,12 +421,12 @@ public abstract class Prattle {
    */
   private static class Groups implements Command {
 
-     @Override
+    @Override
     public String apply(String[] param, Integer senderId) {
       return groupRepository.groupsHavingMember(senderId);
     }
 
-     @Override
+    @Override
     public String description() {
       return "Print out the names of each Group you are a member of";
     }
@@ -554,7 +569,7 @@ public abstract class Prattle {
    */
   private static class NotificationHandler implements Command {
 
-   
+
     @Override
     public String apply(String[] params, Integer senderId) {
 
@@ -568,7 +583,7 @@ public abstract class Prattle {
       return "Notifications:\n" + result;
     }
 
- 
+
     @Override
     public String description() {
       return "Shows recent notifications";
@@ -614,13 +629,13 @@ public abstract class Prattle {
       return "Print out the handles of the users in a group.";
     }
   }
-  
+
   /**
    * The Class SendGroupInvite sends group invite.
    */
   private static class SendGroupInvite implements Command {
 
- 
+
     @Override
     public String apply(String[] params, Integer senderId) {
       if (null == params) {
@@ -675,14 +690,15 @@ public abstract class Prattle {
         }
       }
       if (result) {
-        Notification notification = Notification.makeGroupInviteNotification(groupId, senderId, inviteeId);
+        Notification notification = Notification
+            .makeGroupInviteNotification(groupId, senderId, inviteeId);
         notificationRepository.addNotification(notification);
         return "Invite sent successfully";
       }
       return "Failed to send invite";
     }
-     
-     @Override
+
+    @Override
     public String description() {
       return "Send out group invite to user.\n Parameters : handle, groupName";
     }
@@ -736,7 +752,8 @@ public abstract class Prattle {
       result.append("Invitations:\n");
       for (InvitorsGroup invite : listInvites) {
         result.append(String.format("Moderator %s invites you to join group %s",
-            invite.getInvitorHandle(), invite.getGroupName()) + "\n");
+            invite.getInvitorHandle(), invite.getGroupName()));
+        result.append("\n");
       }
       return result.toString();
     }
@@ -752,7 +769,7 @@ public abstract class Prattle {
    * The Class GroupSentInvites for checking all sent invitations.
    */
   private static class GroupSentInvites implements Command {
-    
+
     @Override
     public String apply(String[] params, Integer senderId) {
       List<InviteesGroup> listInvites =
@@ -761,7 +778,8 @@ public abstract class Prattle {
       result.append("Invitations sent:\n");
       for (InviteesGroup invite : listInvites) {
         result.append(String.format("Invite sent to user %s for group %s",
-            invite.getInviteeHandle(), invite.getGroupName()) + "\n");
+            invite.getInviteeHandle(), invite.getGroupName()));
+        result.append("\n");
       }
       return result.toString();
     }
@@ -794,7 +812,7 @@ public abstract class Prattle {
       boolean result = false;
 
       try {
-        result = groupInviteRepository.acceptInvite(userId, group.getGroupId());      
+        result = groupInviteRepository.acceptInvite(userId, group.getGroupId());
       } catch (SQLException e) {
         if (e.getErrorCode() == ErrorCodes.MYSQL_DUPLICATE_PK) {
           return "You are already part of the group";
@@ -805,14 +823,14 @@ public abstract class Prattle {
         return "Invite accepted successfully!";
       }
       return "You do not have an invite to the group";
+    }
+
+    @Override
+    public String description() {
+      return "Accepts group invite request. \n Parameters : groupname";
+    }
   }
-   
-   @Override
-      public String description() {
-        return "Accepts group invite request. \n Parameters : groupname";
-      }
-  }
-  
+
   /**
    * Friends a User.
    */
@@ -895,8 +913,8 @@ public abstract class Prattle {
       }
       boolean isModerator;
       try {
-         isModerator = userGroupRepository.isModerator(senderId,group.getGroupId());
-      }catch(Exception e) {
+        isModerator = userGroupRepository.isModerator(senderId, group.getGroupId());
+      } catch (Exception e) {
         return "Error while checking if you are moderator";
       }
 
@@ -905,22 +923,22 @@ public abstract class Prattle {
       }
 
       User toKick = userRepository.getUserByUserName(params[0]);
-      if(toKick == null) {
+      if (toKick == null) {
         return "user does not exist";
       }
 
-      if (!groupRepository.groupHasMember(toKick.getUserId(),group.getGroupId())) {
+      if (!groupRepository.groupHasMember(toKick.getUserId(), group.getGroupId())) {
         return String.format("Could not find %s as a member of this group.", params[0]);
       }
       return userGroupRepository.removeMember(group.getGroupId(), toKick.getUserId()) ?
-              String.format("User %s successfully kicked from group.", toKick.getUserName()) :
-              String.format("Something went wrong. Failed to kick member %s.", toKick.getUserName());
+          String.format("User %s successfully kicked from group.", toKick.getUserName()) :
+          String.format("Something went wrong. Failed to kick member %s.", toKick.getUserName());
     }
 
     @Override
     public String description() {
       return "As the moderator of your active group, kick a member from your group.\n" +
-              "Parameters: handle of the user to kick";
+          "Parameters: handle of the user to kick";
     }
   }
 }
