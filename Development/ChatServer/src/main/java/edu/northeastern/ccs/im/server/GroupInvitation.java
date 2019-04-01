@@ -2,6 +2,9 @@ package edu.northeastern.ccs.im.server;
 
 import java.sql.Timestamp;
 
+/**
+ * class for group invitations
+ */
 public class GroupInvitation {
 
   private final int invitorId;
@@ -10,6 +13,14 @@ public class GroupInvitation {
   private final Timestamp createdDate;
 
 
+  /**
+   * Constructs an instance of Group Invitation.
+   *
+   * @param invitorId the inviter's id
+   * @param inviteeId the invitee's id
+   * @param groupId the group being invited to
+   * @param createdDate the created date
+   */
   public GroupInvitation(int invitorId, int inviteeId, int groupId, Timestamp createdDate) {
     super();
     this.invitorId = invitorId;
@@ -18,18 +29,30 @@ public class GroupInvitation {
     this.createdDate = createdDate;
   }
 
+  /**
+   * @return the inviter id
+   */
   public int getInvitorId() {
     return invitorId;
   }
 
+  /**
+   * @return the invitee id
+   */
   public int getInviteeId() {
     return inviteeId;
   }
 
+  /**
+   * @return the group id
+   */
   public int getGroupId() {
     return groupId;
   }
 
+  /**
+   * @return the created date
+   */
   public Timestamp getCreatedDate() {
     return createdDate;
   }

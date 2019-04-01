@@ -5,10 +5,14 @@ package edu.northeastern.ccs.im.server;
  */
 public class InvitorsGroup {
 
-  /** The invitor handle. */
+  /**
+   * The invitor handle.
+   */
   private final String invitorHandle;
-  
-  /** The group name. */
+
+  /**
+   * The group name.
+   */
   private final String groupName;
 
   /**

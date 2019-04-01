@@ -41,8 +41,7 @@ public class UserGroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return mods;
@@ -63,8 +62,7 @@ public class UserGroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return groupMembers;
@@ -91,14 +89,13 @@ public class UserGroupRepository extends Repository {
       }
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return results;
   }
-  
-  
+
+
   /**
    * Checks if given user is moderator of given group.
    *
@@ -127,14 +124,13 @@ public class UserGroupRepository extends Repository {
     }
     return false;
   }
-  
-  
 
   /**
    * Removes a member from a group.
+   *
    * @param groupId the group to remove the user from.
    * @param userId the user to remove.
-   * @return whether or not the delete was a success.s
+   * @return whether or not the delete was a success
    */
   public boolean removeMember(int groupId, int userId) {
     String query = "DELETE FROM slack.user_group WHERE group_id = ? AND user_id = ?";

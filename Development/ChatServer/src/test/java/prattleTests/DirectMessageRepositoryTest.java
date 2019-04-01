@@ -16,12 +16,19 @@ import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 
 import static junit.framework.Assert.assertEquals;
 
+/**
+ * tests for direct message repository
+ */
 public class DirectMessageRepositoryTest {
 
-  /** The dm repository. */
+  /**
+   * The dm repository.
+   */
   private DirectMessageRepository dmRepository;
 
-  /** The connection. */
+  /**
+   * The connection.
+   */
   private Connection connection;
 
 
@@ -31,7 +38,7 @@ public class DirectMessageRepositoryTest {
     dmRepository = new DirectMessageRepository(db);
     connection = Mockito.mock(Connection.class);
     Mockito.when(db.getConnection()).thenReturn(connection);
-    /* The executed query */ /** The executed query */
+    /* The executed query */
     PreparedStatement value = Mockito.mock(PreparedStatement.class);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
@@ -39,7 +46,7 @@ public class DirectMessageRepositoryTest {
     Mockito.when(value.executeUpdate()).thenReturn(1);
     Mockito.doNothing().when(connection).close();
 
-    /* the ResultSet returned after executing a query */ /** the ResultSet returned after executing a query */
+    /* the ResultSet returned after executing a query */ // the ResultSet returned after executing a query
     ResultSet resultSet = Mockito.mock(ResultSet.class);
     Mockito.when(value.executeQuery()).thenReturn(resultSet);
     /* the Metadata returned after executing a query */

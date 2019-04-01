@@ -122,7 +122,8 @@ public class Message {
    * @param channelId The channel that this Message was sent in.
    * @return Instance of Message that transmits text to all logged in users.
    */
-  public static Message makeBroadcastMessage(String myName, int userId, String text, int channelId) {
+  private static Message makeBroadcastMessage(String myName, int userId, String text,
+      int channelId) {
     return new Message(MessageType.BROADCAST, myName, userId, text, channelId);
   }
 
@@ -141,7 +142,7 @@ public class Message {
   public static Message makeCommandMessage(String myName, int myId, String text) {
     return new Message(MessageType.COMMAND, myName, myId, text);
   }
-  
+
   /**
    * Create a new authenticate message to authenticate with the application.
    *
@@ -152,8 +153,8 @@ public class Message {
   public static Message makeAuthenticateMessage(String myName, String text) {
     return new Message(MessageType.AUTHENTICATE, myName, text);
   }
-  
-  
+
+
   /**
    * Create a new register message to register with the application.
    *
@@ -199,10 +200,10 @@ public class Message {
       result = makeCommandMessage(srcName, senderId, text);
     } else if (handle.compareTo(MessageType.AUTHENTICATE.toString()) == 0) {
       result = makeAuthenticateMessage(srcName, text);
-    }else if (handle.compareTo(MessageType.REGISTER.toString()) == 0) {
+    } else if (handle.compareTo(MessageType.REGISTER.toString()) == 0) {
       result = makeRegisterMessage(srcName, text);
     }
-    
+
     return result;
   }
 
@@ -248,7 +249,9 @@ public class Message {
    *
    * @return user id of message sender.
    */
-   public int getUserId() { return userId; }
+  public int getUserId() {
+    return userId;
+  }
 
   /**
    * Return the text of this message.
@@ -294,7 +297,7 @@ public class Message {
   public boolean terminate() {
     return (msgType == MessageType.QUIT);
   }
-  
+
   /**
    * Determine if this message is a message trying to authenticate with the IM server.
    *
@@ -303,7 +306,7 @@ public class Message {
   public boolean isAuthenticate() {
     return (msgType == MessageType.AUTHENTICATE);
   }
-  
+
   /**
    * Determine if this message is a message trying to register with the IM server.
    *
