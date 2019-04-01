@@ -1402,4 +1402,20 @@ public class PrattleTest {
     assertEquals("Something went wrong. Failed to kick member omar.", callback.getText());
   }
 
+  /**
+   * Tests  user removed from group exception.
+   */
+//  @Test
+//  public void testLanguageTranslation() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+//
+//    Translate translate = TranslateOptions.getDefaultInstance().getService();
+//
+//    Translation translation = translate.translate("¡Hola Mundo!");
+//
+//
+//    String translatedText = translation.getTranslatedText();
+//
+//    System.out.printf("Translation: %s%n", translatedText);
+//  }
+
 }

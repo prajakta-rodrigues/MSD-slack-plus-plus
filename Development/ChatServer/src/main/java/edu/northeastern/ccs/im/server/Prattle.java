@@ -40,6 +40,7 @@ import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
+import com.google.cloud.translate.*;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -110,10 +111,16 @@ public abstract class Prattle {
   /** The groupInvite Repository;. */
   private static GroupInviteRepository groupInviteRepository;
 
+  private static Translate translate;
+
+
+
+
+
   /**
    * The Language support Instance.
    */
-  private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
+  private static final LanguageSupport languageSupport;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -129,9 +136,10 @@ public abstract class Prattle {
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
     messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
     groupInviteRepository = new GroupInviteRepository(DatabaseConnection.getDataSource());
-
+    translate = TranslateOptions.getDefaultInstance().getService();
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
+    languageSupport= LanguageSupport.getInstance();
     // Populate the known COMMANDS
     COMMANDS = new Hashtable<>();
     COMMANDS.put("/group", new Group());
@@ -149,6 +157,7 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
+    COMMANDS.put("/translate", new TranslateClass());
 
   }
 
@@ -921,6 +930,32 @@ public abstract class Prattle {
     public String description() {
       return "As the moderator of your active group, kick a member from your group.\n" +
               "Parameters: handle of the user to kick";
+    }
+  }
+
+  /**
+   * Translate a given string
+   */
+  private static class TranslateClass implements Command {
+
+
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      if (params == null) {
+        return "You have to enter a string";
+      }
+      StringBuilder text = new StringBuilder();
+      for (String param:params){
+        text.append(param+"");
+      }
+      Translation translation = translate.translate(text.toString());
+      return translation.getTranslatedText();
+    }
+
+    @Override
+    public String description() {
+      return "You can translate any sentence \n" +
+              "Parameters: language to translate it to";
     }
   }
 }
