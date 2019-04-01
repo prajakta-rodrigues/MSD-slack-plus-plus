@@ -492,13 +492,16 @@ public class PrattleTest {
    */
   @Test
   public void testCircleListsAllActiveUsers() {
+    List<Integer> friendIds = new ArrayList<>();
+    friendIds.add(2);
+    Mockito.when(friendRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
     Message callback = waitingList2.remove();
     assertEquals(bot, callback.getName());
     assertEquals(-1, callback.getChannelId());
-    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
+    assertEquals("Active Friends:\nomar", callback.getText());
   }
 
   /**
@@ -552,6 +555,9 @@ public class PrattleTest {
    */
   @Test
   public void testCommandMessageWithMultipleInputs() {
+    List<Integer> friendIds = new ArrayList<>();
+    friendIds.add(2);
+    Mockito.when(friendRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle aroundTheCampFire"));
     assertEquals(1, waitingList2.size());
     assertEquals(0, waitingList1.size());
@@ -559,7 +565,7 @@ public class PrattleTest {
     assertEquals(bot, removed.getName());
     assertEquals(0, waitingList2.size());
     assertEquals(-1, removed.getChannelId());
-    assertEquals("Active Users:\nomar\ntuffaha", removed.getText());
+    assertEquals("Active Friends:\nomar", removed.getText());
   }
 
   /**
@@ -567,19 +573,22 @@ public class PrattleTest {
    */
   @Test
   public void testNoneOnline() {
+    List<Integer> friendIds = new ArrayList<>();
+    friendIds.add(2);
+    Mockito.when(friendRepository.getFriendsByUserId(anyInt())).thenReturn(friendIds);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     Message callback = waitingList2.remove();
     assertEquals(0, waitingList2.size());
     assertEquals(0, waitingList1.size());
-    assertEquals("Active Users:\nomar\ntuffaha", callback.getText());
+    assertEquals("Active Friends:\nomar", callback.getText());
     Prattle.removeClient(cr1);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/circle"));
     assertEquals(1, waitingList2.size());
     Message removed = waitingList2.remove();
     assertEquals(0, waitingList2.size());
     assertEquals(0, waitingList1.size());
-    assertEquals("Active Users:\ntuffaha", removed.getText());
+    assertEquals("No friends are active.", removed.getText());
   }
 
   @Test

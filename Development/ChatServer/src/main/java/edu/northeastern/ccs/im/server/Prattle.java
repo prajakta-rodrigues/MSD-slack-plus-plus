@@ -460,25 +460,33 @@ public abstract class Prattle {
   }
 
   /**
-   * List all active users on the server.
+   * List all active friend on the server.
    */
   private static class Circle implements Command {
 
     /**
-     * Lists all of the active users on the server.
+     * Lists all of the active friends on the server.
      *
      * @param params the params
      * @param senderId the id of the sender.
-     * @return the list of active users as a String.
+     * @return the list of active friends as a String.
      */
     @Override
     public String apply(String[] params, Integer senderId) {
-      StringBuilder activeUsers = new StringBuilder("Active Users:");
+      List<Integer> friendIds = friendRepository.getFriendsByUserId(senderId);
+      StringBuilder activeFriends = new StringBuilder("Active Friends:");
       for (ClientRunnable activeUser : authenticated.values()) {
-        activeUsers.append("\n");
-        activeUsers.append(activeUser.getName());
+        int activeUserId = activeUser.getUserId();
+        if (friendIds.contains(activeUserId)) {
+          activeFriends.append("\n");
+          activeFriends.append(activeUser.getName());
+        }
       }
-      return activeUsers.toString();
+      String activeFriendsList = activeFriends.toString();
+      if (activeFriendsList.equals("Active Friends:")) {
+        activeFriendsList = "No friends are active.";
+      }
+      return activeFriendsList;
     }
 
     @Override
