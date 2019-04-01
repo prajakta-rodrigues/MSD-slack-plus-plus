@@ -129,6 +129,16 @@ public abstract class Prattle {
    */
   private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
 
+  /**
+   * List of String constants.
+   */
+  private static final String NONEXISTING_GROUP = "Your group is nonexistent";
+
+  private static final String NOT_MODERATOR = "You are not a moderator of this group.";
+
+  private static final String ONLY_MODERATOR_FAILURE = "You are the only moderator of the group. Please add another moderator before removing yourself from being one.";
+
+
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
@@ -163,6 +173,7 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
+    COMMANDS.put("dom", new Dom());
 
   }
 
@@ -448,7 +459,6 @@ public abstract class Prattle {
       if (groupRepository.addGroup(new SlackGroup(senderId, params[0]))) {
         return String.format("Group %s created", params[0]);
       } else {
-        // need a better way to handle write failures.
         return "Something went wrong and your group was not created.";
       }
     }
@@ -939,6 +949,45 @@ public abstract class Prattle {
     public String description() {
       return "As the moderator of your active group, kick a member from your group.\n" +
           "Parameters: handle of the user to kick";
+    }
+  }
+
+  /**
+   * Removes a user's moderatorship, if applicable
+   */
+  private static class Dom implements Command {
+
+    /**
+     * Removes a user's moderatorship
+     *
+     * @param ignoredParams the ignored params
+     * @param senderId the id of the user wanting to remove their moderatorship
+     * @return an informative message on the result of this command.
+     */
+    @Override
+    public String apply(String[] ignoredParams, Integer senderId) {
+      ClientRunnable currClient = getClient(senderId);
+      String userHandle = currClient.getName();
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return NONEXISTING_GROUP;
+      }
+      List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
+      if (!mods.contains(userHandle)) {
+        return NOT_MODERATOR;
+      }
+      if (mods.size() == 1) {
+        return ONLY_MODERATOR_FAILURE;
+      }
+      int groupId = groupRepository.getGroupByChannelId(currChannelId).getGroupId();
+      userGroupRepository.removeModerator(groupId, senderId);
+      return userHandle + " removed themselves from being a moderator of this group.";
+    }
+
+    @Override
+    public String description() {
+      return "Print out the handles of the users in a group.";
     }
   }
 }

@@ -51,13 +51,12 @@ public class GroupRepository extends Repository {
                 String.valueOf(result.get("name")),
                 (Integer) result.get("channel_id"));
           }
-          
+
         }
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return group;
@@ -87,13 +86,12 @@ public class GroupRepository extends Repository {
                 String.valueOf(result.get("name")),
                 (Integer) result.get("channel_id"));
           }
-          
+
         }
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return group;
@@ -116,11 +114,10 @@ public class GroupRepository extends Repository {
         preparedStmt.setString(3, group.getGroupName());
         count = preparedStmt.executeUpdate();
       }
-      
+
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return count > 0;
@@ -149,8 +146,7 @@ public class GroupRepository extends Repository {
       }
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return hasMember;
@@ -182,8 +178,7 @@ public class GroupRepository extends Repository {
       }
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return groups.toString();
@@ -214,8 +209,7 @@ public class GroupRepository extends Repository {
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return group;

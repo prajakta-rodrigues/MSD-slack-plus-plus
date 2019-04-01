@@ -149,4 +149,29 @@ public class UserGroupRepository extends Repository {
     }
     return result > 0;
   }
+
+  /**
+   * Removes the given user as a moderator from the given group.
+   *
+   * @param moderatorId the id of the user losing moderatorship
+   * @param groupId the name of the group
+   * @return Whether or not the operation is successful
+   */
+  public boolean removeModerator(int moderatorId, int groupId) {
+    int count = 0;
+    try {
+      connection = dataSource.getConnection();
+      String query = "INSERT into Slack.group SET isModerator = false WHERE group_id = ? AND user_id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, groupId);
+        preparedStmt.setInt(2, moderatorId);
+        count = preparedStmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return count == 0;
+  }
 }
