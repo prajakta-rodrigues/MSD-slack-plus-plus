@@ -5,10 +5,14 @@ package edu.northeastern.ccs.im.server;
  */
 public class InviteesGroup {
 
-  /** The invitee handle. */
+  /**
+   * The invitee handle.
+   */
   private final String inviteeHandle;
-  
-  /** The group name. */
+
+  /**
+   * The group name.
+   */
   private final String groupName;
 
   /**
@@ -28,7 +32,7 @@ public class InviteesGroup {
    *
    * @return the invitee handle
    */
-  public String getInviteeHandle() {
+  String getInviteeHandle() {
     return inviteeHandle;
   }
 
@@ -37,7 +41,7 @@ public class InviteesGroup {
    *
    * @return the group name
    */
-  public String getGroupName() {
+  String getGroupName() {
     return groupName;
   }
 

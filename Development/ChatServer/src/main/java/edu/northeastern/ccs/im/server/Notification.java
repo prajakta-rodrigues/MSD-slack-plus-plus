@@ -184,7 +184,7 @@ public class Notification {
     this.id = id;
   }
 
-  
+
   /**
    * Make group invite notification.
    *
@@ -193,7 +193,7 @@ public class Notification {
    * @param inviteeId the invitee id
    * @return the notification
    */
-  public static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
+  static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
     Notification notification = new Notification();
     notification.setAssociatedGroupId(groupId);
     notification.setAssociatedUserId(senderId);
@@ -213,7 +213,7 @@ public class Notification {
    * @param type the type of friend request notification
    * @return the friend request notification
    */
-  public static Notification makeFriendRequestNotification(int senderId, int receiverId,
+  static Notification makeFriendRequestNotification(int senderId, int receiverId,
       NotificationType type) {
     Notification notification = new Notification();
     notification.setType(type);

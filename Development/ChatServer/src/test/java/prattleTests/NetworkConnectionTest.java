@@ -398,7 +398,6 @@ public class NetworkConnectionTest {
     networkConnection.close();
   }
 
-
   @Test
   public void testHasNext() throws IOException, NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -441,7 +440,6 @@ public class NetworkConnectionTest {
     iterator.hasNext();
   }
 
-
   @Test(expected = AssertionError.class)
   public void hasNextException() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
@@ -456,7 +454,6 @@ public class NetworkConnectionTest {
     Iterator<Message> iterator = networkConnection.iterator();
     iterator.hasNext();
   }
-  
 
   @Test
   public void hasNextSuccess() throws NoSuchFieldException, SecurityException,

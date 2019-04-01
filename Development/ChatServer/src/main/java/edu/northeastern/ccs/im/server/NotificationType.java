@@ -8,19 +8,31 @@ import org.antlr.stringtemplate.language.DefaultTemplateLexer;
  */
 public enum NotificationType {
 
-  /** The friend request. */
-  FRIEND_REQUEST(new StringTemplate("$name$ has sent you a friend request.",DefaultTemplateLexer.class)), 
-  
-  /** The friend request approved. */
-  FRIEND_REQUEST_APPROVED(new StringTemplate("$name$ has accepted your friend request.",DefaultTemplateLexer.class)), 
-  
-  /** The unread messages. */
-  UNREAD_MESSAGES(new StringTemplate("You have $count$ unread messages from $name$",DefaultTemplateLexer.class)),
-  
-  /*Group invite*/
-  GROUP_INVITE(new StringTemplate("You have been invited to group $group$ by moderator $name$", DefaultTemplateLexer.class));
+  /**
+   * The friend request.
+   */
+  FRIEND_REQUEST(
+      new StringTemplate("$name$ has sent you a friend request.", DefaultTemplateLexer.class)),
 
-  /** The text. */
+  /**
+   * The friend request approved.
+   */
+  FRIEND_REQUEST_APPROVED(
+      new StringTemplate("$name$ has accepted your friend request.", DefaultTemplateLexer.class)),
+
+  /**
+   * The unread messages.
+   */
+  UNREAD_MESSAGES(new StringTemplate("You have $count$ unread messages from $name$",
+      DefaultTemplateLexer.class)),
+
+  /*Group invite*/
+  GROUP_INVITE(new StringTemplate("You have been invited to group $group$ by moderator $name$",
+      DefaultTemplateLexer.class));
+
+  /**
+   * The text.
+   */
   private final StringTemplate text;
 
   /**
@@ -37,8 +49,8 @@ public enum NotificationType {
    *
    * @param text the text
    */
-  private NotificationType(StringTemplate text) {
+  NotificationType(StringTemplate text) {
     this.text = text;
   }
-  
+
 }

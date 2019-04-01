@@ -1,6 +1,5 @@
 package prattleTests;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -24,7 +23,6 @@ import edu.northeastern.ccs.im.server.repositories.UserRepository;
  * The Class UserRepositoryTest.
  */
 public class UserRepositoryTest {
-
 
   /**
    * The user repository.

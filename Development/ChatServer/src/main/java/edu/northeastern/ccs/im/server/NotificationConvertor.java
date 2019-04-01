@@ -12,24 +12,31 @@ import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
- * The Class NotificationConvertor provides methods to convert notifications their into text representation.
+ * The Class NotificationConvertor provides methods to convert notifications their into text
+ * representation.
  */
 public class NotificationConvertor {
 
-  /** The user repository. */
+  /**
+   * The user repository.
+   */
   private static UserRepository userRepository;
-  
-  /** The group repository. */
+
+  /**
+   * The group repository.
+   */
   private static GroupRepository groupRepository;
-    
-  /** The Constant LOGGER. */
-  static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
+
+  /**
+   * The Constant LOGGER.
+   */
+  private static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
 
   static {
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
     groupRepository = new GroupRepository(DatabaseConnection.getDataSource());
   }
-  
+
   /**
    * Gets the list notifications as their text representation.
    *
@@ -40,19 +47,19 @@ public class NotificationConvertor {
     StringBuilder result = new StringBuilder();
     try {
 
-      User user = null;
-      SlackGroup group = null;
+      User user;
+      SlackGroup group;
       Map<String, Integer> userMessages = new HashMap<>();
       Map<String, Integer> groupMessages = new HashMap<>();
       for (Notification notification : listNotifications) {
         switch (notification.getType()) {
           case FRIEND_REQUEST:
-            result.append(getTextForFriendRequest(notification.getAssociatedUserId(), 
+            result.append(getTextForFriendRequest(notification.getAssociatedUserId(),
                 notification.isNew()));
             result.append("\n");
             break;
           case FRIEND_REQUEST_APPROVED:
-            result.append(getTextForFriendRequestApproval(notification.getAssociatedUserId(), 
+            result.append(getTextForFriendRequestApproval(notification.getAssociatedUserId(),
                 notification.isNew()));
             result.append("\n");
             break;
@@ -66,7 +73,7 @@ public class NotificationConvertor {
             }
             break;
           case GROUP_INVITE:
-            result.append(getTextForGroupInvite(notification.getAssociatedGroupId(), 
+            result.append(getTextForGroupInvite(notification.getAssociatedGroupId(),
                 notification.getAssociatedUserId(), notification.isNew()));
             result.append("\n");
             break;
@@ -147,7 +154,7 @@ public class NotificationConvertor {
     stringTemplate.removeAttribute("name");
     stringTemplate.setAttribute("name", user.getUserName());
     StringBuilder result = new StringBuilder();
-    result .append(stringTemplate.toString());
+    result.append(stringTemplate.toString());
     if (isNew) {
       result.append("  " + "NEW");
     }
@@ -165,7 +172,7 @@ public class NotificationConvertor {
    */
   private static String countAssociatedFromMap(Map<String, Integer> associatedMessages,
       boolean isNew, NotificationType unreadMessages, String senderType) {
-    StringTemplate stringTemplate = null;
+    StringTemplate stringTemplate;
     StringBuilder result = new StringBuilder();
     for (Entry<String, Integer> entrySet : associatedMessages.entrySet()) {
       stringTemplate = unreadMessages.getText();
@@ -174,7 +181,8 @@ public class NotificationConvertor {
       stringTemplate.removeAttribute("name");
       stringTemplate.setAttribute("name", senderType + " " + entrySet.getKey());
       if (isNew) {
-        result.append(stringTemplate.toString() + "  " + "NEW");
+        result.append(stringTemplate.toString());
+        result.append("  NEW");
       }
       result.append("\n");
     }

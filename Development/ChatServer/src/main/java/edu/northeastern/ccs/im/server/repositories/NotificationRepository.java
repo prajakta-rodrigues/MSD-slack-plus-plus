@@ -139,7 +139,7 @@ public class NotificationRepository extends Repository {
    */
   private List<Notification> getNotificationsFromResultSet(ResultSet rs) {
     List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-    Notification notification = null;
+    Notification notification;
     List<Notification> listNotifications = new ArrayList<>();
     for (Map<String, Object> result : results) {
       notification = new Notification();

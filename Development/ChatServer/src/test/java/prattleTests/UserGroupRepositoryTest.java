@@ -16,6 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/**
+ * tests for the user group repository
+ */
 public class UserGroupRepositoryTest {
 
   /**
