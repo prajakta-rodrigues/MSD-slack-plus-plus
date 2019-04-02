@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
@@ -45,7 +46,8 @@ public class UserRepository extends Repository {
 
 					for (Map<String, Object> result : results) {
 						user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-								String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
+								String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+								UserType.valueOf((String)result.get("type")));
 					}
 					connection.close();
 				}
@@ -106,7 +108,8 @@ public class UserRepository extends Repository {
 
                     for (Map<String, Object> result : results) {
                         user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
+                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+                                UserType.valueOf((String)result.get("type")));
                     }
                     connection.close();
                 }

@@ -28,6 +28,7 @@ import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.Notification;
 import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.ChatLogger;
@@ -323,7 +324,7 @@ public class ClientRunnableTest {
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepo.set(client, userRepository);
     when(userRepository.getUserByUserName("primt")).thenReturn(new User(1, "primt",
-        BCrypt.hashpw("test", BCrypt.gensalt(8))));
+        BCrypt.hashpw("test", BCrypt.gensalt(8)), UserType.GENERAL));
     List<Message> messageQueue = new ArrayList<>();
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredField("initialized");
@@ -368,7 +369,7 @@ public class ClientRunnableTest {
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepo.set(client, userRepository);
     when(userRepository.getUserByUserName("pri")).thenReturn(new User(1, "pri",
-        hash));
+        hash, UserType.GENERAL));
     List<Message> messageQueue = new ArrayList<>();
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredField("initialized");
@@ -447,7 +448,7 @@ public class ClientRunnableTest {
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepo.set(client, userRepository);
     when(userRepository.getUserByUserName("prili")).thenReturn(new User(1, "prili",
-        "test"));
+        "test", UserType.GENERAL));
     Method init = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredMethod("checkForInitialization");
     init.setAccessible(true);
@@ -550,7 +551,7 @@ public class ClientRunnableTest {
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepo.set(client, userRepository);
     when(userRepository.getUserByUserName("testUser")).thenReturn(new User(1, "testUser",
-        BCrypt.hashpw("test", BCrypt.gensalt(8))));
+        BCrypt.hashpw("test", BCrypt.gensalt(8)), UserType.GENERAL));
     Method init = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredMethod("respondToMessage", Message.class);
     init.setAccessible(true);

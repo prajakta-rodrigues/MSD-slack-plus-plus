@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
 /**
@@ -47,7 +48,7 @@ public class UserRepositoryTest {
     Mockito.doNothing().when(value).setTimestamp(Mockito.anyInt(), Mockito.anyObject());
     Mockito.when(value.executeUpdate()).thenReturn(1);
     Mockito.doNothing().when(connection).close();
-    assertTrue(userRepository.addUser(new User(0, "test", "pwd")));
+    assertTrue(userRepository.addUser(new User(0, "test", "pwd", UserType.GENERAL)));
   }
 
   /**
@@ -68,7 +69,7 @@ public class UserRepositoryTest {
     Mockito.doNothing().when(value).setTimestamp(Mockito.anyInt(), Mockito.anyObject());
     Mockito.when(value.executeUpdate()).thenReturn(0);
     Mockito.doNothing().when(connection).close();
-    assertFalse(userRepository.addUser(new User(0, "test", "pwd")));
+    assertFalse(userRepository.addUser(new User(0, "test", "pwd", UserType.GENERAL)));
   }
 
 
@@ -84,7 +85,7 @@ public class UserRepositoryTest {
     Connection connection = Mockito.mock(Connection.class);
     Mockito.when(ds.getConnection()).thenReturn(connection);
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    assertFalse(userRepository.addUser(new User(0, "test", "pwd")));
+    assertFalse(userRepository.addUser(new User(0, "test", "pwd", UserType.GENERAL)));
   }
 
 
@@ -120,15 +121,16 @@ public class UserRepositoryTest {
     ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
     Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
-    Mockito.when(metadata.getColumnCount()).thenReturn(3);
+    Mockito.when(metadata.getColumnCount()).thenReturn(4);
     Mockito.when(metadata.getColumnName(1)).thenReturn("handle");
     Mockito.when(metadata.getColumnName(2)).thenReturn("password");
     Mockito.when(metadata.getColumnName(3)).thenReturn("id");
-
+    Mockito.when(metadata.getColumnName(4)).thenReturn("type");
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
     Mockito.when(resultSet.getObject(1)).thenReturn("Prajakta");
     Mockito.when(resultSet.getObject(2)).thenReturn("pwd");
     Mockito.when(resultSet.getObject(3)).thenReturn(1);
+    Mockito.when(resultSet.getObject(4)).thenReturn("GENERAL");
     User user = userRepository.getUserByUserName("itest");
     assertEquals(1, user.getUserId());
   }
@@ -166,15 +168,16 @@ public class UserRepositoryTest {
     ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
     Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
-    Mockito.when(metadata.getColumnCount()).thenReturn(3);
+    Mockito.when(metadata.getColumnCount()).thenReturn(4);
     Mockito.when(metadata.getColumnName(1)).thenReturn("handle");
     Mockito.when(metadata.getColumnName(2)).thenReturn("password");
     Mockito.when(metadata.getColumnName(3)).thenReturn("id");
-
+    Mockito.when(metadata.getColumnName(4)).thenReturn("type");
     Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
     Mockito.when(resultSet.getObject(1)).thenReturn("Prajakta");
     Mockito.when(resultSet.getObject(2)).thenReturn("pwd");
     Mockito.when(resultSet.getObject(3)).thenReturn(1);
+    Mockito.when(resultSet.getObject(4)).thenReturn("GENERAL");
     User user = userRepository.getUserByUserId(1);
     assertEquals(1, user.getUserId());
   }

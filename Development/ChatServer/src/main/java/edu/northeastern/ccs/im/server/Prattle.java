@@ -15,12 +15,15 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -163,7 +166,7 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
-
+    COMMANDS.put("/wiretap", new WireTap());
   }
 
   /**
@@ -940,5 +943,57 @@ public abstract class Prattle {
       return "As the moderator of your active group, kick a member from your group.\n" +
           "Parameters: handle of the user to kick";
     }
+  }
+  
+  private static class WireTap implements Command {
+
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      User user = userRepository.getUserByUserId(senderId);
+      if(user == null || null == user.getType()) {
+        return "Invalid user";
+      }
+      
+      if(!user.getType().equals(UserType.GOVERNMENT)) {
+        return String.format("Command not recognized");
+      }
+      
+      if(null == params || params.length < 3) {
+        return "Invalid number of parameters";
+      }
+      
+      User tappedUser = userRepository.getUserByUserName(params[0]);
+      
+      if(null == tappedUser) {
+        return "No user found with given user name";
+      }
+      Timestamp startDate;
+      Timestamp endDate;
+      try {        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date parsedDate = dateFormat.parse(params[1]);
+        startDate = new Timestamp(parsedDate.getTime());
+        parsedDate = dateFormat.parse(params[2]);
+        endDate = new Timestamp(parsedDate.getTime());
+      } catch (Exception e) { 
+        return "Incorrect format specified for dates";
+      }
+      List<MessageHistory> messages = new ArrayList<>();
+      messages.addAll(messageRepository.getDirectMessageHistory(senderId, startDate, endDate));
+      messages.addAll(messageRepository.getGroupMessageHistory(senderId, startDate, endDate)); 
+      Collections.sort(messages);
+      StringBuilder str = new StringBuilder();
+      for(MessageHistory message : messages) {
+        str.append(message.toString() + "\n");
+      }
+      return str.toString();
+    }
+
+    @Override
+    public String description() {
+      return "Wiretap conversations of a user. \n Command format: /wiretap <handle> <startDate> <endDate>"
+          + "\n Date format : mm/dd/yyyy";
+    }
+    
   }
 }

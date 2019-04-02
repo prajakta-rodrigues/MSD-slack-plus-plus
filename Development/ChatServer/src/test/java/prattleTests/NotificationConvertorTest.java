@@ -11,6 +11,7 @@ import edu.northeastern.ccs.im.server.NotificationConvertor;
 import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.SlackGroup;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
@@ -37,7 +38,7 @@ public class NotificationConvertorTest {
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
     Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
@@ -93,7 +94,7 @@ public class NotificationConvertorTest {
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
     Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
@@ -181,7 +182,7 @@ public class NotificationConvertorTest {
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
     Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
@@ -217,7 +218,7 @@ public class NotificationConvertorTest {
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
     Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")

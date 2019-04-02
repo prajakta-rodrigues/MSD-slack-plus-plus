@@ -9,6 +9,7 @@ import static org.mockito.Matchers.anyString;
 import edu.northeastern.ccs.im.server.Message;
 import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import java.lang.reflect.Field;
@@ -96,8 +97,8 @@ public class FriendRepositoryTest {
     ur.setAccessible(true);
     ur.set(null, userRepository);
 
-    omar = new User(1, "omar", "password");
-    mark = new User(2, "mark", "password");
+    omar = new User(1, "omar", "password", UserType.GENERAL);
+    mark = new User(2, "mark", "password", UserType.GENERAL);
 
 
   }

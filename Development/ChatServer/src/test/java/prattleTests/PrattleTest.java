@@ -45,6 +45,7 @@ import edu.northeastern.ccs.im.server.NotificationType;
 import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.SlackGroup;
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
@@ -176,8 +177,8 @@ public class PrattleTest {
     userGroupRepository = Mockito.mock(UserGroupRepository.class);
     friendRepository = Mockito.mock(FriendRepository.class);
 
-    omar = new User(1, "omar", "password");
-    mark = new User(2, "mark", "password");
+    omar = new User(1, "omar", "password", UserType.GENERAL);
+    mark = new User(2, "mark", "password", UserType.GENERAL);
 
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("userRepository");
@@ -798,7 +799,7 @@ public class PrattleTest {
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
     List<Notification> list = new ArrayList<>();
@@ -918,7 +919,7 @@ public class PrattleTest {
         Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
-    User user = new User(1, "rita", "pwd");
+    User user = new User(1, "rita", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user );
     SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
@@ -937,7 +938,7 @@ public class PrattleTest {
         Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
-    User user = new User(1, "rita", "pwd");
+    User user = new User(1, "rita", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user );
     SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
@@ -959,7 +960,7 @@ public class PrattleTest {
         Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
-    User user = new User(1, "rita", "pwd");
+    User user = new User(1, "rita", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user );
     SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);

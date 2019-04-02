@@ -216,4 +216,15 @@ constraint fk_invitee_id foreign key(invitee_id)  references slack.user(id),
 constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
 constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
 
+ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL';
+update slack.user set type = 'SYSTEM' where id = -1; 
+update slack.user set type = 'GENERAL' where id = null;
+
+create view user_direct_message as select u.handle as user1, v.handle as user2, dm.channel_id from direct_message dm, user u, user v
+where u.id = dm.user1_id and v.id = dm.user2_id;
+
+create view message_user as select z.handle as sender, m.text, m.sent_date, 
+m.channel_id from message m, user z where m.sender_id = z.id;
+
+
 

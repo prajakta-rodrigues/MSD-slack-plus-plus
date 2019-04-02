@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.server.repositories;
 
+import edu.northeastern.ccs.im.server.MessageRecipientType;
 import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.MessageHistory;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import javax.sql.DataSource;
@@ -105,5 +107,82 @@ public class MessageRepository extends Repository{
         }
         return messages;
     }
+    
+    
+  public List<MessageHistory> getDirectMessageHistory(int userId, Timestamp startDate,
+      Timestamp endDate) {
+    List<MessageHistory> messageHistory = new ArrayList<>();
+    try {
+      connection = dataSource.getConnection();
+      String query = "select * from user_direct_message udm, message_user mu "
+          + "where udm.channel_id = mu.channel_id";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        preparedStmt.setTimestamp(2, startDate);
+        preparedStmt.setTimestamp(3, endDate);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            String senderUserName = (String) result.get("sender_id");
+            if (senderUserName.equals((String) result.get("user1_id"))) {
+              messageHistory
+                  .add(new MessageHistory((String) result.get("user2_id"), MessageRecipientType.USER,
+                      senderUserName, null, query, (Timestamp) result.get("sent_date")));
+            } else {
+              messageHistory.add(new MessageHistory((String) result.get("user2_id"),
+                  MessageRecipientType.USER, senderUserName, MessageRecipientType.USER, query,
+                  (Timestamp) result.get("sent_date")));
+            }
+          }
+        }
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return messageHistory;
 
+  }
+
+  public List<MessageHistory> getGroupMessageHistory(int userId, Timestamp startDate,
+      Timestamp endDate) {
+    List<MessageHistory> messageHistory = new ArrayList<>();
+    try {
+      connection = dataSource.getConnection();
+      String query = "SELECT u.id, u.handle, m.text, m.sent_date, g.name FROM slack.message m, "
+          + "slack.group g, slack.user_group ug, slack.user u where m.channel_id = g.channel_id "
+          + "and g.id = ug.group_id and u.id = m.sender_id "
+          + "and ug.user_id = ? and m.sent_date between ? and ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        preparedStmt.setTimestamp(2, startDate);
+        preparedStmt.setTimestamp(3, endDate);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          for (Map<String, Object> result : results) {
+            if ((Integer) result.get("id") == userId) {
+              messageHistory.add(new MessageHistory((String) result.get("name"), MessageRecipientType.GROUP,
+                  (String) result.get("handle"), MessageRecipientType.USER, (String) result.get("text"),
+                  (Timestamp) result.get("sent_date")));
+            } else {
+              messageHistory.add(new MessageHistory((String) result.get("handle"),
+                  MessageRecipientType.GROUP, (String) result.get("name"), MessageRecipientType.USER,
+                  (String) result.get("text"), (Timestamp) result.get("sent_date")));
+            }
+          }
+        }
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return messageHistory;
+  }
+    
 }
