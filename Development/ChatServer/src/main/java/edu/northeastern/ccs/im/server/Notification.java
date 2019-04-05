@@ -223,4 +223,23 @@ public class Notification {
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
     return notification;
   }
+
+  /**
+   * Makes a new moderator notification from the given sender id to the second given receiver id.
+   *
+   * @param groupId the group that is gaining a moderator.
+   * @param senderId the user adding a new moderator
+   * @param receiverId the user being added as a moderator
+   * @return the friend request notification
+   */
+  static Notification makeNewModeratorNotification(int groupId, int senderId, int receiverId) {
+    Notification notification = new Notification();
+    notification.setType(NotificationType.NEW_MODERATOR);
+    notification.setAssociatedGroupId(groupId);
+    notification.setAssociatedUserId(senderId);
+    notification.setRecieverId(receiverId);
+    notification.setNew(true);
+    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    return notification;
+  }
 }

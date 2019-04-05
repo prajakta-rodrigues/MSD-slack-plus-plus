@@ -173,8 +173,8 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
-    COMMANDS.put("dom", new Dom());
-
+    COMMANDS.put("/dom", new Dom());
+    COMMANDS.put("/addmoderator", new AddModerator());
   }
 
   /**
@@ -973,21 +973,72 @@ public abstract class Prattle {
       if (currGroup == null) {
         return NONEXISTING_GROUP;
       }
-      List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
+      int currGroupId = currGroup.getGroupId();
+      List<String> mods = userGroupRepository.getModerators(currGroupId);
       if (!mods.contains(userHandle)) {
         return NOT_MODERATOR;
       }
       if (mods.size() == 1) {
         return ONLY_MODERATOR_FAILURE;
       }
-      int groupId = groupRepository.getGroupByChannelId(currChannelId).getGroupId();
-      userGroupRepository.removeModerator(groupId, senderId);
+      userGroupRepository.removeModerator(senderId, currGroupId);
       return userHandle + " removed themselves from being a moderator of this group.";
     }
 
     @Override
     public String description() {
-      return "Print out the handles of the users in a group.";
+      return "Removes a user's moderatorship.";
+    }
+  }
+
+  /**
+   * Adds a moderator to a group.
+   */
+  private static class AddModerator implements Command {
+
+    /**
+     * Adds a moderator to a group
+     *
+     * @param params the user being added as a moderator
+     * @param senderId the user trying to add a moderator
+     * @return an informative message on the result of this command.
+     */
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      if (params == null) {
+        return "Invalid command parameters.";
+      }
+      ClientRunnable currClient = getClient(senderId);
+      String userHandle = currClient.getName();
+      String newModHandle = params[0];
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return NONEXISTING_GROUP;
+      }
+      int groupId = currGroup.getGroupId();
+      List<String> mods = userGroupRepository.getModerators(groupId);
+      if (!mods.contains(userHandle)) {
+        return NOT_MODERATOR;
+      }
+      if (!userGroupRepository.getGroupMembers(groupId).contains(newModHandle)) {
+        return "The desired user is not part of the group. Send them an invite first.";
+      }
+      if (mods.contains(newModHandle)) {
+        return "The desired user is already a moderator";
+      }
+      User newMod = userRepository.getUserByUserName(newModHandle);
+      int newModId = newMod.getUserId();
+      userGroupRepository.addModerator(newModId, groupId);
+      Notification modNotification = Notification
+          .makeNewModeratorNotification(groupId, senderId, newModId);
+      notificationRepository.addNotification(modNotification);
+      return userHandle + " added " + newModHandle + " as a moderator of this group.";
+    }
+
+    @Override
+    public String description() {
+      return "Adds the given user as a moderator.\nParameters: User to add as a moderator.";
     }
   }
 }
