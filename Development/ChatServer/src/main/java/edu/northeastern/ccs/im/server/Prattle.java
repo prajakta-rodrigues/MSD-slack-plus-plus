@@ -982,7 +982,7 @@ public abstract class Prattle {
         return ONLY_MODERATOR_FAILURE;
       }
       userGroupRepository.removeModerator(senderId, currGroupId);
-      return userHandle + " removed themselves from being a moderator of this group.";
+      return userHandle + " removed themself from being a moderator of this group.";
     }
 
     @Override

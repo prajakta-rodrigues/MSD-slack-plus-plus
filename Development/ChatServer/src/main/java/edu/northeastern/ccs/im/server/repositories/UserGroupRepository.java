@@ -172,7 +172,7 @@ public class UserGroupRepository extends Repository {
     } finally {
       closeConnection(connection);
     }
-    return count == 0;
+    return count > 0;
   }
   /**
    * Adds the given user as a moderator of the desired group.
@@ -196,7 +196,7 @@ public class UserGroupRepository extends Repository {
     } finally {
       closeConnection(connection);
     }
-    return count == 0;
+    return count > 0;
   }
 
 }
