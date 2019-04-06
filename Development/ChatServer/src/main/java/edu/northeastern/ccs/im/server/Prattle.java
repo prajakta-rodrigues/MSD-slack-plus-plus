@@ -129,6 +129,16 @@ public abstract class Prattle {
    */
   private static final LanguageSupport languageSupport = LanguageSupport.getInstance();
 
+  /**
+   * List of String constants.
+   */
+  private static final String NONEXISTING_GROUP = "Your group is nonexistent";
+
+  private static final String NOT_MODERATOR = "You are not a moderator of this group.";
+
+  private static final String ONLY_MODERATOR_FAILURE = "You are the only moderator of the group. Please add another moderator before removing yourself from being one.";
+
+
   // All of the static initialization occurs in this "method"
   static {
     // Create the new queue of active threads.
@@ -163,7 +173,8 @@ public abstract class Prattle {
     COMMANDS.put("/friend", new Friend());
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
-
+    COMMANDS.put("/dom", new Dom());
+    COMMANDS.put("/addmoderator", new AddModerator());
   }
 
   /**
@@ -448,7 +459,6 @@ public abstract class Prattle {
       if (groupRepository.addGroup(new SlackGroup(senderId, params[0]))) {
         return String.format("Group %s created", params[0]);
       } else {
-        // need a better way to handle write failures.
         return "Something went wrong and your group was not created.";
       }
     }
@@ -947,6 +957,96 @@ public abstract class Prattle {
     public String description() {
       return "As the moderator of your active group, kick a member from your group.\n" +
           "Parameters: handle of the user to kick";
+    }
+  }
+
+  /**
+   * Removes a user's moderatorship, if applicable
+   */
+  private static class Dom implements Command {
+
+    /**
+     * Removes a user's moderatorship
+     *
+     * @param ignoredParams the ignored params
+     * @param senderId the id of the user wanting to remove their moderatorship
+     * @return an informative message on the result of this command.
+     */
+    @Override
+    public String apply(String[] ignoredParams, Integer senderId) {
+      ClientRunnable currClient = getClient(senderId);
+      String userHandle = currClient.getName();
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return NONEXISTING_GROUP;
+      }
+      int currGroupId = currGroup.getGroupId();
+      List<String> mods = userGroupRepository.getModerators(currGroupId);
+      if (!mods.contains(userHandle)) {
+        return NOT_MODERATOR;
+      }
+      if (mods.size() == 1) {
+        return ONLY_MODERATOR_FAILURE;
+      }
+      userGroupRepository.removeModerator(senderId, currGroupId);
+      return userHandle + " removed themself from being a moderator of this group.";
+    }
+
+    @Override
+    public String description() {
+      return "Removes a user's moderatorship.";
+    }
+  }
+
+  /**
+   * Adds a moderator to a group.
+   */
+  private static class AddModerator implements Command {
+
+    /**
+     * Adds a moderator to a group
+     *
+     * @param params the user being added as a moderator
+     * @param senderId the user trying to add a moderator
+     * @return an informative message on the result of this command.
+     */
+    @Override
+    public String apply(String[] params, Integer senderId) {
+      if (params == null) {
+        return "Invalid command parameters.";
+      }
+      ClientRunnable currClient = getClient(senderId);
+      String userHandle = currClient.getName();
+      String newModHandle = params[0];
+      int currChannelId = currClient.getActiveChannelId();
+      SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
+      if (currGroup == null) {
+        return NONEXISTING_GROUP;
+      }
+      int groupId = currGroup.getGroupId();
+      List<String> mods = userGroupRepository.getModerators(groupId);
+      if (!mods.contains(userHandle)) {
+        return NOT_MODERATOR;
+      }
+      if (!userGroupRepository.getGroupMembers(groupId).contains(newModHandle)) {
+        return "The desired user is not part of the group. Send them an invite first.";
+      }
+      if (mods.contains(newModHandle)) {
+        return "The desired user is already a moderator";
+      }
+      User newMod = userRepository.getUserByUserName(newModHandle);
+      int newModId = newMod.getUserId();
+      userGroupRepository.addModerator(newModId, groupId);
+      Notification modNotification = Notification
+          .makeNewModeratorNotification(groupId, senderId, newModId);
+      notificationRepository.addNotification(modNotification);
+      return userHandle + " added " + newModHandle + " as a moderator of this group.";
+    }
+
+    @Override
+    public String description() {
+      return "Adds the given user as a moderator.\nParameters: User to add as a moderator.";
     }
   }
 }
