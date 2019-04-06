@@ -1,8 +1,8 @@
 package edu.northeastern.ccs.im.server.repositories;
 
-import edu.northeastern.ccs.im.server.MessageRecipientType;
-import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageHistory;
+import edu.northeastern.ccs.im.server.Models.MessageRecipientType;
+import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.Models.MessageHistory;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;

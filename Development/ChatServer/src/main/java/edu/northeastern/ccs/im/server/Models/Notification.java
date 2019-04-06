@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.Models;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -193,7 +193,7 @@ public class Notification {
    * @param inviteeId the invitee id
    * @return the notification
    */
-  static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
+  public static Notification makeGroupInviteNotification(int groupId, int senderId, int inviteeId) {
     Notification notification = new Notification();
     notification.setAssociatedGroupId(groupId);
     notification.setAssociatedUserId(senderId);
@@ -213,8 +213,8 @@ public class Notification {
    * @param type the type of friend request notification
    * @return the friend request notification
    */
-  static Notification makeFriendRequestNotification(int senderId, int receiverId,
-      NotificationType type) {
+  public static Notification makeFriendRequestNotification(int senderId, int receiverId,
+                                                           NotificationType type) {
     Notification notification = new Notification();
     notification.setType(type);
     notification.setAssociatedUserId(senderId);
@@ -232,7 +232,7 @@ public class Notification {
    * @param receiverId the user being added as a moderator
    * @return the friend request notification
    */
-  static Notification makeNewModeratorNotification(int groupId, int senderId, int receiverId) {
+  public static Notification makeNewModeratorNotification(int groupId, int senderId, int receiverId) {
     Notification notification = new Notification();
     notification.setType(NotificationType.NEW_MODERATOR);
     notification.setAssociatedGroupId(groupId);

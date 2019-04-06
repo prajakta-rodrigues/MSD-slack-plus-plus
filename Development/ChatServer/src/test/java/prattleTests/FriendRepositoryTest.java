@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
-import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.Models.Message;
 import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserType;
+import edu.northeastern.ccs.im.server.Models.User;
+import edu.northeastern.ccs.im.server.Models.UserType;
 import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import java.lang.reflect.Field;

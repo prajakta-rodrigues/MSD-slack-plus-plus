@@ -1,7 +1,7 @@
 package prattleTests;
 
-import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageHistory;
+import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.Models.MessageHistory;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.Models;
 
 /**
  * The Class InviteesGroup.
@@ -32,7 +32,7 @@ public class InviteesGroup {
    *
    * @return the invitee handle
    */
-  String getInviteeHandle() {
+  public String getInviteeHandle() {
     return inviteeHandle;
   }
 
@@ -41,7 +41,7 @@ public class InviteesGroup {
    *
    * @return the group name
    */
-  String getGroupName() {
+  public String getGroupName() {
     return groupName;
   }
 

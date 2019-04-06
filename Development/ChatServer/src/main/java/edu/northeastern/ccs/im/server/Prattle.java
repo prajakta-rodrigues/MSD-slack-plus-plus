@@ -1,5 +1,16 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.Models.GroupInvitation;
+import edu.northeastern.ccs.im.server.Models.InviteesGroup;
+import edu.northeastern.ccs.im.server.Models.InvitorsGroup;
+import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.Models.MessageHistory;
+import edu.northeastern.ccs.im.server.Models.Notification;
+import edu.northeastern.ccs.im.server.Models.NotificationConvertor;
+import edu.northeastern.ccs.im.server.Models.NotificationType;
+import edu.northeastern.ccs.im.server.Models.SlackGroup;
+import edu.northeastern.ccs.im.server.Models.User;
+import edu.northeastern.ccs.im.server.Models.UserType;
 import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
@@ -121,7 +132,7 @@ public abstract class Prattle {
   /**
    * The Constant COMMANDS.
    */
-  private static final Map<UserType ,Map<String, Command>> COMMANDS;
+  private static final Map<UserType,Map<String, Command>> COMMANDS;
 
   private static final Map<String, Command> USER_COMMANDS;
   

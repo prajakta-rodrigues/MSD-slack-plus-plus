@@ -34,27 +34,26 @@ import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.ErrorCodes;
-import edu.northeastern.ccs.im.server.GroupInvitation;
-import edu.northeastern.ccs.im.server.InviteesGroup;
-import edu.northeastern.ccs.im.server.InvitorsGroup;
-import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageHistory;
-import edu.northeastern.ccs.im.server.MessageRecipientType;
-import edu.northeastern.ccs.im.server.MessageType;
+import edu.northeastern.ccs.im.server.Models.GroupInvitation;
+import edu.northeastern.ccs.im.server.Models.InviteesGroup;
+import edu.northeastern.ccs.im.server.Models.InvitorsGroup;
+import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.Models.MessageHistory;
+import edu.northeastern.ccs.im.server.Models.MessageRecipientType;
+import edu.northeastern.ccs.im.server.Models.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
-import edu.northeastern.ccs.im.server.Notification;
-import edu.northeastern.ccs.im.server.NotificationType;
+import edu.northeastern.ccs.im.server.Models.Notification;
+import edu.northeastern.ccs.im.server.Models.NotificationType;
 import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.SlackGroup;
-import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserType;
+import edu.northeastern.ccs.im.server.Models.SlackGroup;
+import edu.northeastern.ccs.im.server.Models.User;
+import edu.northeastern.ccs.im.server.Models.UserType;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import org.mockito.junit.MockitoJUnit;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
@@ -299,7 +298,7 @@ public class PrattleTest {
     }
 
     /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.repositories.GroupRepository#addGroup(edu.northeastern.ccs.im.server.SlackGroup)
+     * @see edu.northeastern.ccs.im.server.repositories.GroupRepository#addGroup(edu.northeastern.ccs.im.server.Models.SlackGroup)
      */
     @Override
     public boolean addGroup(SlackGroup toAdd) {
@@ -391,7 +390,7 @@ public class PrattleTest {
   @Test
   public void testMessageClass()
       throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Models.Message")
         .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "mike");
@@ -974,7 +973,7 @@ public class PrattleTest {
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
 
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.Models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);

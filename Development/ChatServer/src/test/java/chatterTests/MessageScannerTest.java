@@ -98,8 +98,8 @@ public class MessageScannerTest {
   @Test
   public void testCommandMessage() {
     Message message = Message.makeCommandMessage(TEST_USER, -1, "/circle");
-    edu.northeastern.ccs.im.server.Message message2 =
-        edu.northeastern.ccs.im.server.Message.makeCommandMessage(TEST_USER, -1, "/quit");
+    edu.northeastern.ccs.im.server.Models.Message message2 =
+        edu.northeastern.ccs.im.server.Models.Message.makeCommandMessage(TEST_USER, -1, "/quit");
     assertEquals("CMD 7 testing 2 -1 7 /circle", message.toString());
     assertFalse(message.isDisplayMessage());
     assertFalse(message.isBroadcastMessage());
@@ -125,8 +125,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testIsNotCommandMessage() {
-    edu.northeastern.ccs.im.server.Message message =
-        edu.northeastern.ccs.im.server.Message.makeQuitMessage(TEST_USER);
+    edu.northeastern.ccs.im.server.Models.Message message =
+        edu.northeastern.ccs.im.server.Models.Message.makeQuitMessage(TEST_USER);
     assertFalse(message.isCommandMessage());
   }
 
@@ -135,8 +135,8 @@ public class MessageScannerTest {
    */
   @Test
   public void testNotBroadcastMessage() {
-    edu.northeastern.ccs.im.server.Message message =
-        edu.northeastern.ccs.im.server.Message.makeQuitMessage("q");
+    edu.northeastern.ccs.im.server.Models.Message message =
+        edu.northeastern.ccs.im.server.Models.Message.makeQuitMessage("q");
     assertFalse(message.isBroadcastMessage());
 
   }
@@ -230,7 +230,7 @@ public class MessageScannerTest {
   @Test
   public void testMakeTypeBroadcastMessage() throws NoSuchMethodException, ClassNotFoundException,
       IllegalAccessException, InvocationTargetException {
-    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Message")
+    Method makeMethod = Class.forName("edu.northeastern.ccs.im.server.Models.Message")
         .getDeclaredMethod("makeBroadcastMessage", String.class, String.class);
     makeMethod.setAccessible(true);
     makeMethod.invoke(null, "test1", "testText");

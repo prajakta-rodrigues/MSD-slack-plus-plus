@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.sql.DataSource;
-import edu.northeastern.ccs.im.server.Notification;
-import edu.northeastern.ccs.im.server.NotificationType;
+import edu.northeastern.ccs.im.server.Models.Notification;
+import edu.northeastern.ccs.im.server.Models.NotificationType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**

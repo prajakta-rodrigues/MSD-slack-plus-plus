@@ -1,4 +1,7 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.Models;
+
+import edu.northeastern.ccs.im.server.ClientRunnable;
+import edu.northeastern.ccs.im.server.Prattle;
 
 /**
  * Each instance of this class represents a single transmission by our IM clients.
