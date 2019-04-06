@@ -9,6 +9,9 @@ public abstract class RepositoryFactory {
 
   private RepositoryFactory(){}
 
+  /**
+   * Repository singletons.
+   */
   private static DirectMessageRepository directMessageRepository;
   private static FriendRepository friendRepository;
   private static FriendRequestRepository friendRequestRepository;
