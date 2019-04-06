@@ -76,6 +76,9 @@ public class ClientRunnableTest {
   @Mock
   private PreparedStatement stmt;
 
+  @Mock
+  private UserRepository userRepository;
+
   /**
    * The rs.
    */
@@ -86,9 +89,15 @@ public class ClientRunnableTest {
    * Setup for tests.
    *
    * @throws SQLException the SQL exception
+   * @throws ClassNotFoundException 
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
    */
   @Before
-  public void initData() throws SQLException {
+  public void initData() throws SQLException, NoSuchFieldException, SecurityException, 
+  ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     assertNotNull(ds);
     when(c.prepareStatement(Mockito.any(String.class))).thenReturn(stmt);
     when(ds.getConnection()).thenReturn(c);
@@ -101,6 +110,12 @@ public class ClientRunnableTest {
     messageQueue.add(msg2);
     mockIterator = messageQueue.iterator();
     when(mockNetwork.iterator()).thenReturn(mockIterator);
+    Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        .getDeclaredField("userRepository");
+    ur.setAccessible(true);
+    ur.set(null, userRepository);
+    User user1 = new User(1, "omar", "password", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user1);
   }
 
   /**
@@ -511,7 +526,6 @@ public class ClientRunnableTest {
         return true;
       }
     };
-
     Method init = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredMethod("respondToMessage", Message.class);
     init.setAccessible(true);
