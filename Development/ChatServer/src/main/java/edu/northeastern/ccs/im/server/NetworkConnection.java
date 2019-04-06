@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.models.Message;
 
 /**
  * This class is similar to the java.io.PrintWriter class, but this class's

@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import edu.northeastern.ccs.im.server.Models.User;
-import edu.northeastern.ccs.im.server.Models.UserType;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
 /**

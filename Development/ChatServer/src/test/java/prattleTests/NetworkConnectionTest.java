@@ -26,8 +26,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.mockito.Mockito;
 import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.Models.Message;
-import edu.northeastern.ccs.im.server.Models.MessageType;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.Prattle;
 

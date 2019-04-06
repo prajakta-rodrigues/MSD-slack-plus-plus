@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import javax.sql.DataSource;
 
 
-import edu.northeastern.ccs.im.server.Models.User;
-import edu.northeastern.ccs.im.server.Models.UserType;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**

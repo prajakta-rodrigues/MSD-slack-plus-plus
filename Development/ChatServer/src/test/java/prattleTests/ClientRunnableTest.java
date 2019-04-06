@@ -23,12 +23,12 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.sql.DataSource;
 
-import edu.northeastern.ccs.im.server.Models.Message;
+import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
-import edu.northeastern.ccs.im.server.Models.Notification;
-import edu.northeastern.ccs.im.server.Models.NotificationType;
-import edu.northeastern.ccs.im.server.Models.User;
-import edu.northeastern.ccs.im.server.Models.UserType;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationType;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.ChatLogger;

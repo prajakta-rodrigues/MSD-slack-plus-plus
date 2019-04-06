@@ -17,8 +17,8 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import edu.northeastern.ccs.im.server.Models.Notification;
-import edu.northeastern.ccs.im.server.Models.NotificationType;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 
 /**

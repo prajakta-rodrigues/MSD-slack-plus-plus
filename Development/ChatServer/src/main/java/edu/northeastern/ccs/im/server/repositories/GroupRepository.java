@@ -9,7 +9,7 @@ import java.util.logging.Level;
 
 import javax.sql.DataSource;
 
-import edu.northeastern.ccs.im.server.Models.SlackGroup;
+import edu.northeastern.ccs.im.server.models.SlackGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**

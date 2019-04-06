@@ -8,11 +8,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import org.mindrot.jbcrypt.BCrypt;
 
-import edu.northeastern.ccs.im.server.Models.Message;
-import edu.northeastern.ccs.im.server.Models.Notification;
-import edu.northeastern.ccs.im.server.Models.NotificationConvertor;
-import edu.northeastern.ccs.im.server.Models.User;
-import edu.northeastern.ccs.im.server.Models.UserType;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationConvertor;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;

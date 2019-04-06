@@ -7,6 +7,7 @@ import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -34,20 +35,20 @@ import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.ErrorCodes;
-import edu.northeastern.ccs.im.server.Models.GroupInvitation;
-import edu.northeastern.ccs.im.server.Models.InviteesGroup;
-import edu.northeastern.ccs.im.server.Models.InvitorsGroup;
-import edu.northeastern.ccs.im.server.Models.Message;
-import edu.northeastern.ccs.im.server.Models.MessageHistory;
-import edu.northeastern.ccs.im.server.Models.MessageRecipientType;
-import edu.northeastern.ccs.im.server.Models.MessageType;
+import edu.northeastern.ccs.im.server.models.GroupInvitation;
+import edu.northeastern.ccs.im.server.models.InviteesGroup;
+import edu.northeastern.ccs.im.server.models.InvitorsGroup;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.MessageHistory;
+import edu.northeastern.ccs.im.server.models.MessageRecipientType;
+import edu.northeastern.ccs.im.server.models.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
-import edu.northeastern.ccs.im.server.Models.Notification;
-import edu.northeastern.ccs.im.server.Models.NotificationType;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationType;
 import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.Models.SlackGroup;
-import edu.northeastern.ccs.im.server.Models.User;
-import edu.northeastern.ccs.im.server.Models.UserType;
+import edu.northeastern.ccs.im.server.models.SlackGroup;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
@@ -117,6 +118,11 @@ public class PrattleTest {
   
   /** The mark. */
   private User mark;
+
+  @BeforeClass
+  public static void killServer() {
+    Prattle.stopServer();
+  }
 
   /**
    * Initialize the command data before each test.
@@ -202,9 +208,12 @@ public class PrattleTest {
     waitingList1 = (ConcurrentLinkedQueue<Message>) wl.get(cr1);
     waitingList2 = (ConcurrentLinkedQueue<Message>) wl.get(cr2);
 
+    omar = new User(1, "omar", "password", UserType.GENERAL);
+    mark = new User(2, "mark", "password", UserType.GENERAL);
+
     GroupRepository groupRepository = new MockGroupRepository();
 
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -215,19 +224,21 @@ public class PrattleTest {
     userGroupRepository = Mockito.mock(UserGroupRepository.class);
     friendRepository = Mockito.mock(FriendRepository.class);
 
-    omar = new User(1, "omar", "password", UserType.GENERAL);
-    mark = new User(2, "mark", "password", UserType.GENERAL);
-
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("userRepository");
     ur.setAccessible(true);
     ur.set(null, userRepository);
 
+    Field commandUr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("userRepository");
+    commandUr.setAccessible(true);
+    commandUr.set(null, userRepository);
+
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
 
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
-    
-    Field dmr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+
+    Field dmr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("dmRepository");
     dmr.setAccessible(true);
     dmr.set(null, dmRepository);
@@ -235,22 +246,22 @@ public class PrattleTest {
     userGroupRepository = Mockito.mock(UserGroupRepository.class);
 
     Field userGroupRepo =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
             .getDeclaredField("userGroupRepository");
     userGroupRepo.setAccessible(true);
     userGroupRepo.set(null, userGroupRepository);
 
-    Field frr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field frr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("friendRequestRepository");
     frr.setAccessible(true);
     frr.set(null, friendRequestRepository);
 
-    Field fr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field fr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("friendRepository");
     fr.setAccessible(true);
     fr.set(null, friendRepository);
 
-    Field ugr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field ugr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("userGroupRepository");
     ugr.setAccessible(true);
     ugr.set(null, userGroupRepository);
@@ -260,21 +271,21 @@ public class PrattleTest {
 
     groupInviteRepository = Mockito.mock(GroupInviteRepository.class);
     Field fieldInviteRepo =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
             .getDeclaredField("groupInviteRepository");
     fieldInviteRepo.setAccessible(true);
     fieldInviteRepo.set(null, groupInviteRepository);
 
     notificationRepository = Mockito.mock(NotificationRepository.class);
     Field fieldNotificationRepository =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
             .getDeclaredField("notificationRepository");
     fieldNotificationRepository.setAccessible(true);
     fieldNotificationRepository.set(null, notificationRepository);
 
     messageRepository = Mockito.mock(MessageRepository.class);
     Field fieldMessageRepository =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle")
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
             .getDeclaredField("messageRepository");
     fieldMessageRepository.setAccessible(true);
     fieldMessageRepository.set(null, messageRepository);
@@ -298,7 +309,7 @@ public class PrattleTest {
     }
 
     /* (non-Javadoc)
-     * @see edu.northeastern.ccs.im.server.repositories.GroupRepository#addGroup(edu.northeastern.ccs.im.server.Models.SlackGroup)
+     * @see edu.northeastern.ccs.im.server.repositories.GroupRepository#addGroup(edu.northeastern.ccs.im.server.models.SlackGroup)
      */
     @Override
     public boolean addGroup(SlackGroup toAdd) {
@@ -390,7 +401,7 @@ public class PrattleTest {
   @Test
   public void testMessageClass()
       throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.Models.Message")
+    Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.models.Message")
         .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "mike");
@@ -610,8 +621,6 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
-   *
-   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -728,7 +737,7 @@ public class PrattleTest {
   public void testCreateGroupFails()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -915,7 +924,7 @@ public class PrattleTest {
   @Test
   public void testNotificationCommandNullList() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
@@ -940,7 +949,7 @@ public class PrattleTest {
   @Test
   public void testNotificationCommandEmptyList() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
@@ -967,13 +976,13 @@ public class PrattleTest {
   public void testNotificationCommandNotificationList()
       throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
 
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.Models.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
@@ -1012,7 +1021,7 @@ public class PrattleTest {
       throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
     GroupRepository groupRepository = Mockito.mock(MockGroupRepository.class);
 
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1131,7 +1140,8 @@ public class PrattleTest {
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1162,7 +1172,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1178,7 +1189,6 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invite rita"));
     Message callback = waitingList2.remove();
     assertEquals("Invite sent successfully", callback.getText());
-
   }
 
   /**
@@ -1196,7 +1206,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1240,7 +1251,7 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(null);
@@ -1265,7 +1276,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1293,7 +1305,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1321,7 +1334,7 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1349,7 +1362,7 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.Prattle").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1542,7 +1555,7 @@ public class PrattleTest {
   public void testGroupMembersCommand()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1582,7 +1595,7 @@ public class PrattleTest {
   public void testGroupMembersCommand2()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1613,7 +1626,7 @@ public class PrattleTest {
   public void testRemoveUserWithoutGroup()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1635,7 +1648,7 @@ public class PrattleTest {
   public void testRemoveUserWhenNotModerator()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1660,7 +1673,7 @@ public class PrattleTest {
   public void testRemoveUserException()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1685,7 +1698,7 @@ public class PrattleTest {
   public void testUserByUsernameNullException()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1711,7 +1724,7 @@ public class PrattleTest {
   public void testUserNotInGroup()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1739,7 +1752,7 @@ public class PrattleTest {
   public void testUserRemovedFromGroup()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1769,7 +1782,7 @@ public class PrattleTest {
   public void testUserRemovedFromGroupException()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1796,7 +1809,7 @@ public class PrattleTest {
   public void testAddModerator()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1816,7 +1829,6 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserName("Chicken")).thenReturn(chicken);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
         .thenReturn(true);
-    ;
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/addModerator Chicken"));
     waitingList1.remove();
     waitingList1.remove();
@@ -1835,7 +1847,7 @@ public class PrattleTest {
   public void testAddModeratorDuplicateMod()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1856,7 +1868,6 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserName("cowgirl")).thenReturn(cowgirl);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
         .thenReturn(true);
-    ;
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/addModerator cowgirl"));
     waitingList1.remove();
     waitingList1.remove();
@@ -1875,7 +1886,7 @@ public class PrattleTest {
   public void testAddModerator2()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1909,7 +1920,7 @@ public class PrattleTest {
   public void testAddModeratorNotMod()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1939,7 +1950,7 @@ public class PrattleTest {
   public void testAddModeratorNullGroup()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1966,7 +1977,7 @@ public class PrattleTest {
   public void testAddModeratorNoParams()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -1992,7 +2003,7 @@ public class PrattleTest {
   public void testDomNoGroup()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -2015,7 +2026,7 @@ public class PrattleTest {
   public void testDomFailsWhenNotMod()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -2045,7 +2056,7 @@ public class PrattleTest {
   public void testDomFailsWithNoOtherModerator()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
@@ -2077,7 +2088,7 @@ public class PrattleTest {
   public void testDomWorks()
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);

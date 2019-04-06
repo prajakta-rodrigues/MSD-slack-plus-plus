@@ -42,7 +42,7 @@ public class ServerConstants {
 
   static final String SLACKBOT = "Slackbot";
 
-  static final int LATEST_MESSAGES_COUNT = 10;
+  public static final int LATEST_MESSAGES_COUNT = 10;
 
   static final int GENERAL_ID = 1;
 

@@ -71,7 +71,7 @@ public class FriendRequestRepositoryTest {
     Mockito.when(metaData.getColumnName(1)).thenReturn("sender_id");
     Mockito.when(metaData.getColumnName(2)).thenReturn("receiver_id");
 
-    Field fr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field fr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("friendRequestRepository");
     fr.setAccessible(true);
     fr.set(null, friendRequestRepository);

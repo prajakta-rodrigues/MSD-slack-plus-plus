@@ -16,9 +16,9 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import edu.northeastern.ccs.im.server.Models.GroupInvitation;
-import edu.northeastern.ccs.im.server.Models.InviteesGroup;
-import edu.northeastern.ccs.im.server.Models.InvitorsGroup;
+import edu.northeastern.ccs.im.server.models.GroupInvitation;
+import edu.northeastern.ccs.im.server.models.InviteesGroup;
+import edu.northeastern.ccs.im.server.models.InvitorsGroup;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 
 /**
