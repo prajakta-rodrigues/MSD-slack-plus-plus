@@ -114,23 +114,29 @@ public class MessageRepository extends Repository{
     List<MessageHistory> messageHistory = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select * from user_direct_message udm, message_user mu "
-          + "where udm.channel_id = mu.channel_id";
+      String query = "select first.sender, second.user1 , second.user2 , first.text, first.sent_date from " + 
+      		"(select z.handle as sender, m.text, m.sent_date, m.channel_id from message m, user z " + 
+      		"where m.sender_id = z.id and sent_date between ? and ?) as first " + 
+      		"join " + 
+      		"(select u.handle as user1, v.handle as user2, dm.channel_id from direct_message dm, user u, user v " + 
+      		"where u.id = dm.user1_id and v.id = dm.user2_id and (dm.user1_id = ? or dm.user2_id = ?)) "
+      		+ "as second on first.channel_id = second.channel_id";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
-        preparedStmt.setInt(1, userId);
-        preparedStmt.setTimestamp(2, startDate);
-        preparedStmt.setTimestamp(3, endDate);
+        preparedStmt.setTimestamp(1, startDate);
+        preparedStmt.setTimestamp(2, endDate);
+        preparedStmt.setInt(3, userId);
+        preparedStmt.setInt(4, userId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            String senderUserName = (String) result.get("sender_id");
-            if (senderUserName.equals((String) result.get("user1_id"))) {
+            String senderUserName = (String) result.get("sender");
+            if (senderUserName.equals((String) result.get("user1"))) {
               messageHistory
-                  .add(new MessageHistory((String) result.get("user2_id"), MessageRecipientType.USER,
-                      senderUserName, null, query, (Timestamp) result.get("sent_date")));
+                  .add(new MessageHistory((String) result.get("user2"), MessageRecipientType.USER,
+                      senderUserName, MessageRecipientType.USER,String.valueOf(result.get("text")), (Timestamp) result.get("sent_date")));
             } else {
-              messageHistory.add(new MessageHistory((String) result.get("user2_id"),
-                  MessageRecipientType.USER, senderUserName, MessageRecipientType.USER, query,
+              messageHistory.add(new MessageHistory((String) result.get("user1"),
+                  MessageRecipientType.USER, (String) result.get("user2"), MessageRecipientType.USER, String.valueOf(result.get("text")),
                   (Timestamp) result.get("sent_date")));
             }
           }
@@ -147,7 +153,7 @@ public class MessageRepository extends Repository{
 
   }
 
-  public List<MessageHistory> getGroupMessageHistory(int userId, Timestamp startDate,
+  public List<MessageHistory> getGroupMessageHistory(int userId, String userHandle, Timestamp startDate,
       Timestamp endDate) {
     List<MessageHistory> messageHistory = new ArrayList<>();
     try {
@@ -168,8 +174,8 @@ public class MessageRepository extends Repository{
                   (String) result.get("handle"), MessageRecipientType.USER, (String) result.get("text"),
                   (Timestamp) result.get("sent_date")));
             } else {
-              messageHistory.add(new MessageHistory((String) result.get("handle"),
-                  MessageRecipientType.GROUP, (String) result.get("name"), MessageRecipientType.USER,
+              messageHistory.add(new MessageHistory(userHandle,
+                  MessageRecipientType.USER, (String) result.get("name"), MessageRecipientType.GROUP,
                   (String) result.get("text"), (Timestamp) result.get("sent_date")));
             }
           }

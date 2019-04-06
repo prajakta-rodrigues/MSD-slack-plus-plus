@@ -187,6 +187,8 @@ public class PrattleTest {
 
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
 
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
+    
     Field dmr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("dmRepository");
     dmr.setAccessible(true);

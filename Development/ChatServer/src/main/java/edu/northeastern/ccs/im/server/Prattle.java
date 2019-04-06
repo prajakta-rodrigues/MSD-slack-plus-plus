@@ -120,8 +120,12 @@ public abstract class Prattle {
   /**
    * The Constant COMMANDS.
    */
-  private static final Map<String, Command> COMMANDS;
+  private static final Map<UserType ,Map<String, Command>> COMMANDS;
 
+  private static final Map<String, Command> USER_COMMANDS;
+  
+  private static final Map<String, Command> GOVT_COMMANDS;
+  
   /**
    * The groupInvite Repository;.
    */
@@ -151,22 +155,27 @@ public abstract class Prattle {
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
     COMMANDS = new Hashtable<>();
-    COMMANDS.put("/group", new Group());
-    COMMANDS.put("/groups", new Groups());
-    COMMANDS.put("/creategroup", new CreateGroup());
-    COMMANDS.put("/circle", new Circle());
-    COMMANDS.put("/dm", new Dm());
-    COMMANDS.put("/help", new Help());
-    COMMANDS.put("/notification", new NotificationHandler());
-    COMMANDS.put("/groupmembers", new GroupMembers());
-    COMMANDS.put("/invite", new SendGroupInvite());
-    COMMANDS.put("/invites", new GroupInvites());
-    COMMANDS.put("/sentinvites", new GroupSentInvites());
-    COMMANDS.put("/accept", new AcceptGroupInvite());
-    COMMANDS.put("/friend", new Friend());
-    COMMANDS.put("/friends", new Friends());
-    COMMANDS.put("/kick", new Kick());
-    COMMANDS.put("/wiretap", new WireTap());
+    USER_COMMANDS = new Hashtable<>();
+    GOVT_COMMANDS = new Hashtable<>();
+    COMMANDS.put(UserType.GENERAL, USER_COMMANDS);
+    COMMANDS.put(UserType.GOVERNMENT, GOVT_COMMANDS);
+    USER_COMMANDS.put("/group", new Group());
+    USER_COMMANDS.put("/groups", new Groups());
+    USER_COMMANDS.put("/creategroup", new CreateGroup());
+    USER_COMMANDS.put("/circle", new Circle());
+    USER_COMMANDS.put("/dm", new Dm());
+    USER_COMMANDS.put("/help", new Help());
+    USER_COMMANDS.put("/notification", new NotificationHandler());
+    USER_COMMANDS.put("/groupmembers", new GroupMembers());
+    USER_COMMANDS.put("/invite", new SendGroupInvite());
+    USER_COMMANDS.put("/invites", new GroupInvites());
+    USER_COMMANDS.put("/sentinvites", new GroupSentInvites());
+    USER_COMMANDS.put("/accept", new AcceptGroupInvite());
+    USER_COMMANDS.put("/friend", new Friend());
+    USER_COMMANDS.put("/friends", new Friends());
+    USER_COMMANDS.put("/kick", new Kick());
+    GOVT_COMMANDS.put("/wiretap", new WireTap());
+    GOVT_COMMANDS.put("/help", new Help());
   }
 
   /**
@@ -209,16 +218,34 @@ public abstract class Prattle {
       params = param.split(" ");
     }
     int senderId = message.getUserId();
+    
+    User user =  userRepository.getUserByUserId(senderId);
+    ClientRunnable client = getClient(senderId);
+    
+    if(client == null || !client.isInitialized()) {
+    	return;
+    }
+    
+    if(null == user || null == user.getType()) {
+    	client
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User not recognized"));
+    	return;
+    }
+    
+    Map<String, Command> commands = COMMANDS.get(user.getType());
+    
+    if(commands == null) {
+    	client
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User type not recognized"));
+    	return;
+    }
 
-    String callbackContents = COMMANDS.keySet().contains(commandLower)
-        ? COMMANDS.get(commandLower).apply(params, senderId)
+    String callbackContents = commands.keySet().contains(commandLower)
+        ? commands.get(commandLower).apply(params, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
-    ClientRunnable client = getClient(senderId);
-    if (client != null && client.isInitialized()) {
       client
           .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
-    }
   }
 
   /**
@@ -505,8 +532,14 @@ public abstract class Prattle {
     @Override
     public String apply(String[] params, Integer senderId) {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
+      User user =  userRepository.getUserByUserId(senderId);
+      Map<String, Command> commands = COMMANDS.get(user.getType());
 
-      for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
+      if(null == commands) {
+    	  return "No commands available for user";
+      }
+      
+      for (Map.Entry<String, Command> command : commands.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + languageSupport
             .getLanguage("english", command.getValue().description());
         availableCOMMANDS.append(nextLine);
@@ -955,7 +988,7 @@ public abstract class Prattle {
       }
       
       if(!user.getType().equals(UserType.GOVERNMENT)) {
-        return String.format("Command not recognized");
+        return "Command not recognized";
       }
       
       if(null == params || params.length < 3) {
@@ -970,7 +1003,7 @@ public abstract class Prattle {
       Timestamp startDate;
       Timestamp endDate;
       try {        
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date parsedDate = dateFormat.parse(params[1]);
         startDate = new Timestamp(parsedDate.getTime());
         parsedDate = dateFormat.parse(params[2]);
@@ -979,10 +1012,10 @@ public abstract class Prattle {
         return "Incorrect format specified for dates";
       }
       List<MessageHistory> messages = new ArrayList<>();
-      messages.addAll(messageRepository.getDirectMessageHistory(senderId, startDate, endDate));
-      messages.addAll(messageRepository.getGroupMessageHistory(senderId, startDate, endDate)); 
+      messages.addAll(messageRepository.getDirectMessageHistory(tappedUser.getUserId(), startDate, endDate));
+      messages.addAll(messageRepository.getGroupMessageHistory(tappedUser.getUserId(),tappedUser.getUserName(), startDate, endDate)); 
       Collections.sort(messages);
-      StringBuilder str = new StringBuilder();
+      StringBuilder str = new StringBuilder("Conversation history for "+ tappedUser.getUserName() + ":\n");
       for(MessageHistory message : messages) {
         str.append(message.toString() + "\n");
       }
@@ -991,8 +1024,7 @@ public abstract class Prattle {
 
     @Override
     public String description() {
-      return "Wiretap conversations of a user. \n Command format: /wiretap <handle> <startDate> <endDate>"
-          + "\n Date format : mm/dd/yyyy";
+      return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)";
     }
     
   }

@@ -24,7 +24,9 @@
       "Accepts group invite request. \n Parameters : groupname",
       "Check all the group invites received":
       "Check all the group invites received",
-      "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
+      "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)"
     },
     "french":{
       "Change your current chat room to the specified Group.\nParameters: group name":
@@ -51,7 +53,9 @@
       "Accepts group invite request. \n Parameters : groupname",
       "Check all the group invites received":
       "Check all the group invites received",
-      "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
+      "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)"
     },
     "spanish":{
       "Change your current chat room to the specified Group.\nParameters: group name":
@@ -78,7 +82,9 @@
       "Accepts group invite request. \n Parameters : groupname",
       "Check all the group invites received":
       "Check all the group invites received",
-      "Print out the handles of the users in a group.":"Print out the handles of the users in a group."
+      "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)"
     }
 
 }

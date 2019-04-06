@@ -1,6 +1,7 @@
 package prattleTests;
 
 import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.MessageHistory;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import org.mockito.Mockito;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -181,5 +183,104 @@ public class MessageRepositoryTest {
 
   }
 
+  @Test
+  public void testGetDirectMessageHistory() throws SQLException {
+    PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
+    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.when(preparedStmt.executeQuery()).thenReturn(resultSet);
+    Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
+    Mockito.when(metadata.getColumnCount()).thenReturn(5);
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+    Mockito.when(metadata.getColumnName(1)).thenReturn("sender");
+    Mockito.when(metadata.getColumnName(2)).thenReturn("user1");
+    Mockito.when(metadata.getColumnName(3)).thenReturn("user2");
+    Mockito.when(metadata.getColumnName(4)).thenReturn("text");
+    Mockito.when(metadata.getColumnName(5)).thenReturn("sent_date");
+    Mockito.when(resultSet.getObject(1)).thenReturn("arya").thenReturn("jean");
+    Mockito.when(resultSet.getObject(2)).thenReturn("arya").thenReturn("joe");
+    Mockito.when(resultSet.getObject(3)).thenReturn("frodo");
+    Mockito.when(resultSet.getObject(4)).thenReturn("hey frodo");
+    Mockito.when(resultSet.getObject(5)).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+    Mockito.doNothing().when(connection).close();
+    List<MessageHistory> messages = messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(2 , messages.size());
+  }
+  
+  @Test
+  public void testGetDirectMessageHistorySQLExceptions() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    List<MessageHistory> messages = messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(0 , messages.size());
+  }
+  
+  @Test
+  public void testGetDirectMessageHistoryException() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new IllegalArgumentException());
+    messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    List<MessageHistory> messages = messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(0 , messages.size());
+  }
+  
+  @Test
+  public void testGetGroupMessageHistory() throws SQLException {
+    PreparedStatement preparedStmt = Mockito.mock(PreparedStatement.class);
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(preparedStmt);
+    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(preparedStmt).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.when(preparedStmt.executeQuery()).thenReturn(resultSet);
+    Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
+    Mockito.when(metadata.getColumnCount()).thenReturn(5);
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+    Mockito.when(metadata.getColumnName(1)).thenReturn("id");
+    Mockito.when(metadata.getColumnName(2)).thenReturn("handle");
+    Mockito.when(metadata.getColumnName(3)).thenReturn("text");
+    Mockito.when(metadata.getColumnName(4)).thenReturn("sent_date");
+    Mockito.when(metadata.getColumnName(5)).thenReturn("name");
+    Mockito.when(resultSet.getObject(1)).thenReturn(1).thenReturn(2);
+    Mockito.when(resultSet.getObject(2)).thenReturn("arya").thenReturn("test");
+    Mockito.when(resultSet.getObject(3)).thenReturn("howdy frodo");
+    Mockito.when(resultSet.getObject(5)).thenReturn("frodo");
+    Mockito.when(resultSet.getObject(4)).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+    Mockito.doNothing().when(connection).close();
+    List<MessageHistory> messages = messageRepository.getGroupMessageHistory(1, "test",Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(2 , messages.size());
+  }
+  
+  @Test
+  public void testGetGroupMessageHistorySQLExceptions() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    List<MessageHistory> messages = messageRepository.getGroupMessageHistory(1, "test", Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(0 , messages.size());
+  }
+  
+  @Test
+  public void testGetGroupMessageHistoryException() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new IllegalArgumentException());
+    messageRepository.getDirectMessageHistory(1, Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    List<MessageHistory> messages = messageRepository.getGroupMessageHistory(1, "test", Timestamp.valueOf(LocalDateTime.now()), 
+        Timestamp.valueOf(LocalDateTime.now()));
+    assertEquals(0 , messages.size());
+  }
+  
+  
+  
+  
 
 }
