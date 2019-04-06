@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -248,7 +249,7 @@ public abstract class Prattle {
     
     if(commands == null) {
     	client
-        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User type not recognized"));
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "No commands available"));
     	return;
     }
 
@@ -553,10 +554,6 @@ public abstract class Prattle {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
       User user =  userRepository.getUserByUserId(senderId);
       Map<String, Command> commands = COMMANDS.get(user.getType());
-
-      if(null == commands) {
-    	  return "No commands available for user";
-      }
       
       for (Map.Entry<String, Command> command : commands.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + languageSupport
@@ -997,19 +994,20 @@ public abstract class Prattle {
     }
   }
   
+  /**
+   * Help users with privilege to wiretap other users
+   */
   private static class WireTap implements Command {
-
+    
+    /**
+     * Wiretaps conversation of particular user between given dates 
+     *
+     * @param params include user handle, startdate and enddate
+     * @param senderId the id of the user wanting to wiretap
+     * @return the conversations of given user.
+     */
     @Override
-    public String apply(String[] params, Integer senderId) {
-      User user = userRepository.getUserByUserId(senderId);
-      if(user == null || null == user.getType()) {
-        return "Invalid user";
-      }
-      
-      if(!user.getType().equals(UserType.GOVERNMENT)) {
-        return "Command not recognized";
-      }
-      
+    public String apply(String[] params, Integer senderId) {      
       if(null == params || params.length < 3) {
         return "Invalid number of parameters";
       }
@@ -1023,11 +1021,12 @@ public abstract class Prattle {
       Timestamp endDate;
       try {        
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
         Date parsedDate = dateFormat.parse(params[1]);
         startDate = new Timestamp(parsedDate.getTime());
         parsedDate = dateFormat.parse(params[2]);
         endDate = new Timestamp(parsedDate.getTime());
-      } catch (Exception e) { 
+      } catch (ParseException e) { 
         return "Incorrect format specified for dates";
       }
       List<MessageHistory> messages = new ArrayList<>();
@@ -1040,6 +1039,11 @@ public abstract class Prattle {
       }
       return str.toString();
     }
+    
+    /*
+     * Gives description of wiretap method
+     * @return the description
+     */
     @Override
     public String description() {
       return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)";
