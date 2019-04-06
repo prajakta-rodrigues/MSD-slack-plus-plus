@@ -87,6 +87,7 @@ public abstract class Prattle {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
+    
     userRepository = RepositoryFactory.getUserRepository();
     messageRepository = RepositoryFactory.getMessageRepository();
 
