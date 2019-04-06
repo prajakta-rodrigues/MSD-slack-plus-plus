@@ -330,7 +330,7 @@ public class ClientRunnable implements Runnable {
     Message sendMsg;
     int id = (msg.getName().hashCode() & 0xfffffff);
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
-    boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
+    boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd, UserType.GENERAL));
     if (result) {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
           "Registration done. Continue to message.");

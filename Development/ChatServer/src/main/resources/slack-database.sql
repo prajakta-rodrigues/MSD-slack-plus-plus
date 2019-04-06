@@ -216,4 +216,9 @@ constraint fk_invitee_id foreign key(invitee_id)  references slack.user(id),
 constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
 constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
 
+ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL';
+update slack.user set type = 'SYSTEM' where id = -1; 
+update slack.user set type = 'GENERAL' where id = null;
+
+
 

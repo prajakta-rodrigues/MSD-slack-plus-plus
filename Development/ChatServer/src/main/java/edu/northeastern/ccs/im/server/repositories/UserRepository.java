@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 
 import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.UserType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
@@ -45,7 +46,8 @@ public class UserRepository extends Repository {
 
 					for (Map<String, Object> result : results) {
 						user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-								String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
+								String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+								UserType.valueOf((String)result.get("type")));
 					}
 					connection.close();
 				}
@@ -69,12 +71,13 @@ public class UserRepository extends Repository {
 		int result = 0;
 		try {
 			connection = dataSource.getConnection();
-			String query = "insert into slack.user(id, handle, password, account_created_date) values(?,?,?,?)";
+			String query = "insert into slack.user(id, handle, password, type, account_created_date) values(?,?,?,?,?)";
 			try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
 				preparedStmt.setInt(1, user.getUserId());
 				preparedStmt.setString(2, user.getUserName());
 				preparedStmt.setString(3, user.getPassword());
-				preparedStmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+				preparedStmt.setString(4, user.getType().name());
+				preparedStmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
 				result = preparedStmt.executeUpdate();
 				connection.close();
 			}
@@ -106,7 +109,8 @@ public class UserRepository extends Repository {
 
                     for (Map<String, Object> result : results) {
                         user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")));
+                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+                                UserType.valueOf((String)result.get("type")));
                     }
                     connection.close();
                 }

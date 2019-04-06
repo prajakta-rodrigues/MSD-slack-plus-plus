@@ -15,12 +15,16 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -117,8 +121,12 @@ public abstract class Prattle {
   /**
    * The Constant COMMANDS.
    */
-  private static final Map<String, Command> COMMANDS;
+  private static final Map<UserType ,Map<String, Command>> COMMANDS;
 
+  private static final Map<String, Command> USER_COMMANDS;
+  
+  private static final Map<String, Command> GOVT_COMMANDS;
+  
   /**
    * The groupInvite Repository;.
    */
@@ -158,23 +166,29 @@ public abstract class Prattle {
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     // Populate the known COMMANDS
     COMMANDS = new Hashtable<>();
-    COMMANDS.put("/group", new Group());
-    COMMANDS.put("/groups", new Groups());
-    COMMANDS.put("/creategroup", new CreateGroup());
-    COMMANDS.put("/circle", new Circle());
-    COMMANDS.put("/dm", new Dm());
-    COMMANDS.put("/help", new Help());
-    COMMANDS.put("/notification", new NotificationHandler());
-    COMMANDS.put("/groupmembers", new GroupMembers());
-    COMMANDS.put("/invite", new SendGroupInvite());
-    COMMANDS.put("/invites", new GroupInvites());
-    COMMANDS.put("/sentinvites", new GroupSentInvites());
-    COMMANDS.put("/accept", new AcceptGroupInvite());
-    COMMANDS.put("/friend", new Friend());
-    COMMANDS.put("/friends", new Friends());
-    COMMANDS.put("/kick", new Kick());
-    COMMANDS.put("/dom", new Dom());
-    COMMANDS.put("/addmoderator", new AddModerator());
+    USER_COMMANDS = new Hashtable<>();
+    GOVT_COMMANDS = new Hashtable<>();
+    COMMANDS.put(UserType.GENERAL, USER_COMMANDS);
+    COMMANDS.put(UserType.GOVERNMENT, GOVT_COMMANDS);
+    USER_COMMANDS.put("/group", new Group());
+    USER_COMMANDS.put("/groups", new Groups());
+    USER_COMMANDS.put("/creategroup", new CreateGroup());
+    USER_COMMANDS.put("/circle", new Circle());
+    USER_COMMANDS.put("/dm", new Dm());
+    USER_COMMANDS.put("/help", new Help());
+    USER_COMMANDS.put("/notification", new NotificationHandler());
+    USER_COMMANDS.put("/groupmembers", new GroupMembers());
+    USER_COMMANDS.put("/invite", new SendGroupInvite());
+    USER_COMMANDS.put("/invites", new GroupInvites());
+    USER_COMMANDS.put("/sentinvites", new GroupSentInvites());
+    USER_COMMANDS.put("/accept", new AcceptGroupInvite());
+    USER_COMMANDS.put("/friend", new Friend());
+    USER_COMMANDS.put("/friends", new Friends());
+    USER_COMMANDS.put("/kick", new Kick());
+    GOVT_COMMANDS.put("/wiretap", new WireTap());
+    GOVT_COMMANDS.put("/help", new Help());
+    USER_COMMANDS.put("/dom", new Dom());
+    USER_COMMANDS.put("/addmoderator", new AddModerator());
   }
 
   /**
@@ -217,16 +231,34 @@ public abstract class Prattle {
       params = param.split(" ");
     }
     int senderId = message.getUserId();
+    
+    User user =  userRepository.getUserByUserId(senderId);
+    ClientRunnable client = getClient(senderId);
+    
+    if(client == null || !client.isInitialized()) {
+    	return;
+    }
+    
+    if(null == user || null == user.getType()) {
+    	client
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User not recognized"));
+    	return;
+    }
+    
+    Map<String, Command> commands = COMMANDS.get(user.getType());
+    
+    if(commands == null) {
+    	client
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "No commands available"));
+    	return;
+    }
 
-    String callbackContents = COMMANDS.keySet().contains(commandLower)
-        ? COMMANDS.get(commandLower).apply(params, senderId)
+    String callbackContents = commands.keySet().contains(commandLower)
+        ? commands.get(commandLower).apply(params, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
-    ClientRunnable client = getClient(senderId);
-    if (client != null && client.isInitialized()) {
       client
           .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
-    }
   }
 
   /**
@@ -520,8 +552,10 @@ public abstract class Prattle {
     @Override
     public String apply(String[] params, Integer senderId) {
       StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
-
-      for (Map.Entry<String, Command> command : COMMANDS.entrySet()) {
+      User user =  userRepository.getUserByUserId(senderId);
+      Map<String, Command> commands = COMMANDS.get(user.getType());
+      
+      for (Map.Entry<String, Command> command : commands.entrySet()) {
         String nextLine = "\n" + command.getKey() + " " + languageSupport
             .getLanguage("english", command.getValue().description());
         availableCOMMANDS.append(nextLine);
@@ -959,6 +993,63 @@ public abstract class Prattle {
           "Parameters: handle of the user to kick";
     }
   }
+  
+  /**
+   * Help users with privilege to wiretap other users
+   */
+  private static class WireTap implements Command {
+    
+    /**
+     * Wiretaps conversation of particular user between given dates 
+     *
+     * @param params include user handle, startdate and enddate
+     * @param senderId the id of the user wanting to wiretap
+     * @return the conversations of given user.
+     */
+    @Override
+    public String apply(String[] params, Integer senderId) {      
+      if(null == params || params.length < 3) {
+        return "Invalid number of parameters";
+      }
+      
+      User tappedUser = userRepository.getUserByUserName(params[0]);
+      
+      if(null == tappedUser) {
+        return "No user found with given user name";
+      }
+      Timestamp startDate;
+      Timestamp endDate;
+      try {        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
+        Date parsedDate = dateFormat.parse(params[1]);
+        startDate = new Timestamp(parsedDate.getTime());
+        parsedDate = dateFormat.parse(params[2]);
+        endDate = new Timestamp(parsedDate.getTime());
+      } catch (ParseException e) { 
+        return "Incorrect format specified for dates";
+      }
+      List<MessageHistory> messages = new ArrayList<>();
+      messages.addAll(messageRepository.getDirectMessageHistory(tappedUser.getUserId(), startDate, endDate));
+      messages.addAll(messageRepository.getGroupMessageHistory(tappedUser.getUserId(),tappedUser.getUserName(), startDate, endDate)); 
+      Collections.sort(messages);
+      StringBuilder str = new StringBuilder("Conversation history for "+ tappedUser.getUserName() + ":\n");
+      for(MessageHistory message : messages) {
+        str.append(message.toString() + "\n");
+      }
+      return str.toString();
+    }
+    
+    /*
+     * Gives description of wiretap method
+     * @return the description
+     */
+    @Override
+    public String description() {
+      return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)";
+    }
+  }
+    
 
   /**
    * Removes a user's moderatorship, if applicable
@@ -1043,7 +1134,7 @@ public abstract class Prattle {
       notificationRepository.addNotification(modNotification);
       return userHandle + " added " + newModHandle + " as a moderator of this group.";
     }
-
+    
     @Override
     public String description() {
       return "Adds the given user as a moderator.\nParameters: User to add as a moderator.";
