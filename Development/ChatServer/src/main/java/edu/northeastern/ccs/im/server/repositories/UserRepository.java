@@ -196,5 +196,25 @@ public class UserRepository extends Repository {
     }
     return false;
   }
+  
+  public boolean setDNDStatus(int userId, boolean dnd) {
+    int result = 0;
+    try {
+      connection = dataSource.getConnection();
+      String query = "update slack.user set dnd = ? WHERE id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(2, userId);
+        preparedStmt.setBoolean(2, dnd);
+        result = preparedStmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return result > 0;
+  }
 }
 

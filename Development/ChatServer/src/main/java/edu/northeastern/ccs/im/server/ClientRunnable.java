@@ -277,7 +277,7 @@ public class ClientRunnable implements Runnable {
     if(!notificationCalendar.before(new GregorianCalendar())) {
       return;
     }
-    if (authenticated && userRepository.getDNDStatus(userId)) {
+    if (authenticated && !userRepository.getDNDStatus(userId)) {
       List<Notification> listNotifications =
           notificationRepository.getAllNewNotificationsByReceiverId(userId);
       if (listNotifications != null && !listNotifications.isEmpty()) {

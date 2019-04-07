@@ -2249,5 +2249,28 @@ public class PrattleTest {
         callback.getText());
   }
   
+  @Test
+  public void testDndSucess() {
+    when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Set DND mode to true" , callback.getText());
+  }
+  
+  @Test
+  public void testDndFail() {
+    when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Unable to set DND" , callback.getText());
+  }
+  
+  @Test
+  public void testDndInvalidParams() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd"));
+    Message callback = waitingList1.remove();
+    assertEquals("No params specified" , callback.getText());
+  }
+  
 
 }
