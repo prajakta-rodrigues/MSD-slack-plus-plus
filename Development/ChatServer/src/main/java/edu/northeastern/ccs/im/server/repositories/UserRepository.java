@@ -204,7 +204,7 @@ public class UserRepository extends Repository {
       String query = "update slack.user set dnd = ? WHERE id = ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(2, userId);
-        preparedStmt.setBoolean(2, dnd);
+        preparedStmt.setBoolean(1, dnd);
         result = preparedStmt.executeUpdate();
       }
     } catch (SQLException e) {
