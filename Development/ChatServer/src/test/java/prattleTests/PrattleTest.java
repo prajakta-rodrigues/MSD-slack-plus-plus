@@ -119,6 +119,9 @@ public class PrattleTest {
   /** The mark. */
   private User mark;
 
+  /**
+   * Kill server.
+   */
   @BeforeClass
   public static void killServer() {
     Prattle.stopServer();
@@ -621,6 +624,8 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
+   *
+   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -2249,6 +2254,9 @@ public class PrattleTest {
         callback.getText());
   }
   
+  /**
+   * Test dnd sucess.
+   */
   @Test
   public void testDndSucess() {
     when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(true);
@@ -2257,6 +2265,9 @@ public class PrattleTest {
     assertEquals("Set DND mode to true" , callback.getText());
   }
   
+  /**
+   * Test dnd fail.
+   */
   @Test
   public void testDndFail() {
     when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(false);
@@ -2265,6 +2276,9 @@ public class PrattleTest {
     assertEquals("Unable to set DND" , callback.getText());
   }
   
+  /**
+   * Test dnd invalid params.
+   */
   @Test
   public void testDndInvalidParams() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd"));

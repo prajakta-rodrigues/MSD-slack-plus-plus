@@ -21,10 +21,18 @@ import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
  */
 public class UserRepository extends Repository {
 
+  /**
+   * Instantiates a new user repository.
+   *
+   * @param ds the ds
+   */
   public UserRepository(DataSource ds) {
     super(ds);
   }
 
+  /**
+   * Instantiates a new user repository.
+   */
   public UserRepository() { super(); }
 
 	/**
@@ -175,6 +183,12 @@ public class UserRepository extends Repository {
       return result > 0;
     }
   
+  /**
+   * Gets the DND status.
+   *
+   * @param userId the user id whose dnd status is to be fetched
+   * @return the DND status
+   */
   public boolean getDNDStatus(int userId) {
     try {
       connection = dataSource.getConnection();
@@ -197,6 +211,13 @@ public class UserRepository extends Repository {
     return false;
   }
   
+  /**
+   * Sets the DND status.
+   *
+   * @param userId the user id whose dnd status is to be set
+   * @param dnd the dnd status to be set
+   * @return true, if successful
+   */
   public boolean setDNDStatus(int userId, boolean dnd) {
     int result = 0;
     try {

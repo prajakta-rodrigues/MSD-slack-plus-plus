@@ -105,7 +105,9 @@ public class UserRepositoryTest {
   }
 
   /**
-   * Test get user by id success
+   * Test get user by id success.
+   *
+   * @throws SQLException the SQL exception
    */
   @Test
   public void testGetUserByNameSuccess() throws SQLException {
@@ -152,7 +154,9 @@ public class UserRepositoryTest {
   }
 
   /**
-   * Test get user by id success
+   * Test get user by id success.
+   *
+   * @throws SQLException the SQL exception
    */
   @Test
   public void testGetUserByIdSuccess() throws SQLException {
@@ -182,6 +186,11 @@ public class UserRepositoryTest {
     assertEquals(1, user.getUserId());
   }
 
+  /**
+   * Test set active true.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveTrue() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -197,6 +206,11 @@ public class UserRepositoryTest {
     assertTrue(userRepository.setActive(true, 1));
   }
 
+  /**
+   * Test set active false.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveFalse() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -212,6 +226,11 @@ public class UserRepositoryTest {
     assertTrue(userRepository.setActive(false, 1));
   }
 
+  /**
+   * Test set active fail.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveFail() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -227,6 +246,11 @@ public class UserRepositoryTest {
     assertFalse(userRepository.setActive(false, 1));
   }
 
+  /**
+   * Test set active exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -243,6 +267,11 @@ public class UserRepositoryTest {
     assertFalse(userRepository.setActive(true, 1));
   }
 
+  /**
+   * Test set active channel success.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveChannelSuccess() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -257,6 +286,11 @@ public class UserRepositoryTest {
     assertTrue(userRepository.setActiveChannel(1, 1));
   }
 
+  /**
+   * Test set active channel fail.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveChannelFail() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -271,6 +305,11 @@ public class UserRepositoryTest {
     assertFalse(userRepository.setActiveChannel(1, 1));
   }
 
+  /**
+   * Test set active channel exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetActiveChannelException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -285,6 +324,11 @@ public class UserRepositoryTest {
     assertFalse(userRepository.setActiveChannel(1, 1));
   }
   
+  /**
+   * Test get DND status.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetDNDStatus() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -307,6 +351,11 @@ public class UserRepositoryTest {
     assertTrue(userRepository.getDNDStatus(1));
   }
   
+  /**
+   * Test get DND status throw SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetDNDStatusThrowSQLException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -320,6 +369,11 @@ public class UserRepositoryTest {
   }
   
 
+  /**
+   * Test get DND status throw exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testGetDNDStatusThrowException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -334,6 +388,11 @@ public class UserRepositoryTest {
  
 
   
+  /**
+   * Testset DND status.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testsetDNDStatus() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -348,6 +407,11 @@ public class UserRepositoryTest {
     assertTrue(userRepository.setDNDStatus(1, true));
   }
   
+  /**
+   * Test set DND status throw SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetDNDStatusThrowSQLException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
@@ -361,6 +425,11 @@ public class UserRepositoryTest {
   }
   
 
+  /**
+   * Test set DND status throw exception.
+   *
+   * @throws SQLException the SQL exception
+   */
   @Test
   public void testSetDNDStatusThrowException() throws SQLException {
     DataSource ds = Mockito.mock(DataSource.class);
