@@ -2,7 +2,7 @@ package edu.northeastern.ccs.im.server.commands;
 
 import java.sql.SQLException;
 
-import edu.northeastern.ccs.im.server.ErrorCodes;
+import edu.northeastern.ccs.im.server.constants.ErrorCodes;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 /**

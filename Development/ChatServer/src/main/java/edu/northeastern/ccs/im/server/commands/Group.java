@@ -5,7 +5,7 @@ import java.util.List;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
-import edu.northeastern.ccs.im.server.ServerConstants;
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
 
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
 import static edu.northeastern.ccs.im.server.Prattle.getClient;

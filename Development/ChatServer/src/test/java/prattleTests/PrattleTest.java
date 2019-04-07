@@ -32,9 +32,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import edu.northeastern.ccs.im.client.Buddy;
-import edu.northeastern.ccs.im.server.ChatLogger;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.ErrorCodes;
+import edu.northeastern.ccs.im.server.constants.ErrorCodes;
 import edu.northeastern.ccs.im.server.models.GroupInvitation;
 import edu.northeastern.ccs.im.server.models.InviteesGroup;
 import edu.northeastern.ccs.im.server.models.InvitorsGroup;
@@ -384,7 +384,7 @@ public class PrattleTest {
   @Test
   public void testChatloggerTypes()
       throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.ServerConstants")
+    Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.constants.ServerConstants")
         .getDeclaredConstructor();
     constructor.setAccessible(true);
     constructor.newInstance();

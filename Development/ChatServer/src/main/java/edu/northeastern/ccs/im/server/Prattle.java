@@ -22,14 +22,16 @@ import java.util.concurrent.TimeUnit;
 
 import edu.northeastern.ccs.im.server.commands.Command;
 import edu.northeastern.ccs.im.server.commands.CommandFactory;
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
 import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.User;
 import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
 
-import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
+import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server

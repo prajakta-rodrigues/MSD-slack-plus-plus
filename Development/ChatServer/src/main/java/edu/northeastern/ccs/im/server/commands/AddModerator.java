@@ -8,8 +8,8 @@ import edu.northeastern.ccs.im.server.models.SlackGroup;
 import edu.northeastern.ccs.im.server.models.User;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
-import static edu.northeastern.ccs.im.server.StringConstants.NONEXISTING_GROUP;
-import static edu.northeastern.ccs.im.server.StringConstants.NOT_MODERATOR;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.NONEXISTING_GROUP;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.NOT_MODERATOR;
 
 /**
  * Adds a moderator to a group.
