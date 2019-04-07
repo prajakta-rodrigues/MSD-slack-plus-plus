@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import edu.northeastern.ccs.im.server.User;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

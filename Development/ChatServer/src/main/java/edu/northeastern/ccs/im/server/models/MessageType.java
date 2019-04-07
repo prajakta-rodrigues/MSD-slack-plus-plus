@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 /**
  * Enumeration for the different types of messages.

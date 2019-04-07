@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 import java.util.HashMap;
 import java.util.List;

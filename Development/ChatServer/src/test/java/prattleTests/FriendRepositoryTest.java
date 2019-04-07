@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 
-import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.Prattle;
-import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserType;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import java.lang.reflect.Field;
@@ -89,13 +89,17 @@ public class FriendRepositoryTest {
     Mockito.when(metaData.getColumnName(1)).thenReturn("user1_id");
     Mockito.when(metaData.getColumnName(2)).thenReturn("user2_id");
     Mockito.when(metaData.getColumnName(3)).thenReturn("exists");
-    Field fr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field fr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
         .getDeclaredField("friendRepository");
     fr.setAccessible(true);
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
         .getDeclaredField("userRepository");
     ur.setAccessible(true);
     ur.set(null, userRepository);
+    Field cur = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("userRepository");
+    cur.setAccessible(true);
+    cur.set(null, userRepository);
 
     omar = new User(1, "omar", "password", UserType.GENERAL);
     mark = new User(2, "mark", "password", UserType.GENERAL);

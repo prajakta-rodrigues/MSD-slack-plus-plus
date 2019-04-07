@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.utility;
 
 import java.io.IOException;
 import java.util.logging.ConsoleHandler;
@@ -69,7 +69,7 @@ public class ChatLogger {
    *
    * @param msg message to be logged
    */
-  static final void info(String msg) {
+  public static final void info(String msg) {
     write(Level.INFO, msg);
   }
 

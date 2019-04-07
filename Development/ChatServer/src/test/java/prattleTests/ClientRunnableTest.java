@@ -23,15 +23,15 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.sql.DataSource;
 
-import edu.northeastern.ccs.im.server.Message;
+import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.NetworkConnection;
-import edu.northeastern.ccs.im.server.Notification;
-import edu.northeastern.ccs.im.server.NotificationType;
-import edu.northeastern.ccs.im.server.User;
-import edu.northeastern.ccs.im.server.UserType;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationType;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
-import edu.northeastern.ccs.im.server.ChatLogger;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.ClientTimer;
 
@@ -258,7 +258,7 @@ public class ClientRunnableTest {
     clientRunnable.setName("usr1");
     Method msgChecksMethod = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
         .getDeclaredMethod("messageChecks",
-            edu.northeastern.ccs.im.server.Message.class);
+            Message.class);
     msgChecksMethod.setAccessible(true);
     msgChecksMethod.invoke(clientRunnable, Message.makeBroadcastMessage("usr", "hey"));
   }

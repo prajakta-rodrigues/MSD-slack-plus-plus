@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import edu.northeastern.ccs.im.server.SlackGroup;
+import edu.northeastern.ccs.im.server.models.SlackGroup;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 
 import static junit.framework.Assert.assertEquals;

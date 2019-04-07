@@ -7,11 +7,19 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import org.mindrot.jbcrypt.BCrypt;
+
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationConvertor;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
-import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
+import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.

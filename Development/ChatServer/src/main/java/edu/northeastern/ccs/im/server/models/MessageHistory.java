@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;

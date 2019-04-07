@@ -106,7 +106,4 @@ public IMConnection getConnection(String[] args, Readable input) {
   protected boolean checkIfConnected(IMConnection connect) {
     return connect.connect();
   }
-  
-  
-  
 }

@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 
 /**
@@ -42,7 +42,7 @@ public class SlackGroup {
     return groupName;
   }
 
-  int getChannelId() {
+  public int getChannelId() {
     return channelId;
   }
 
