@@ -42,7 +42,7 @@ public class NetworkConnection implements Iterable<Message> {
 	private static final int MIN_MESSAGE_LENGTH = 7;
 
 	/** The default character set. */
-	private static final String CHARSET_NAME = "us-ascii";
+	private static final String CHARSET_NAME = "utf-8";
 
 	/**
 	 * Number of times to try sending a message before we give up in frustration.

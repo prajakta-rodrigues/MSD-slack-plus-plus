@@ -18,6 +18,7 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -37,6 +38,7 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.LanguageSupport;
 import com.google.cloud.translate.*;
+import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
 import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
 
@@ -135,6 +137,10 @@ public abstract class Prattle {
    * The Language support Instance.
    */
   private static final LanguageSupport languageSupport;
+  /**
+   * * The Translation support Instance.
+   * */
+  private static final TranslationSupport translationSupport;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -154,6 +160,7 @@ public abstract class Prattle {
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     languageSupport= LanguageSupport.getInstance();
+    translationSupport= TranslationSupport.getInstance();
     // Populate the known COMMANDS
     COMMANDS = new Hashtable<>();
     COMMANDS.put("/group", new Group());
@@ -172,6 +179,7 @@ public abstract class Prattle {
     COMMANDS.put("/friends", new Friends());
     COMMANDS.put("/kick", new Kick());
     COMMANDS.put("/translate", new TranslateClass());
+    COMMANDS.put("/lang", new LanguageClass());
 
   }
 
@@ -960,20 +968,52 @@ public abstract class Prattle {
     @Override
     public String apply(String[] params, Integer senderId) {
       if (params == null) {
-        return "You have to enter a string";
+        return "You have to enter a language";
       }
-      StringBuilder text = new StringBuilder();
-      for (String param:params){
-        text.append(param+"");
+      if(!translationSupport.isLanguageSupported(params[0])){
+            return "You have to enter a valid language or code. check /lang command to find the supported languages";
       }
-      Translation translation = translate.translate(text.toString());
-      return translation.getTranslatedText();
+      if(params.length<2){
+        return "You have to enter a language and text to translate";
+      }
+      String[] words = Arrays.copyOfRange(params,1,params.length);
+//      StringBuilder text = new StringBuilder();
+//      for (String param:words){
+//        text.append(param+" ");
+//      }
+
+      Translation translation = translate.translate(String.join(" ", words),Translate.TranslateOption.targetLanguage(translationSupport.LanguageCode(params[0])));
+      String result = translation.getTranslatedText();
+      return result;
     }
 
     @Override
     public String description() {
       return "You can translate any sentence \n" +
               "Parameters: language to translate it to";
+    }
+  }
+
+  /**
+   * List all languages available to translate
+   */
+  private static class LanguageClass implements Command {
+
+      @Override
+      public String apply(String[] params, Integer senderId) {
+
+          List<Language> languages = translate.listSupportedLanguages();
+          StringBuilder text = new StringBuilder("Languages are:");
+          for (Language language : languages) {
+              String line = "\nLanguage: "+language.getName()+"    Code: "+language.getCode();
+              text.append(line);
+          }
+          return text.toString();
+      }
+
+    @Override
+    public String description() {
+      return "find all the available languages which you can use /translate on";
     }
   }
 }
