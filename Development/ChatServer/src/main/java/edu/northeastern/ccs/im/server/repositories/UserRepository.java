@@ -174,4 +174,27 @@ public class UserRepository extends Repository {
       }
       return result > 0;
     }
+  
+  public boolean getDNDStatus(int userId) {
+    try {
+      connection = dataSource.getConnection();
+      String query = "select dnd from slack.user WHERE id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          return (Boolean)results.get(0).get("dnd");
+        }
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch(Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
+    }
+    return false;
+  }
 }
+
