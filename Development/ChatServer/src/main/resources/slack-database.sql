@@ -231,3 +231,4 @@ update slack.user set type = 'SYSTEM' where id = -1;
 update slack.user set type = 'GENERAL' where id = null;
 
 ALTER TABLE slack.group ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE;
+alter table slack.user add column dnd boolean default false;

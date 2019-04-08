@@ -274,7 +274,10 @@ public class ClientRunnable implements Runnable {
    * Checks for new notifications for user.
    */
   private void handleNotifications() {
-    if (authenticated && notificationCalendar.before(new GregorianCalendar())) {
+    if(!notificationCalendar.before(new GregorianCalendar())) {
+      return;
+    }
+    if (authenticated && !userRepository.getDNDStatus(userId)) {
       List<Notification> listNotifications =
           notificationRepository.getAllNewNotificationsByReceiverId(userId);
       if (listNotifications != null && !listNotifications.isEmpty()) {

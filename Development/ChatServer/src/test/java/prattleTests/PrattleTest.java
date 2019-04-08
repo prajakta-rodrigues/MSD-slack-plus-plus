@@ -121,6 +121,9 @@ public class PrattleTest {
   /** The mark. */
   private User mark;
 
+  /**
+   * Kill server.
+   */
   @BeforeClass
   public static void killServer() {
     Prattle.stopServer();
@@ -624,6 +627,8 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
+   *
+   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -2250,6 +2255,38 @@ public class PrattleTest {
         + "/wiretap Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> "
         + "(Date format:mm/dd/yyyy)\n" + "/help Lists all of the available commands.",
         callback.getText());
+  }
+  
+  /**
+   * Test dnd sucess.
+   */
+  @Test
+  public void testDndSucess() {
+    when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Set DND mode to true" , callback.getText());
+  }
+  
+  /**
+   * Test dnd fail.
+   */
+  @Test
+  public void testDndFail() {
+    when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Unable to set DND" , callback.getText());
+  }
+  
+  /**
+   * Test dnd invalid params.
+   */
+  @Test
+  public void testDndInvalidParams() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd"));
+    Message callback = waitingList1.remove();
+    assertEquals("No params specified" , callback.getText());
   }
   
 
