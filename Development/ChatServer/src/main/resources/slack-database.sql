@@ -199,6 +199,16 @@ BEGIN
     end if;
 END //
 
+CREATE TRIGGER slack.delete_group AFTER UPDATE ON slack.group
+FOR EACH ROW
+BEGIN
+	IF NEW.deleted <> OLD.deleted AND NEW.deleted THEN
+		UPDATE slack.user SET active_channel = 1 
+        WHERE id IN (SELECT user_id FROM slack.user_group WHERE group_id = OLD.id) AND id > 0;
+		DELETE FROM slack.user_group WHERE group_id = OLD.id;
+    END IF;
+END //
+
 delimiter ;
 
 		
@@ -217,8 +227,7 @@ constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
 constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
 
 ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL';
-update slack.user set type = 'SYSTEM' where id = -1; 
+update slack.user set type = 'SYSTEM' where id = -1;
 update slack.user set type = 'GENERAL' where id = null;
 
-
-
+ALTER TABLE slack.group ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE;

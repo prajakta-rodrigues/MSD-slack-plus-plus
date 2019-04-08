@@ -31,6 +31,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.sql.DataSource;
+
 import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -303,6 +305,7 @@ public class PrattleTest {
      * Instantiates a new mock group repository.
      */
     MockGroupRepository() {
+      super(Mockito.mock(DataSource.class));
       mockDb = new HashMap<>();
 
       mockDb.put("general", new SlackGroup(1, -1, "general", 1));

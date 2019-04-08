@@ -204,7 +204,7 @@ public class ClientRunnable implements Runnable {
    *
    * @param message Complete message to be sent.
    */
-  void enqueueMessage(Message message) {
+  public void enqueueMessage(Message message) {
     waitingList.add(message);
   }
 

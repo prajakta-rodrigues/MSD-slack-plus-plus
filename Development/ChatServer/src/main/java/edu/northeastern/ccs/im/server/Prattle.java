@@ -188,6 +188,15 @@ public abstract class Prattle {
     return authenticated.values();
   }
 
+  /**
+   * Get all active clients in the specified channel.
+   * @param channelId the channelId.
+   * @return the clients in the specified channel.
+   */
+  public static Collection<ClientRunnable> getChannelClients(int channelId) {
+    return channelMembers.getOrDefault(channelId, new HashSet<>());
+  }
+
 
   /**
    * Remove the given IM client from the list of active threads.
