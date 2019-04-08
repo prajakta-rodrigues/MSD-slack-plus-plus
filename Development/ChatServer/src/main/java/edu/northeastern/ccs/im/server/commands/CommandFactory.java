@@ -47,6 +47,7 @@ public abstract class CommandFactory {
     GOVT_COMMANDS.put("/help", new Help());
     USER_COMMANDS.put("/dom", new Dom());
     USER_COMMANDS.put("/addmoderator", new AddModerator());
+    USER_COMMANDS.put("/dnd", new Dnd());
   }
 
   public static Map<UserType, Map<String, Command>> getCommands() {

@@ -220,5 +220,4 @@ ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL'
 update slack.user set type = 'SYSTEM' where id = -1; 
 update slack.user set type = 'GENERAL' where id = null;
 
-
-
+alter table slack.user add column dnd boolean default false;
