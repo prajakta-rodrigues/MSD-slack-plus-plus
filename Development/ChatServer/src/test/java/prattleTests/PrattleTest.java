@@ -1,9 +1,5 @@
 package prattleTests;
 
-import com.google.cloud.ServiceOptions;
-import com.google.cloud.translate.Language;
-import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.TranslateOptions;
 import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
@@ -629,8 +625,6 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
-   *
-   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -2298,7 +2292,7 @@ public class PrattleTest {
   @Test
   public void testAvailablesLanguagesToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Languages")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
     gr.set(null,translationSupport);
@@ -2336,7 +2330,7 @@ public class PrattleTest {
   @Test
   public void testNoTextProvidedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
     gr.set(null,translationSupport);
@@ -2353,7 +2347,7 @@ public class PrattleTest {
   @Test
   public void testTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
-    Field gr = Class.forName("edu.northeastern.ccs.im.server.Prattle")
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
     gr.set(null,translationSupport);
