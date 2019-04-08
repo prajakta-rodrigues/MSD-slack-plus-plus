@@ -1,10 +1,15 @@
 package edu.northeastern.ccs.im.server.utility;
 
+import com.google.cloud.translate.Language;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class TranslationSupport {
     private static TranslationSupport singleton;
-
+    private  Translate translate;
     private JSONObject jsonObj;
 
     private static final String LANGUAGES_FILE_NM = "languages.json";
@@ -22,6 +27,7 @@ public class TranslationSupport {
 
     private TranslationSupport() {
         try {
+            translate = TranslateOptions.getDefaultInstance().getService();
             JSONParser jsonParser = new JSONParser();
             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(LANGUAGES_FILE_NM);
             //Use JSONObject for simple JSON and JSONArray for array of JSON.
@@ -59,7 +65,36 @@ public class TranslationSupport {
      * @param language the language
      * @return the code corresponding to the language.
      */
-    public String LanguageCode(String language) {
+    public String getLanguageCode(String language) {
         return (String )jsonObj.get(language);
     }
+
+    /**
+     * gives all the supported language codes.
+     *
+     * @return the code corresponding to the language.
+     */
+    public String getAllLanguagesSupported() {
+
+        List<Language> languages =  translate.listSupportedLanguages();
+        StringBuilder text = new StringBuilder("Languages are:");
+        for (Language language : languages) {
+            String line = "\nLanguage: "+language.getName()+"    Code: "+language.getCode();
+            text.append(line);
+        }
+        return text.toString();
+    }
+
+    /**
+     * gives all the supported language codes.
+     *
+     * @param textToTranslate the text to translate
+     * @param targetLanguage the target language
+     * @return the translated text.
+     */
+    public String translateTextToGivenLanguage(String textToTranslate, String targetLanguage) {
+        Translation translation = translate.translate(textToTranslate,Translate.TranslateOption.targetLanguage(getLanguageCode(targetLanguage)));
+        return translation.getTranslatedText();
+    }
+
 }

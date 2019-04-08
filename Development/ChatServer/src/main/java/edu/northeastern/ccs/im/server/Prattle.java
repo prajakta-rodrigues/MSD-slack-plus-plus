@@ -127,7 +127,6 @@ public abstract class Prattle {
    */
   private static GroupInviteRepository groupInviteRepository;
 
-  private static Translate translate;
 
 
 
@@ -140,7 +139,7 @@ public abstract class Prattle {
   /**
    * * The Translation support Instance.
    * */
-  private static final TranslationSupport translationSupport;
+  private static  TranslationSupport translationSupport;
 
   // All of the static initialization occurs in this "method"
   static {
@@ -156,7 +155,6 @@ public abstract class Prattle {
     notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
     messageRepository = new MessageRepository(DatabaseConnection.getDataSource());
     groupInviteRepository = new GroupInviteRepository(DatabaseConnection.getDataSource());
-    translate = TranslateOptions.getDefaultInstance().getService();
     channelMembers = new Hashtable<>();
     channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
     languageSupport= LanguageSupport.getInstance();
@@ -974,17 +972,12 @@ public abstract class Prattle {
             return "You have to enter a valid language or code. check /lang command to find the supported languages";
       }
       if(params.length<2){
-        return "You have to enter a language and text to translate";
+        return "You have to enter some text to translate";
       }
       String[] words = Arrays.copyOfRange(params,1,params.length);
-//      StringBuilder text = new StringBuilder();
-//      for (String param:words){
-//        text.append(param+" ");
-//      }
 
-      Translation translation = translate.translate(String.join(" ", words),Translate.TranslateOption.targetLanguage(translationSupport.LanguageCode(params[0])));
-      String result = translation.getTranslatedText();
-      return result;
+      return translationSupport.translateTextToGivenLanguage(String.join(" ", words),params[0]);
+
     }
 
     @Override
@@ -1002,13 +995,8 @@ public abstract class Prattle {
       @Override
       public String apply(String[] params, Integer senderId) {
 
-          List<Language> languages = translate.listSupportedLanguages();
-          StringBuilder text = new StringBuilder("Languages are:");
-          for (Language language : languages) {
-              String line = "\nLanguage: "+language.getName()+"    Code: "+language.getCode();
-              text.append(line);
-          }
-          return text.toString();
+          return translationSupport.getAllLanguagesSupported();
+
       }
 
     @Override
