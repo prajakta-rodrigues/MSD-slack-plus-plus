@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.sql.DataSource;
-import edu.northeastern.ccs.im.server.GroupInvitation;
-import edu.northeastern.ccs.im.server.InviteesGroup;
-import edu.northeastern.ccs.im.server.InvitorsGroup;
+import edu.northeastern.ccs.im.server.models.GroupInvitation;
+import edu.northeastern.ccs.im.server.models.InviteesGroup;
+import edu.northeastern.ccs.im.server.models.InvitorsGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**

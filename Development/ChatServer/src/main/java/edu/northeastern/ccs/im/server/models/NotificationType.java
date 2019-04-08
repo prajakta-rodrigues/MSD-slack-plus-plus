@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -28,7 +28,13 @@ public enum NotificationType {
 
   /*Group invite*/
   GROUP_INVITE(new StringTemplate("You have been invited to group $group$ by moderator $name$",
-      DefaultTemplateLexer.class));
+      DefaultTemplateLexer.class)),
+
+  /**
+   * New moderator
+   */
+  NEW_MODERATOR(new StringTemplate("$name$ added you as a moderator for group $group$",
+      DefaultTemplateLexer .class));
 
   /**
    * The text.

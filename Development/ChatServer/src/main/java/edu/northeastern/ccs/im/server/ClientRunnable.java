@@ -7,11 +7,19 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import org.mindrot.jbcrypt.BCrypt;
+
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationConvertor;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
-import static edu.northeastern.ccs.im.server.ServerConstants.GENERAL_ID;
+import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
@@ -266,7 +274,10 @@ public class ClientRunnable implements Runnable {
    * Checks for new notifications for user.
    */
   private void handleNotifications() {
-    if (authenticated && notificationCalendar.before(new GregorianCalendar())) {
+    if(!notificationCalendar.before(new GregorianCalendar())) {
+      return;
+    }
+    if (authenticated && !userRepository.getDNDStatus(userId)) {
       List<Notification> listNotifications =
           notificationRepository.getAllNewNotificationsByReceiverId(userId);
       if (listNotifications != null && !listNotifications.isEmpty()) {
@@ -330,7 +341,7 @@ public class ClientRunnable implements Runnable {
     Message sendMsg;
     int id = (msg.getName().hashCode() & 0xfffffff);
     String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
-    boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd));
+    boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd, UserType.GENERAL));
     if (result) {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
           "Registration done. Continue to message.");

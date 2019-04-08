@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 /**
  * Represents a User on the server
@@ -8,6 +8,7 @@ public class User {
   private final int userId;
   private final String userName;
   private final String password;
+  private final UserType type;
 
   /**
    * Constructs a User
@@ -16,10 +17,11 @@ public class User {
    * @param userName the handle of the user
    * @param password the user's password
    */
-  public User(int userId, String userName, String password) {
+  public User(int userId, String userName, String password, UserType type) {
     this.userId = userId;
     this.userName = userName;
     this.password = password;
+    this.type = type;
   }
 
   /**
@@ -41,6 +43,10 @@ public class User {
    */
   public String getPassword() {
     return password;
+  }
+
+  public UserType getType() {
+    return type;
   }
 
 
