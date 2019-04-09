@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -47,10 +48,11 @@ public abstract class CommandFactory {
     GOVT_COMMANDS.put("/help", new Help());
     USER_COMMANDS.put("/dom", new Dom());
     USER_COMMANDS.put("/addmoderator", new AddModerator());
+    USER_COMMANDS.put("/86", new EightySix());
     USER_COMMANDS.put("/dnd", new Dnd());
   }
 
   public static Map<UserType, Map<String, Command>> getCommands() {
-    return COMMANDS;
+    return Collections.unmodifiableMap(COMMANDS);
   }
 }

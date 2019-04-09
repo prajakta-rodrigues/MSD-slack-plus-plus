@@ -80,7 +80,7 @@ public abstract class RepositoryFactory {
 
   public static UserRepository getUserRepository() {
     if (userRepository == null) {
-      userRepository = new UserRepository();
+      userRepository = new UserRepository(DatabaseConnection.getDataSource());
     }
     return userRepository;
   }

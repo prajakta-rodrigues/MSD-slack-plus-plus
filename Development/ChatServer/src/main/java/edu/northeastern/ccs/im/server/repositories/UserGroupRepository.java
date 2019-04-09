@@ -102,9 +102,10 @@ public class UserGroupRepository extends Repository {
    * @param userId the user id of the user
    * @param groupId the group id of the group
    * @return true, if is moderator
-   * @throws SQLException the SQL exception
+   * @throws SQLException when something goes wrong witht hte connection.
    */
   public boolean isModerator(int userId, int groupId) throws SQLException {
+    boolean result = false;
     try {
       connection = dataSource.getConnection();
       String query = "select isModerator from slack.user_group where user_id = ? and group_id = ?";
@@ -112,17 +113,18 @@ public class UserGroupRepository extends Repository {
         preparedStmt.setInt(1, userId);
         preparedStmt.setInt(2, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-          connection.close();
-          return (Boolean) results.get(0).get("isModerator");
+          if (rs.first()) {
+            result = rs.getBoolean("isModerator");
+          }
         }
       }
     } catch (SQLException e) {
-      throw e;
-    } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
+      throw e;
+    } finally {
+      closeConnection(connection);
     }
-    return false;
+    return result;
   }
 
   /**
@@ -198,5 +200,4 @@ public class UserGroupRepository extends Repository {
     }
     return count > 0;
   }
-
 }
