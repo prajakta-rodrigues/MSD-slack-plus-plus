@@ -74,7 +74,7 @@ public class KeyboardScanner {
 					producer = new Thread(new Runnable() {
 						public void run() {
 							@SuppressWarnings("resource")
-							Scanner scan = new Scanner(System.in);
+							Scanner scan = new Scanner(System.in,"utf-8");
 							boolean done = false;
 							while (!done) {
 								String keyboardIn = scan.nextLine();
@@ -103,7 +103,7 @@ public class KeyboardScanner {
 					producer = new Thread(new Runnable() {
 						public void run() {
 							@SuppressWarnings("resource")
-							Scanner scan = new Scanner(System.in);
+							Scanner scan = new Scanner(System.in,"utf-8");
 							boolean done = false;
 							while (!done) {
 								String keyboardIn = scan.nextLine();
