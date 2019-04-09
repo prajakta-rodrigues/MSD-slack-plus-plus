@@ -10,7 +10,8 @@ import edu.northeastern.ccs.im.server.models.UserType;
  */
 public abstract class CommandFactory {
 
-  private CommandFactory(){}
+  private CommandFactory() {
+  }
 
   /**
    * The Constant COMMANDS.
@@ -48,6 +49,7 @@ public abstract class CommandFactory {
     USER_COMMANDS.put("/dom", new Dom());
     USER_COMMANDS.put("/addmoderator", new AddModerator());
     USER_COMMANDS.put("/dnd", new Dnd());
+    USER_COMMANDS.put("/recall", new Recall());
   }
 
   public static Map<UserType, Map<String, Command>> getCommands() {

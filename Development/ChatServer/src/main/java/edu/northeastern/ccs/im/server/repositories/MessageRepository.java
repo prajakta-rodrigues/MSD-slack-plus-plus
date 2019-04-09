@@ -40,7 +40,7 @@ public class MessageRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query =
-          "insert into slack.message(sender_id, type, sent_date, channel_id, TEXT) values(?,?,?,?,?)";
+          "insert into slack.message(sender_id, type, sent_date, channel_id, TEXT, deleted) values(?,?,?,?,?, false)";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, message.getUserId());
         preparedStmt.setString(2, message.getMsgType().toString());
@@ -72,7 +72,7 @@ public class MessageRepository extends Repository {
       connection = dataSource.getConnection();
       String query = "select msg.type,u.handle,msg.channel_id,msg.TEXT "
           + "from slack.message msg JOIN slack.user u ON (msg.sender_id=u.id)"
-          + "where msg.channel_id =? ORDER BY msg.sent_date DESC LIMIT ?";
+          + "where msg.channel_id =? AND deleted = false ORDER BY msg.sent_date DESC LIMIT ?";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, channelId);
         preparedStmt.setInt(2, numberOfMessages);
@@ -212,6 +212,66 @@ public class MessageRepository extends Repository {
       closeConnection(connection);
     }
     return messageHistory;
+  }
+
+
+  /**
+   * Recalls the desired message number from the given channel Id.
+   *
+   * @param senderId the sender id
+   * @param messageNumber the number message to recall
+   * @param channelId the channel Id
+   * @return if the recall was successful
+   */
+  public boolean recallMessage(int senderId, int messageNumber, int channelId) {
+    int count = 0;
+    try {
+      int messageId = getMessageId(senderId, messageNumber, channelId);
+      connection = dataSource.getConnection();
+      String query = "UPDATE slack.message SET deleted = true where id = ? AND sender_id = ? AND channel_Id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, messageId);
+        preparedStmt.setInt(2, senderId);
+        preparedStmt.setInt(3, channelId);
+        count = preparedStmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return count > 0;
+  }
+
+  /**
+   * Gets the message id of the message that the sender wants to recall.
+   *
+   * @param senderId the sender id
+   * @param messageNumber the message number to recall
+   * @param channelId the channel id of the message
+   * @return the message id of the desired message to recall
+   * @throws SQLException if the message does not exist
+   */
+  private int getMessageId(int senderId, int messageNumber, int channelId) throws SQLException {
+    int messageId = -1;
+    connection = dataSource.getConnection();
+    String query = "SELECT id FROM slack.message where sender_id = ? AND channel_Id = ? AND deleted = false";
+    try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+      preparedStmt.setInt(1, senderId);
+      preparedStmt.setInt(2, channelId);
+      try (ResultSet rs = preparedStmt.executeQuery()) {
+        List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+        int messageToRecall = results.size() - 1 - messageNumber;
+        for (Map<String, Object> result : results) {
+          if (messageToRecall == 0) {
+            messageId = (Integer) result.get("id");
+            break;
+          }
+          messageToRecall--;
+        }
+      }
+    }
+    return messageId;
   }
 
 }

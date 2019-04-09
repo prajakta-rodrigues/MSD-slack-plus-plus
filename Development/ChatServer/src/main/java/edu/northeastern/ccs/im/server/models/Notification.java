@@ -242,4 +242,21 @@ public class Notification {
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
     return notification;
   }
+
+  /**
+   * Makes a new message recalled notification from the given sender id to the associated group id
+   *
+   * @param groupId the group that is gaining a moderator.
+   * @param senderId the user recalling a message
+   * @return the friend request notification
+   */
+  public static Notification makeNewRecallNotification(int groupId, int senderId) {
+    Notification notification = new Notification();
+    notification.setType(NotificationType.RECALLED_MESSAGE);
+    notification.setAssociatedGroupId(groupId);
+    notification.setAssociatedUserId(senderId);
+    notification.setNew(true);
+    notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
+    return notification;
+  }
 }
