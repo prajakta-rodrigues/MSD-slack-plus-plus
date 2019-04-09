@@ -74,9 +74,11 @@ ALTER TABLE slack.group
 ALTER TABLE slack.message
 	ADD COLUMN text varchar(500) NOT NULL;
     
+ALTER TABLE slack.group ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE;
+    
 INSERT INTO slack.channel VALUES();
 INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null, null, null);
-INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1);
+INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1, false);
         
 delimiter //
 CREATE PROCEDURE slack.make_group (
@@ -209,6 +211,35 @@ BEGIN
     END IF;
 END //
 
+CREATE PROCEDURE slack.delete_group
+(
+	moderatorId int(15),
+    groupId int(15),
+	OUT success TINYINT
+)
+BEGIN
+	DECLARE error TINYINT DEFAULT FALSE;
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET error = TRUE;
+    
+    START TRANSACTION;
+    UPDATE slack.group SET deleted = TRUE WHERE id = groupId;
+    INSERT INTO notification (receiver_id, associated_user_id, associated_group_id, type, created_date, new)
+		SELECT id, moderatorId, groupId, 'EIGHTY_SIX', CURTIME(), TRUE
+        FROM slack.user u JOIN slack.user_group ug ON (u.id = ug.user_id)
+        WHERE ug.group_id = groupId;
+	DELETE FROM slack.user_group WHERE group_id = groupId;
+        
+	IF error THEN
+		SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Delete failed! Changes rolled back';
+		ROLLBACK;
+        SET success = FALSE;
+    ELSE
+		COMMIT;
+		SET success = TRUE;
+    END IF;
+END //
+
 delimiter ;
 
 		
@@ -230,5 +261,5 @@ ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL'
 update slack.user set type = 'SYSTEM' where id = -1;
 update slack.user set type = 'GENERAL' where id = null;
 
-ALTER TABLE slack.group ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE;
 alter table slack.user add column dnd boolean default false;
+DESCRIBE slack.notification;

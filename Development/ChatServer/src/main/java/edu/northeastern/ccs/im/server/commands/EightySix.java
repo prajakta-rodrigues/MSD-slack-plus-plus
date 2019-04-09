@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import java.sql.SQLException;
+
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
@@ -9,6 +11,9 @@ import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
 
+/**
+ * Destroys a SlackGroup and moves all active members to general.
+ */
 class EightySix extends ACommand {
 
   @Override
@@ -17,12 +22,19 @@ class EightySix extends ACommand {
     String modName = userRepository.getUserByUserId(senderId).getUserName();
     int channelId = sender.getActiveChannelId();
     SlackGroup group = groupRepository.getGroupByChannelId(channelId);
+    if (group == null) {
+      return StringConstants.ErrorMessages.GENERIC_ERROR;
+    }
     int groupId = group.getGroupId();
     String groupName = group.getGroupName();
-    if (!userGroupRepository.isModerator(senderId, groupId)) {
-      return StringConstants.ErrorMessages.NOT_MODERATOR;
+    try {
+      if (!userGroupRepository.isModerator(senderId, groupId)) {
+        return StringConstants.ErrorMessages.NOT_MODERATOR;
+      }
+    } catch (SQLException e) {
+      return StringConstants.ErrorMessages.GENERIC_ERROR;
     }
-    if (!groupRepository.deleteGroup(groupId)) {
+    if (!groupRepository.deleteGroup(senderId, groupId)) {
       return StringConstants.ErrorMessages.GENERIC_ERROR;
     }
     for (ClientRunnable client : Prattle.getChannelClients(channelId)) {

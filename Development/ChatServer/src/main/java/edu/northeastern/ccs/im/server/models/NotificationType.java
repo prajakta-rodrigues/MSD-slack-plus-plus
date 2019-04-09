@@ -34,7 +34,13 @@ public enum NotificationType {
    * New moderator
    */
   NEW_MODERATOR(new StringTemplate("$name$ added you as a moderator for group $group$",
-      DefaultTemplateLexer .class));
+      DefaultTemplateLexer .class)),
+
+  /**
+   * Group has been 86'd
+   */
+  EIGHTY_SIX(new StringTemplate("Group $group$ has been terminated by moderator $name$",
+          DefaultTemplateLexer.class));
 
   /**
    * The text.

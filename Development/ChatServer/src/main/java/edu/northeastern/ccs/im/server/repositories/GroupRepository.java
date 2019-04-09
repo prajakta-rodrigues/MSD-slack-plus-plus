@@ -1,8 +1,10 @@
 package edu.northeastern.ccs.im.server.repositories;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -36,7 +38,7 @@ public class GroupRepository extends Repository {
     SlackGroup group = null;
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.group where id = ? AND !deleted LIMIT 1";
+      String query = "select * from slack.group where id = ? LIMIT 1";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -216,14 +218,17 @@ public class GroupRepository extends Repository {
    * @param groupId the id of the group to be deleted.
    * @return whether or not the update succeeded.
    */
-  public boolean deleteGroup(int groupId) {
+  public boolean deleteGroup(int modId, int groupId) {
     boolean success = false;
-    String query = "UPDATE slack.group SET deleted = TRUE WHERE id = ?";
+    String query = "CALL delete_group(?,?,?)";
     try {
       connection = dataSource.getConnection();
-      try (PreparedStatement stmt = connection.prepareStatement(query)) {
-        stmt.setInt(1, groupId);
-        success = stmt.executeUpdate() > 0;
+      try (CallableStatement stmt = connection.prepareCall(query)) {
+        stmt.setInt(1, modId);
+        stmt.setInt(2, groupId);
+        stmt.registerOutParameter(3, Types.TINYINT);
+        stmt.executeUpdate();
+        success = stmt.getBoolean(3);
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);

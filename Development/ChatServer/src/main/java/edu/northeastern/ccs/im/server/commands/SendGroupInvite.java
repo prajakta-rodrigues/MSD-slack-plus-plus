@@ -36,7 +36,7 @@ class SendGroupInvite extends ACommand {
       int currChannelId = currClient.getActiveChannelId();
       group = groupRepository.getGroupByChannelId(currChannelId);
     } else {
-      return "Command message not recogized";
+      return "Command message not recognized";
     }
     if (null == group) {
       return "Group doesn't exist";

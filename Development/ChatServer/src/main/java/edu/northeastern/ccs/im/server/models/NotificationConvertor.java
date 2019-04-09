@@ -17,6 +17,8 @@ import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
  */
 public class NotificationConvertor {
 
+  private NotificationConvertor(){}
+
   /**
    * The user repository.
    */
@@ -79,6 +81,10 @@ public class NotificationConvertor {
             break;
           case NEW_MODERATOR:
             result.append(getTextForNewModerator(notification.getAssociatedGroupId(), notification.getAssociatedUserId(), notification.isNew()));
+            result.append("\n");
+            break;
+          case EIGHTY_SIX:
+            result.append(getTextForEightySix(notification.getAssociatedGroupId(), notification.getAssociatedUserId(), notification.isNew()));
             result.append("\n");
             break;
           default:
@@ -218,6 +224,30 @@ public class NotificationConvertor {
   }
 
   /**
+   * Gets the text for a notification alerting of a group termination.
+   *
+   * @param associatedGroupId the associate group id
+   * @param associatedUserId the associated user id
+   * @param isNew the is new
+   * @return the text for the 86 notification
+   */
+  private static String getTextForEightySix(int associatedGroupId, int associatedUserId, boolean isNew) {
+    User user = userRepository.getUserByUserId(associatedUserId);
+    SlackGroup group = groupRepository.getGroupById(associatedGroupId);
+    StringTemplate stringTemplate = NotificationType.EIGHTY_SIX.getText();
+    stringTemplate.removeAttribute("name");
+    stringTemplate.removeAttribute("group");
+    stringTemplate.setAttribute("name", user.getUserName());
+    stringTemplate.setAttribute("group", group.getGroupName());
+    StringBuilder result = new StringBuilder();
+    result.append(stringTemplate.toString());
+    if (isNew) {
+      result.append("  " + "NEW");
+    }
+    return result.toString();
+  }
+
+  /**
    * Update map with given userName.
    *
    * @param map the map
@@ -230,5 +260,4 @@ public class NotificationConvertor {
       map.put(userName, 1);
     }
   }
-
 }

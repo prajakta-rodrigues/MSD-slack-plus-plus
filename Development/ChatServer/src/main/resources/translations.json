@@ -28,7 +28,9 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
-      "Sets Do not disturb mode and no notifications will be shown. Parameters: true"
+      "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
+
     },
     "french":{
       "Change your current chat room to the specified Group.\nParameters: group name":
@@ -59,7 +61,8 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
-      "Sets Do not disturb mode and no notifications will be shown. Parameters: true"
+      "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
     },
     "spanish":{
       "Change your current chat room to the specified Group.\nParameters: group name":
@@ -90,7 +93,8 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
-      "Sets Do not disturb mode and no notifications will be shown. Parameters: true"
+      "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
     }
 
 }
