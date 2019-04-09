@@ -235,7 +235,7 @@ public class SocketNB {
 		String str = msg.toString();
 		ByteBuffer wrapper = ByteBuffer.wrap(str.getBytes());
 		int bytesWritten = 0;
-		while (bytesWritten != str.length()) {
+		while (bytesWritten != wrapper.capacity()) {
 			try {
 				bytesWritten += channel.write(wrapper);
 			} catch (IOException e) {

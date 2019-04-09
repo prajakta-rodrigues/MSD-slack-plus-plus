@@ -209,7 +209,7 @@ public class NetworkConnection implements Iterable<Message> {
 	                    Message newMsg = Message.makeMessage(handle, sender, senderId, message);
 	                    messages.add(newMsg);
 	                    // And move the position to the start of the next character
-	                    start = charBuffer.position() + 1;
+	                    start = charBuffer.capacity();
 	                }
 	                // Move any read messages out of the buffer so that we can add to the end.
 	                buff.position(start);

@@ -66,7 +66,6 @@ public final class ScanForMessagesWorker extends SwingWorker<Void, Message> {
 			realConnection.enqueueMessages(messages);
 			if (!messages.isEmpty()) {
 				// Add this message into our queue
-				System.out.println(messages.get(0));
 				publish(messages.remove(0));
 			}
 		}

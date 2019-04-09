@@ -25,12 +25,7 @@ public class CommandLineMain {
    */
   public static void main(String[] args) {
     CommandLineMain commandLineMain = new CommandLineMain();
-    IMConnection connect = null;
-    try {
-      connect = commandLineMain.getUserNameAndConnect(args, new InputStreamReader(System.in,"utf-8"));
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-    }
+    IMConnection connect = connect = commandLineMain.getUserNameAndConnect(args, new InputStreamReader(System.in));
     // Create the objects needed to read & write IM messages.
     commandLineMain.startMessaging(connect, connect.getKeyboardScanner() , connect.getMessageScanner());
     System.exit(0);
