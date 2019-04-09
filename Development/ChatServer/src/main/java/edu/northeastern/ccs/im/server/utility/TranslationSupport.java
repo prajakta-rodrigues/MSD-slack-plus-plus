@@ -93,8 +93,14 @@ public class TranslationSupport {
      * @return the translated text.
      */
     public String translateTextToGivenLanguage(String textToTranslate, String targetLanguage) {
-        Translation translation = translate.translate(textToTranslate,Translate.TranslateOption.targetLanguage(getLanguageCode(targetLanguage)));
-        return translation.getTranslatedText();
+        String result = "Google translate api is not working";
+        try {
+            Translation translation = translate.translate(textToTranslate,Translate.TranslateOption.targetLanguage(getLanguageCode(targetLanguage)));
+            result =  translation.getTranslatedText();
+        }catch (Exception e){
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return result;
     }
 
 }

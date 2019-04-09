@@ -105,4 +105,23 @@ public class TranslationSupportTest {
         Assert.assertEquals("hola",result);
     }
 
+    /**
+     * Tests translated text by the cloud api Exception
+     */
+    @Test
+    public void testTranslatedTextException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        Translate translate = Mockito.mock(Translate.class);
+
+        Field gr = Class.forName("edu.northeastern.ccs.im.server.utility.TranslationSupport")
+            .getDeclaredField("translate");
+        gr.setAccessible(true);
+        gr.set(translationSupport,translate);
+        Translation translation=Mockito.mock(Translation.class);
+        Mockito.when(translation.getTranslatedText()).thenReturn("hola");
+        Mockito.when(translate.translate(Mockito.anyString(), Mockito.anyObject())).thenThrow(new NullPointerException());
+        Mockito.when(translation.getTranslatedText()).thenReturn("hola");
+        String result  = translationSupport.translateTextToGivenLanguage("Hello","spanish");
+        Assert.assertEquals("Google translate api is not working",result);
+    }
+
 }

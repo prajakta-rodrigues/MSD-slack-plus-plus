@@ -7,10 +7,10 @@ import edu.northeastern.ccs.im.server.utility.TranslationSupport;
  */
 class Languages implements Command {
 
-  private TranslationSupport translationSupport;
+  private static TranslationSupport translationSupport;
 
-  public Languages() {
-    this.translationSupport = TranslationSupport.getInstance();
+  static {
+    translationSupport = TranslationSupport.getInstance();
   }
 
   @Override

@@ -8,10 +8,10 @@ import edu.northeastern.ccs.im.server.utility.TranslationSupport;
  */
  class Translate extends ACommand {
 
-   private TranslationSupport translationSupport;
+   private static TranslationSupport translationSupport;
 
-  public Translate() {
-    this.translationSupport = TranslationSupport.getInstance();
+  static  {
+    translationSupport = TranslationSupport.getInstance();
   }
 
   @Override
