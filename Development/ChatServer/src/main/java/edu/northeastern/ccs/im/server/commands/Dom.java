@@ -6,9 +6,9 @@ import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.NONEXISTING_GROUP;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.NOT_MODERATOR;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.ONLY_MODERATOR_FAILURE;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NONEXISTING_GROUP;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.ONLY_MODERATOR_FAILURE;
 
 /**
  * Removes a user's moderatorship, if applicable

@@ -1,8 +1,10 @@
 package edu.northeastern.ccs.im.server.repositories;
 
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -24,10 +26,6 @@ public class GroupRepository extends Repository {
    */
   public GroupRepository(DataSource ds) {
     super(ds);
-  }
-
-  public GroupRepository() {
-    super();
   }
 
   /**
@@ -73,7 +71,7 @@ public class GroupRepository extends Repository {
     SlackGroup group = null;
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.group where name = ? LIMIT 1";
+      String query = "select * from slack.group where name = ? AND !deleted LIMIT 1";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setString(1, groupName);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -135,8 +133,8 @@ public class GroupRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query = "SELECT user_id " +
-          "FROM slack.user_group " +
-          "WHERE group_id = ? AND user_id = ?";
+          "FROM slack.user_group ug JOIN slack.group g ON (g.id = ug.group_id)" +
+          "WHERE group_id = ? AND user_id = ? AND !deleted";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         preparedStmt.setInt(2, memberId);
@@ -164,7 +162,7 @@ public class GroupRepository extends Repository {
       connection = dataSource.getConnection();
       String query = "SELECT name " +
           "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
-          "WHERE ug.user_id = ?";
+          "WHERE ug.user_id = ? AND !deleted";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, memberId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -194,7 +192,7 @@ public class GroupRepository extends Repository {
     SlackGroup group = null;
     try {
       connection = dataSource.getConnection();
-      String query = "select * from slack.group where channel_id = ? LIMIT 1";
+      String query = "select * from slack.group where channel_id = ? AND !deleted LIMIT 1";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, channelId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -213,6 +211,30 @@ public class GroupRepository extends Repository {
       closeConnection(connection);
     }
     return group;
+  }
 
+  /**
+   * 'Deletes' the group by id.
+   * @param groupId the id of the group to be deleted.
+   * @return whether or not the update succeeded.
+   */
+  public boolean deleteGroup(int modId, int groupId) {
+    boolean success = false;
+    String query = "CALL delete_group(?,?,?)";
+    try {
+      connection = dataSource.getConnection();
+      try (CallableStatement stmt = connection.prepareCall(query)) {
+        stmt.setInt(1, modId);
+        stmt.setInt(2, groupId);
+        stmt.registerOutParameter(3, Types.TINYINT);
+        stmt.executeUpdate();
+        success = stmt.getBoolean(3);
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return success;
   }
 }
