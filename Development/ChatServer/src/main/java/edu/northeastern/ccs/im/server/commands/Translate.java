@@ -8,12 +8,14 @@ import edu.northeastern.ccs.im.server.utility.TranslationSupport;
  */
  class Translate extends ACommand {
 
-   private  static TranslationSupport translationSupport= TranslationSupport.getInstance();
+   private TranslationSupport translationSupport;
 
-   @Override
+  public Translate() {
+    this.translationSupport = TranslationSupport.getInstance();
+  }
+
+  @Override
    public String apply(String[] params, Integer senderId) {
-
-
 
     if (params == null) {
       return "You have to enter a language";
