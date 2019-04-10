@@ -34,9 +34,6 @@ public class Recall extends ACommand {
     if (!success) {
       return "Error: You have sent less than " + messageToRecall + " messages to this channel.";
     }
-    SlackGroup group = groupRepository.getGroupByChannelId(currChannelId);
-    Notification recallNotification = Notification.makeNewRecallNotification(group.getGroupId(), senderId);
-    notificationRepository.addNotification(recallNotification);
     return "You have recalled message " + messageToRecall + ".";
   }
 

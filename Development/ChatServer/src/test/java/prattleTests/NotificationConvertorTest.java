@@ -342,4 +342,5 @@ public class NotificationConvertorTest {
     assertEquals("mike has sent you a friend request.\n"
         , NotificationConvertor.getNotificationsAsText(listNotifications));
   }
+
 }

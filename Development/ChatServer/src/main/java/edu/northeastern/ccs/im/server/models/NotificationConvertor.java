@@ -81,10 +81,6 @@ public class NotificationConvertor {
             result.append(getTextForNewModerator(notification.getAssociatedGroupId(), notification.getAssociatedUserId(), notification.isNew()));
             result.append("\n");
             break;
-          case RECALLED_MESSAGE:
-            result.append(getTextForRecalledMessage(notification.getAssociatedGroupId(), notification.getAssociatedUserId(), notification.isNew()));
-            result.append("\n");
-            break;
           default:
             break;
         }
@@ -181,30 +177,6 @@ public class NotificationConvertor {
     User user = userRepository.getUserByUserId(associatedUserId);
     SlackGroup group = groupRepository.getGroupById(associatedGroupId);
     StringTemplate stringTemplate = NotificationType.NEW_MODERATOR.getText();
-    stringTemplate.removeAttribute("name");
-    stringTemplate.removeAttribute("group");
-    stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
-    StringBuilder result = new StringBuilder();
-    result.append(stringTemplate.toString());
-    if (isNew) {
-      result.append("  " + "NEW");
-    }
-    return result.toString();
-  }
-
-  /**
-   * Gets the text for the recalled message notification.
-   *
-   * @param associatedGroupId the associate group id
-   * @param associatedUserId the associated user id
-   * @param isNew the is new
-   * @return the text for the new moderator notification
-   */
-  private static String getTextForRecalledMessage(int associatedGroupId, int associatedUserId, boolean isNew) {
-    User user = userRepository.getUserByUserId(associatedUserId);
-    SlackGroup group = groupRepository.getGroupById(associatedGroupId);
-    StringTemplate stringTemplate = NotificationType.RECALLED_MESSAGE.getText();
     stringTemplate.removeAttribute("name");
     stringTemplate.removeAttribute("group");
     stringTemplate.setAttribute("name", user.getUserName());

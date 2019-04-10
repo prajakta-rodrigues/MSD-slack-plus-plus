@@ -71,52 +71,84 @@ import static org.mockito.Mockito.when;
  */
 public class PrattleTest {
 
-  /** The cr 1. */
+  /**
+   * The cr 1.
+   */
   private ClientRunnable cr1;
-  
-  /** The cr 2. */
+
+  /**
+   * The cr 2.
+   */
   private ClientRunnable cr2;
-  
-  /** The waiting list 1. */
+
+  /**
+   * The waiting list 1.
+   */
   private Queue<Message> waitingList1;
-  
-  /** The waiting list 2. */
+
+  /**
+   * The waiting list 2.
+   */
   private Queue<Message> waitingList2;
-  
-  /** The bot. */
+
+  /**
+   * The bot.
+   */
   private String bot = "Slackbot";
-  
-  /** The dm repository. */
+
+  /**
+   * The dm repository.
+   */
   private DirectMessageRepository dmRepository;
-  
-  /** The user repository. */
+
+  /**
+   * The user repository.
+   */
   private UserRepository userRepository;
-  
-  /** The group repository. */
+
+  /**
+   * The group repository.
+   */
   private GroupRepository groupRepository;
-  
-  /** The group invite repository. */
+
+  /**
+   * The group invite repository.
+   */
   private GroupInviteRepository groupInviteRepository;
-  
-  /** The notification repository. */
+
+  /**
+   * The notification repository.
+   */
   private NotificationRepository notificationRepository;
-  
-  /** The message repository. */
+
+  /**
+   * The message repository.
+   */
   private MessageRepository messageRepository;
-  
-  /** The friend request repository. */
+
+  /**
+   * The friend request repository.
+   */
   private FriendRequestRepository friendRequestRepository;
-  
-  /** The friend repository. */
+
+  /**
+   * The friend repository.
+   */
   private FriendRepository friendRepository;
-  
-  /** The user group repository. */
+
+  /**
+   * The user group repository.
+   */
   private UserGroupRepository userGroupRepository;
-  
-  /** The omar. */
+
+  /**
+   * The omar.
+   */
   private User omar;
-  
-  /** The mark. */
+
+  /**
+   * The mark.
+   */
   private User mark;
 
   /**
@@ -233,7 +265,7 @@ public class PrattleTest {
     ur.set(null, userRepository);
 
     Field commandUr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("userRepository");
+        .getDeclaredField("userRepository");
     commandUr.setAccessible(true);
     commandUr.set(null, userRepository);
 
@@ -299,7 +331,9 @@ public class PrattleTest {
    */
   private class MockGroupRepository extends GroupRepository {
 
-    /** The mock db. */
+    /**
+     * The mock db.
+     */
     Map<String, SlackGroup> mockDb;
 
     /**
@@ -387,7 +421,8 @@ public class PrattleTest {
   @Test
   public void testChatloggerTypes()
       throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    Constructor constructor = Class.forName("edu.northeastern.ccs.im.server.constants.ServerConstants")
+    Constructor constructor = Class
+        .forName("edu.northeastern.ccs.im.server.constants.ServerConstants")
         .getDeclaredConstructor();
     constructor.setAccessible(true);
     constructor.newInstance();
@@ -987,7 +1022,8 @@ public class PrattleTest {
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
 
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+    Field userRepoField = Class
+        .forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
@@ -1146,12 +1182,12 @@ public class PrattleTest {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
         Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-                .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
-    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user );
-    SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user);
+    SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
@@ -1178,12 +1214,12 @@ public class PrattleTest {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
         Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-                .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user);
-    SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
+    SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
@@ -1212,12 +1248,12 @@ public class PrattleTest {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
         Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-                .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
-    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user );
-    SlackGroup group = new SlackGroup(1 , 1 , "testgp" , 1);
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(user);
+    SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
@@ -1256,7 +1292,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(null);
@@ -1282,7 +1319,7 @@ public class PrattleTest {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
         Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-                .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1311,7 +1348,7 @@ public class PrattleTest {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
         Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-                .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1339,7 +1376,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1367,7 +1405,8 @@ public class PrattleTest {
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand").getDeclaredField("groupRepository");
+        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1451,7 +1490,19 @@ public class PrattleTest {
   }
 
   /**
-   * Tests that sending a friend request to a null doesn't work.
+   * Tests that sending a friend request to yourself fails
+   */
+  @Test
+  public void testFriendCommandFriendYourself() {
+    Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/friend omar"));
+    Message callback = waitingList2.remove();
+    assertEquals("You cannot be friends with yourself on this app. xD", callback.getText());
+  }
+
+  /**
+   * Tests that sending a friend rfequest to a null doesn't work.
    */
   @Test
   public void testFriendCommandNullFriend2() {
@@ -1506,6 +1557,23 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("Something went wrong and we could not accept omar's friend request.",
+        callback.getText());
+  }
+
+  /**
+   * Tests the sending a friend request fails if you already sent one
+   */
+  @Test
+  public void testFriendDoesntWorkTwice() {
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
+    Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
+    Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
+        .thenReturn(false);
+    Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
+        .thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
+    Message callback = waitingList1.remove();
+    assertEquals("You already sent omar a friend request.",
         callback.getText());
   }
 
@@ -2112,7 +2180,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("omar removed themself from being a moderator of this group.", callback.getText());
   }
-  
+
   /**
    * Test command message null user.
    */
@@ -2123,7 +2191,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("User not recognized", callback.getText());
   }
-  
+
   /**
    * Test command message user null user type.
    */
@@ -2135,7 +2203,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("User not recognized", callback.getText());
   }
-  
+
   /**
    * Test wire tap general user.
    */
@@ -2148,7 +2216,7 @@ public class PrattleTest {
     assertEquals("Command /wiretap not recognized", callback.getText());
   }
 
-  
+
   /**
    * Test wire tap no params.
    */
@@ -2160,8 +2228,8 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("Invalid number of parameters", callback.getText());
   }
-  
-  
+
+
   /**
    * Test wire tap less params.
    */
@@ -2173,7 +2241,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("Invalid number of parameters", callback.getText());
   }
-  
+
   /**
    * Test wire tap user not found.
    */
@@ -2182,11 +2250,12 @@ public class PrattleTest {
     User user = new User(2, "omar", "pwd", UserType.GOVERNMENT);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
-    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-04-21 2018-04-21"));
+    Prattle.commandMessage(
+        Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-04-21 2018-04-21"));
     Message callback = waitingList1.remove();
-    assertEquals("No user found with given user name" , callback.getText());
+    assertEquals("No user found with given user name", callback.getText());
   }
-  
+
   /**
    * Test wire tap user invalid date format.
    */
@@ -2201,7 +2270,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("Incorrect format specified for dates", callback.getText());
   }
-  
+
   /**
    * Test wire tap user.
    */
@@ -2212,20 +2281,20 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString()))
         .thenReturn(new User(1, "ian", "pwd", UserType.GENERAL));
     List<MessageHistory> messageHistory = new ArrayList<>();
-    messageHistory.add(new MessageHistory("us1", MessageRecipientType.USER, "us2", 
+    messageHistory.add(new MessageHistory("us1", MessageRecipientType.USER, "us2",
         MessageRecipientType.GROUP, "hey", Timestamp.valueOf("2018-04-21 00:00:00")));
-    Mockito.when(messageRepository.getDirectMessageHistory(Mockito.anyInt(), 
+    Mockito.when(messageRepository.getDirectMessageHistory(Mockito.anyInt(),
         Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
-    Mockito.when(messageRepository.getGroupMessageHistory(Mockito.anyInt(), Mockito.anyString(), 
+    Mockito.when(messageRepository.getGroupMessageHistory(Mockito.anyInt(), Mockito.anyString(),
         Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
     Prattle.commandMessage(
         Message.makeCommandMessage("omar", 2, "/wiretap ian 2018-04-21 2018-04-21"));
     Message callback = waitingList1.remove();
-    assertEquals("Conversation history for ian:\n" + 
-        "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n" + 
+    assertEquals("Conversation history for ian:\n" +
+        "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n" +
         "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n", callback.getText());
   }
-  
+
   /**
    * Test no commands for user.
    */
@@ -2238,7 +2307,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("No commands available", callback.getText());
   }
-  
+
   /**
    * Test help govt user.
    */
@@ -2249,11 +2318,11 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/help"));
     Message callback = waitingList1.remove();
     assertEquals("Available COMMANDS:\n"
-        + "/wiretap Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> "
-        + "(Date format:mm/dd/yyyy)\n" + "/help Lists all of the available commands.",
+            + "/wiretap Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> "
+            + "(Date format:mm/dd/yyyy)\n" + "/help Lists all of the available commands.",
         callback.getText());
   }
-  
+
   /**
    * Test dnd sucess.
    */
@@ -2262,9 +2331,9 @@ public class PrattleTest {
     when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
     Message callback = waitingList1.remove();
-    assertEquals("Set DND mode to true" , callback.getText());
+    assertEquals("Set DND mode to true", callback.getText());
   }
-  
+
   /**
    * Test dnd fail.
    */
@@ -2273,9 +2342,9 @@ public class PrattleTest {
     when(userRepository.setDNDStatus(anyInt(), Mockito.anyBoolean())).thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd true"));
     Message callback = waitingList1.remove();
-    assertEquals("Unable to set DND" , callback.getText());
+    assertEquals("Unable to set DND", callback.getText());
   }
-  
+
   /**
    * Test dnd invalid params.
    */
@@ -2283,8 +2352,64 @@ public class PrattleTest {
   public void testDndInvalidParams() {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/dnd"));
     Message callback = waitingList1.remove();
-    assertEquals("No params specified" , callback.getText());
+    assertEquals("No params specified", callback.getText());
   }
-  
+
+  /**
+   * Tests recall message
+   */
+  @Test
+  public void testRecall() {
+    Mockito.when(messageRepository.recallMessage(anyInt(), anyInt(), anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeBroadcastMessage("omar", "hello"));
+    Prattle.commandMessage(Message.makeBroadcastMessage("omar", "goodbye"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/recall 2"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have recalled message 2.", callback.getText());
+  }
+
+  /**
+   * Tests recall message with no given message number
+   */
+  @Test
+  public void testRecallNoMessage() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/recall"));
+    Message callback = waitingList2.remove();
+    assertEquals("Incorrect command parameters", callback.getText());
+  }
+
+  /**
+   * Tests recall message with a negative message number
+   */
+  @Test
+  public void testRecallNegativeMessageNumber() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/recall -8"));
+    Message callback = waitingList2.remove();
+    assertEquals("Your message number must be positive", callback.getText());
+  }
+
+
+  /**
+   * Tests recall message with a zero message number
+   */
+  @Test
+  public void testRecallZeroMessageNumber() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/recall 0"));
+    Message callback = waitingList2.remove();
+    assertEquals("Your message number must be positive", callback.getText());
+  }
+
+  /**
+   * Tests recall message with a nonexistent message
+   */
+  @Test
+  public void testRecallMessageNumberIsTooHigh() {
+    Mockito.when(messageRepository.recallMessage(anyInt(), anyInt(), anyInt())).thenReturn(false);
+    Prattle.commandMessage(Message.makeBroadcastMessage("omar", "boop"));
+    Prattle.commandMessage(Message.makeBroadcastMessage("omar", "bap"));
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/recall 19"));
+    Message callback = waitingList2.remove();
+    assertEquals("Error: You have sent less than 19 messages to this channel.", callback.getText());
+  }
 
 }

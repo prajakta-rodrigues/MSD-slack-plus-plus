@@ -34,12 +34,6 @@ public enum NotificationType {
    * New moderator
    */
   NEW_MODERATOR(new StringTemplate("$name$ added you as a moderator for group $group$",
-      DefaultTemplateLexer .class)),
-
-  /**
-   * Recalled Message
-   */
-  RECALLED_MESSAGE(new StringTemplate("$name$ recalled a message from group $group$",
       DefaultTemplateLexer .class));
 
   /**
