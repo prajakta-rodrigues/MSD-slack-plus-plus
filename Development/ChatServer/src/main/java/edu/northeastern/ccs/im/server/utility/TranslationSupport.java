@@ -4,6 +4,7 @@ import com.google.cloud.translate.Language;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
+import java.util.ArrayList;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -75,8 +76,12 @@ public class TranslationSupport {
      * @return the code corresponding to the language.
      */
     public String getAllLanguagesSupported() {
-
-        List<Language> languages =  translate.listSupportedLanguages();
+        List<Language> languages = new ArrayList<>();
+         try {
+             languages =translate.listSupportedLanguages();
+         }  catch (Exception e){
+             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+         }
         StringBuilder text = new StringBuilder("Languages are:");
         for (Language language : languages) {
             String line = "\nLanguage: "+language.getName()+"    Code: "+language.getCode();

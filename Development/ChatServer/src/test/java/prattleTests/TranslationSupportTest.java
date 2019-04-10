@@ -87,6 +87,26 @@ public class TranslationSupportTest {
     }
 
     /**
+     * Tests for retrieving all languages supported by the cloud api Excpetion
+     */
+    @Test
+    public void testGetAllSupportedLanguagesException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        Translate translate = Mockito.mock(Translate.class);
+        Field gr = Class.forName("edu.northeastern.ccs.im.server.utility.TranslationSupport")
+            .getDeclaredField("translate");
+        gr.setAccessible(true);
+        gr.set(translationSupport,translate);
+        Language language = Mockito.mock(Language.class);
+        List<Language> languages = new ArrayList<>();
+        languages.add(language);
+        Mockito.when(translate.listSupportedLanguages()).thenThrow(new NullPointerException());
+        Mockito.when(language.getCode()).thenReturn("es");
+        Mockito.when(language.getName()).thenReturn("spanish");
+        String result  = translationSupport.getAllLanguagesSupported();
+        Assert.assertEquals("Languages are:",result);
+    }
+
+    /**
      * Tests translated text by the cloud api
      */
     @Test
