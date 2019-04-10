@@ -252,7 +252,7 @@ public class MessageRepository extends Repository {
    * @return the message id of the desired message to recall
    * @throws SQLException if the message does not exist
    */
-  private int getMessageId(int senderId, int messageNumber, int channelId) throws SQLException {
+  public int getMessageId(int senderId, int messageNumber, int channelId) throws SQLException {
     int messageId = -1;
     connection = dataSource.getConnection();
     String query = "SELECT id FROM slack.message where sender_id = ? AND channel_Id = ? AND deleted = false";
