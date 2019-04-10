@@ -77,6 +77,7 @@ public class GroupRepositoryTest {
     Mockito.doNothing().when(call).registerOutParameter(Mockito.anyInt(), Mockito.any());
 
     resultSet = Mockito.mock(ResultSet.class);
+    Mockito.when(resultSet.first()).thenReturn(true);
     Mockito.when(value.executeQuery()).thenReturn(resultSet);
     /* the Metadata returned after executing a query */
     ResultSetMetaData md = Mockito.mock(ResultSetMetaData.class);
@@ -87,27 +88,37 @@ public class GroupRepositoryTest {
     Mockito.when(md.getColumnName(2)).thenReturn("name");
     Mockito.when(md.getColumnName(3)).thenReturn("channel_id");
     Mockito.when(md.getColumnName(4)).thenReturn("creator_id");
+    Mockito.when(md.getColumnName(5)).thenReturn("password");
+    Mockito.when(md.getColumnName(6)).thenReturn("deleted");
     Mockito.when(resultSet.getObject(1)).thenReturn(1);
     Mockito.when(resultSet.getObject(2)).thenReturn("testing");
     Mockito.when(resultSet.getObject(3)).thenReturn(1);
     Mockito.when(resultSet.getObject(4)).thenReturn(1);
+    Mockito.when(resultSet.getObject(5)).thenReturn("password");
+    Mockito.when(resultSet.getObject(6)).thenReturn(false);
+    Mockito.when(resultSet.getInt("id")).thenReturn(1);
+    Mockito.when(resultSet.getString("name")).thenReturn("testing");
+    Mockito.when(resultSet.getInt("channel_id")).thenReturn(1);
+    Mockito.when(resultSet.getInt("creator_id")).thenReturn(1);
+    Mockito.when(resultSet.getString("password")).thenReturn("password");
+    Mockito.when(resultSet.getBoolean("deleted")).thenReturn(false);
   }
 
   @Test
   public void testAddGroupSuccess() {
-    assertTrue(groupRepository.addGroup(new SlackGroup(1, "newGroup")));
+    assertTrue(groupRepository.addGroup(new SlackGroup(1, "newGroup", null)));
   }
 
   @Test
   public void testAddGroupFail() throws SQLException {
     Mockito.when(value.executeUpdate()).thenReturn(0);
-    assertFalse(groupRepository.addGroup(new SlackGroup(1, "takenName")));
+    assertFalse(groupRepository.addGroup(new SlackGroup(1, "takenName", null)));
   }
 
   @Test
   public void testAddGroupException() throws SQLException {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    assertFalse(groupRepository.addGroup(new SlackGroup(1, "frig")));
+    assertFalse(groupRepository.addGroup(new SlackGroup(1, "frig", null)));
   }
 
   @Test
