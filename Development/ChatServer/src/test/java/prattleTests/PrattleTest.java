@@ -2423,7 +2423,6 @@ public class PrattleTest {
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
     gr.set(null,translationSupport);
-    String translatedText = "Hola";
     Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish"));
     Message callback = waitingList2.remove();
