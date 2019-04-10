@@ -20,7 +20,7 @@ class Dm extends ACommand {
    */
   @Override
   public String apply(String[] params, Integer senderId) {
-    if (params == null || params.length < 1) {
+    if (params == null) {
       return "No user name provided";
     }
     User receiver = userRepository.getUserByUserName(params[0]);
@@ -34,15 +34,12 @@ class Dm extends ACommand {
     if (channelId < 0) {
       return "Failed to create direct message. Try again later.";
     } else if (!senderId.equals(receiverId) && !friendRepository
-            .areFriends(senderId, receiverId)) {
+        .areFriends(senderId, receiverId)) {
       return "You are not friends with " + params[0]
-              + ". Send them a friend request to direct message.";
+          + ". Send them a friend request to direct message.";
     } else {
-      try {
-        changeClientChannel(channelId, sender);
-      } catch (IllegalArgumentException e) {
-        return e.getMessage();
-      }
+      changeClientChannel(channelId, sender);
+
       return String.format("You are now messaging %s", params[0]);
     }
   }
