@@ -11,6 +11,8 @@ import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
+import static edu.northeastern.ccs.im.server.constants.StringConstants.NotificationMessages.DELETED_GROUP_TAG;
+
 /**
  * The Class NotificationConvertor provides methods to convert notifications their into text
  * representation.
@@ -71,7 +73,7 @@ public class NotificationConvertor {
               updateMap(userMessages, user.getUserName());
             } else if (0 != notification.getAssociatedGroupId() && notification.isNew()) {
               group = groupRepository.getGroupById(notification.getAssociatedGroupId());
-              updateMap(groupMessages, group.getGroupName());
+              updateMap(groupMessages, getGroupName(group));
             }
             break;
           case GROUP_INVITE:
@@ -122,7 +124,7 @@ public class NotificationConvertor {
     stringTemplate.removeAttribute("name");
     stringTemplate.removeAttribute("group");
     stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
+    stringTemplate.setAttribute("group", getGroupName(group));
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -186,7 +188,7 @@ public class NotificationConvertor {
     stringTemplate.removeAttribute("name");
     stringTemplate.removeAttribute("group");
     stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
+    stringTemplate.setAttribute("group", getGroupName(group));
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -238,7 +240,7 @@ public class NotificationConvertor {
     stringTemplate.removeAttribute("name");
     stringTemplate.removeAttribute("group");
     stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
+    stringTemplate.setAttribute("group", getGroupName(group));
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -259,5 +261,18 @@ public class NotificationConvertor {
     } else {
       map.put(userName, 1);
     }
+  }
+
+  /**
+   * Helper method to dynamically display if a group has been deleted or not.
+   * @param group the group referenced in the notification
+   * @return the groupName with the DELETED_GROUP_TAG, if applicable.
+   */
+  private static String getGroupName(SlackGroup group) {
+    StringBuilder groupName = new StringBuilder(group.getGroupName());
+    if (group.isDeleted()) {
+      groupName.append(DELETED_GROUP_TAG);
+    }
+    return groupName.toString();
   }
 }

@@ -15,6 +15,31 @@ public class SlackGroup {
   // Unique integer identifier for this group.
   private final int groupId;
 
+  // whether or not this group has been deleted before
+  private boolean deleted;
+
+  // the password of the group
+  private String password;
+
+  /**
+   * Constructs a new group
+   * @param groupId id of the group
+   * @param creatorId id of the creator.
+   * @param groupName name of the group.
+   * @param channelId int channel
+   * @param deleted whether or not this has been 'deleted'
+   * @param password optional password to enter the group.
+   */
+  public SlackGroup(int groupId, int creatorId, String groupName, int channelId,
+                    boolean deleted, String password) {
+    this.groupId = groupId;
+    this.creatorId = creatorId;
+    this.groupName = groupName;
+    this.channelId = channelId;
+    this.deleted = deleted;
+    this.password = password;
+  }
+
   /**
    * Constructs a new group
    * @param groupId id of the group
@@ -23,10 +48,7 @@ public class SlackGroup {
    * @param channelId int channel
    */
   public SlackGroup(int groupId, int creatorId, String groupName, int channelId) {
-    this.groupId = groupId;
-    this.creatorId = creatorId;
-    this.groupName = groupName;
-    this.channelId = channelId;
+    this(groupId, creatorId, groupName, channelId, false, null);
   }
 
   /**
@@ -50,5 +72,11 @@ public class SlackGroup {
 
   public int getCreatorId() { return creatorId; }
 
+  public String getPassword() {
+    return password;
+  }
 
+  public boolean isDeleted() {
+    return deleted;
+  }
 }

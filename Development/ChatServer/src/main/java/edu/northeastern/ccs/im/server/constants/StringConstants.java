@@ -32,4 +32,9 @@ public class StringConstants {
             "Moderator %s and is no longer active. You have been redirected to general";
     public static final String EIGHTYSIX_SUCCESS = "You have 86'd the group.";
   }
+
+  public static class NotificationMessages {
+    private NotificationMessages(){}
+    public static final String DELETED_GROUP_TAG = "  DELETED";
+  }
 }
