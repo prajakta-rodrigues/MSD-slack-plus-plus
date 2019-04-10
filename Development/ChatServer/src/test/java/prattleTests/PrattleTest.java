@@ -4,6 +4,7 @@ import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
+import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -2500,4 +2501,77 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals(GENERIC_ERROR, callback.getText());
   }
+  /**
+   * Tests  /lang command.
+   */
+  @Test
+  public void testAvailablesLanguagesToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Languages")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    String languagesSupported = "spanish,german";
+    when(translationSupport.getAllLanguagesSupported()).thenReturn(languagesSupported);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/lang"));
+    Message callback = waitingList2.remove();
+    assertEquals("spanish,german", callback.getText());
+  }
+
+  /**
+   * Tests translate option when no target language is provided.
+   */
+  @Test
+  public void testNoTargetLanguageToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter a language", callback.getText());
+  }
+
+  /**
+   * Tests translate option when target language is not supported.
+   */
+  @Test
+  public void testTargetLanguageNotSupportedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate biscuit"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter a valid language or code. " +
+            "check /lang command to find the supported languages", callback.getText());
+  }
+
+  /**
+   * Tests translate command when no text is given to translate.
+   */
+  @Test
+  public void testNoTextProvidedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter some text to translate", callback.getText());
+  }
+
+  /**
+   * Test's translate command.
+   */
+  @Test
+  public void testTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    String translatedText = "Hola";
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
+    when(translationSupport.translateTextToGivenLanguage(Mockito.anyString(),Mockito.anyString()))
+            .thenReturn(translatedText);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish hello"));
+    Message callback = waitingList2.remove();
+    assertEquals("Hola", callback.getText());
+  }
+
 }
