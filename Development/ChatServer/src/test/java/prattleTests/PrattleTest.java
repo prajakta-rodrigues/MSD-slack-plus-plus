@@ -4,6 +4,7 @@ import edu.northeastern.ccs.im.server.repositories.FriendRepository;
 import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 
+import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,6 +32,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.sql.DataSource;
+
 import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -56,6 +59,10 @@ import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
+import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_NOTIFICATION;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_SUCCESS;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.GENERIC_ERROR;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -306,9 +313,11 @@ public class PrattleTest {
      * Instantiates a new mock group repository.
      */
     MockGroupRepository() {
+      super(Mockito.mock(DataSource.class));
       mockDb = new HashMap<>();
 
       mockDb.put("general", new SlackGroup(1, -1, "general", 1));
+      mockDb.put("group2", new SlackGroup(2, -1, "group2", 2));
     }
 
     /* (non-Javadoc)
@@ -365,6 +374,20 @@ public class PrattleTest {
       return ans.toString();
     }
 
+    @Override
+    public boolean deleteGroup(int moderatorId, int groupId) {
+      return true;
+    }
+
+    @Override
+    public SlackGroup getGroupByChannelId(int channelId) {
+      for (SlackGroup group : mockDb.values()) {
+        if (group.getChannelId() == channelId) {
+          return group;
+        }
+      }
+      return null;
+    }
   }
 
   /**
@@ -624,8 +647,6 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
-   *
-   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -2315,5 +2336,146 @@ public class PrattleTest {
     assertEquals("No users found" , callback.getText());
   }
   
+
+  @Test
+  public void testEightySixSuccess() throws SQLException {
+    Prattle.changeClientChannel(1, cr2);
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback1 = waitingList1.remove();
+    Message callback2 = waitingList1.remove();
+    assertEquals(String.format(EIGHTYSIX_NOTIFICATION, "group2", "omar"), callback1.getText());
+    assertEquals(EIGHTYSIX_SUCCESS, callback2.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+    assertEquals(0, waitingList2.size());
+  }
+
+  @Test
+  public void testEightySixSuccessHandlesMembers() throws SQLException {
+    Prattle.changeClientChannel(2, cr2);
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList2.remove();
+    assertEquals(String.format(EIGHTYSIX_NOTIFICATION, "group2", "omar"), callback.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+    assertEquals(1, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testEightySixNotModerator() throws SQLException {
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(NOT_MODERATOR, callback.getText());
+    assertEquals(2, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testEightySixExceptionModerator() throws SQLException {
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenThrow(new SQLException());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
+    assertEquals(2, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testNullGroup() throws SQLException {
+    cr1.setActiveChannelId(3);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
+  }
+
+  @Test
+  public void testFailedDelete() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    Mockito.when(groupRepository.deleteGroup(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
+  }
+  /**
+   * Tests  /lang command.
+   */
+  @Test
+  public void testAvailablesLanguagesToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Languages")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    String languagesSupported = "spanish,german";
+    when(translationSupport.getAllLanguagesSupported()).thenReturn(languagesSupported);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/lang"));
+    Message callback = waitingList2.remove();
+    assertEquals("spanish,german", callback.getText());
+  }
+
+  /**
+   * Tests translate option when no target language is provided.
+   */
+  @Test
+  public void testNoTargetLanguageToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter a language", callback.getText());
+  }
+
+  /**
+   * Tests translate option when target language is not supported.
+   */
+  @Test
+  public void testTargetLanguageNotSupportedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate biscuit"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter a valid language or code. " +
+            "check /lang command to find the supported languages", callback.getText());
+  }
+
+  /**
+   * Tests translate command when no text is given to translate.
+   */
+  @Test
+  public void testNoTextProvidedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish"));
+    Message callback = waitingList2.remove();
+    assertEquals("You have to enter some text to translate", callback.getText());
+  }
+
+  /**
+   * Test's translate command.
+   */
+  @Test
+  public void testTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+            .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null,translationSupport);
+    String translatedText = "Hola";
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
+    when(translationSupport.translateTextToGivenLanguage(Mockito.anyString(),Mockito.anyString()))
+            .thenReturn(translatedText);
+    Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish hello"));
+    Message callback = waitingList2.remove();
+    assertEquals("Hola", callback.getText());
+  }
 
 }
