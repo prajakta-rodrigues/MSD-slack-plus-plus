@@ -32,6 +32,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.sql.DataSource;
+
 import edu.northeastern.ccs.im.client.Buddy;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -57,6 +59,10 @@ import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
+import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_NOTIFICATION;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_SUCCESS;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.GENERIC_ERROR;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -341,9 +347,11 @@ public class PrattleTest {
      * Instantiates a new mock group repository.
      */
     MockGroupRepository() {
+      super(Mockito.mock(DataSource.class));
       mockDb = new HashMap<>();
 
       mockDb.put("general", new SlackGroup(1, -1, "general", 1));
+      mockDb.put("group2", new SlackGroup(2, -1, "group2", 2));
     }
 
     /* (non-Javadoc)
@@ -400,6 +408,20 @@ public class PrattleTest {
       return ans.toString();
     }
 
+    @Override
+    public boolean deleteGroup(int moderatorId, int groupId) {
+      return true;
+    }
+
+    @Override
+    public SlackGroup getGroupByChannelId(int channelId) {
+      for (SlackGroup group : mockDb.values()) {
+        if (group.getChannelId() == channelId) {
+          return group;
+        }
+      }
+      return null;
+    }
   }
 
   /**
@@ -660,8 +682,6 @@ public class PrattleTest {
 
   /**
    * Tests that retrieving a client that doesn't exist returns null.
-   *
-   * @return the null client
    */
   @Test
   public void getNullClient() {
@@ -2557,5 +2577,73 @@ public class PrattleTest {
     assertEquals("sender", mh.getSenderName());
     assertEquals("Group", mh.getSender().getValue());
     assertEquals("text", mh.getText());
+
+  @Test
+  public void testEightySixSuccess() throws SQLException {
+    Prattle.changeClientChannel(1, cr2);
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback1 = waitingList1.remove();
+    Message callback2 = waitingList1.remove();
+    assertEquals(String.format(EIGHTYSIX_NOTIFICATION, "group2", "omar"), callback1.getText());
+    assertEquals(EIGHTYSIX_SUCCESS, callback2.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+    assertEquals(0, waitingList2.size());
+  }
+
+  @Test
+  public void testEightySixSuccessHandlesMembers() throws SQLException {
+    Prattle.changeClientChannel(2, cr2);
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList2.remove();
+    assertEquals(String.format(EIGHTYSIX_NOTIFICATION, "group2", "omar"), callback.getText());
+    assertEquals(1, cr2.getActiveChannelId());
+    assertEquals(1, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testEightySixNotModerator() throws SQLException {
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(NOT_MODERATOR, callback.getText());
+    assertEquals(2, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testEightySixExceptionModerator() throws SQLException {
+    Prattle.changeClientChannel(2, cr1);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenThrow(new SQLException());
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
+    assertEquals(2, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testNullGroup() throws SQLException {
+    cr1.setActiveChannelId(3);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
+  }
+
+  @Test
+  public void testFailedDelete() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException, SQLException {
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+            .getDeclaredField("groupRepository");
+    gr.setAccessible(true);
+    gr.set(null, groupRepository);
+    Mockito.when(groupRepository.deleteGroup(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
+    Message callback = waitingList1.remove();
+    assertEquals(GENERIC_ERROR, callback.getText());
   }
 }

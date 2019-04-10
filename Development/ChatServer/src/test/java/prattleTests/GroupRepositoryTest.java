@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +30,11 @@ public class GroupRepositoryTest {
    * The executed query
    */
   private PreparedStatement value;
+
+  /**
+   * The executed stored procedure
+   */
+  private CallableStatement call;
 
   /**
    * The group repository.
@@ -64,6 +70,11 @@ public class GroupRepositoryTest {
     Mockito.doNothing().when(value).setString(Mockito.anyInt(), Mockito.anyString());
     Mockito.when(value.executeUpdate()).thenReturn(1);
     Mockito.doNothing().when(connection).close();
+
+    call = Mockito.mock(CallableStatement.class);
+    Mockito.when(connection.prepareCall(Mockito.anyString())).thenReturn(call);
+    Mockito.doNothing().when(call).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(call).registerOutParameter(Mockito.anyInt(), Mockito.any());
 
     resultSet = Mockito.mock(ResultSet.class);
     Mockito.when(value.executeQuery()).thenReturn(resultSet);
@@ -198,4 +209,21 @@ public class GroupRepositoryTest {
     assertEquals(1, group.getCreatorId());
   }
 
+  @Test
+  public void testDeleteGroupSuccess() throws SQLException {
+    Mockito.when(call.getBoolean(Mockito.anyInt())).thenReturn(true);
+    assertTrue(groupRepository.deleteGroup(1, 1));
+  }
+
+  @Test
+  public void testDeleteGroupFail() throws SQLException {
+    Mockito.when(call.getBoolean(Mockito.anyInt())).thenReturn(false);
+    assertFalse(groupRepository.deleteGroup(1, 1));
+  }
+
+  @Test
+  public void testDeleteGroupException() throws SQLException {
+    Mockito.when(call.executeUpdate()).thenThrow(new SQLException());
+    assertFalse(groupRepository.deleteGroup(1, 1));
+  }
 }
