@@ -50,6 +50,8 @@ public abstract class CommandFactory {
     USER_COMMANDS.put("/addmoderator", new AddModerator());
     USER_COMMANDS.put("/86", new EightySix());
     USER_COMMANDS.put("/dnd", new Dnd());
+    USER_COMMANDS.put("/translate", new Translate());
+    USER_COMMANDS.put("/lang", new Languages());
   }
 
   public static Map<UserType, Map<String, Command>> getCommands() {

@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.client;
 
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
 /**

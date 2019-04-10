@@ -154,7 +154,16 @@
 			<artifactId>stringtemplate</artifactId>
 			<version>3.2</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-translate</artifactId>
+			<version>1.67.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-translate</artifactId>
+			<version>v2-rev51-1.25.0</version>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -46,7 +46,7 @@ public class SocketNB {
 
 	private static final int MIN_MESSAGE_LENGTH = 7;
 
-	private static final String CHARSET_NAME = "us-ascii";
+	private static final String CHARSET_NAME = "utf-8";
 
 	private static final int MAX_WAIT_DELAY = 100;
 
@@ -180,7 +180,7 @@ public class SocketNB {
 				// Add this message into our queue
 				Message newMsg = Message.makeMessage(handle, sender, senderId, message);
 				// And move the position to the start of the next character
-				start = charBuffer.position() + 1;
+				start = charBuffer.capacity();
 				// Check if this message is closing our connection
 				if (newMsg.getType() == Message.MessageType.QUIT) {
 					quitter = true;
@@ -190,7 +190,7 @@ public class SocketNB {
 				messages.add(newMsg);
 
 				// And move the position to the start of the next character
-				start = charBuffer.position() + 1;
+				start = charBuffer.capacity();
 			}
 			// Check if we did any work.
 			if (start != 0) {
@@ -235,7 +235,7 @@ public class SocketNB {
 		String str = msg.toString();
 		ByteBuffer wrapper = ByteBuffer.wrap(str.getBytes());
 		int bytesWritten = 0;
-		while (bytesWritten != str.length()) {
+		while (bytesWritten != wrapper.capacity()) {
 			try {
 				bytesWritten += channel.write(wrapper);
 			} catch (IOException e) {
