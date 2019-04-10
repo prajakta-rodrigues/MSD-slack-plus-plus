@@ -33,6 +33,8 @@ public class NotificationConvertor {
    * The Constant LOGGER.
    */
   private static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
+  private static String groupString = "group";
+  private static String nameString = "name";
 
   static {
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
@@ -80,7 +82,8 @@ public class NotificationConvertor {
             result.append("\n");
             break;
           case NEW_MODERATOR:
-            result.append(getTextForNewModerator(notification.getAssociatedGroupId(), notification.getAssociatedUserId(), notification.isNew()));
+            result.append(getTextForNewModerator(notification.getAssociatedGroupId(),
+                notification.getAssociatedUserId(), notification.isNew()));
             result.append("\n");
             break;
           case EIGHTY_SIX:
@@ -93,9 +96,9 @@ public class NotificationConvertor {
       }
 
       String userMsgNotifications =
-          countAssociatedFromMap(userMessages, true, NotificationType.UNREAD_MESSAGES, "User");
+          countAssociatedFromMap(userMessages, "User");
       String groupMsgNotifications =
-          countAssociatedFromMap(groupMessages, true, NotificationType.UNREAD_MESSAGES, "Group");
+          countAssociatedFromMap(groupMessages, "Group");
 
       result.append(userMsgNotifications);
       result.append(groupMsgNotifications);
@@ -118,11 +121,12 @@ public class NotificationConvertor {
       boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     SlackGroup group = groupRepository.getGroupById(associatedGroupId);
+
     StringTemplate stringTemplate = NotificationType.GROUP_INVITE.getText();
-    stringTemplate.removeAttribute("name");
-    stringTemplate.removeAttribute("group");
-    stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
+    stringTemplate.removeAttribute(nameString);
+    stringTemplate.removeAttribute(groupString);
+    stringTemplate.setAttribute(nameString, user.getUserName());
+    stringTemplate.setAttribute(groupString, group.getGroupName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -141,8 +145,8 @@ public class NotificationConvertor {
   private static String getTextForFriendRequestApproval(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST_APPROVED.getText();
-    stringTemplate.removeAttribute("name");
-    stringTemplate.setAttribute("name", user.getUserName());
+    stringTemplate.removeAttribute(nameString);
+    stringTemplate.setAttribute(nameString, user.getUserName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -161,8 +165,8 @@ public class NotificationConvertor {
   private static String getTextForFriendRequest(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST.getText();
-    stringTemplate.removeAttribute("name");
-    stringTemplate.setAttribute("name", user.getUserName());
+    stringTemplate.removeAttribute(nameString);
+    stringTemplate.setAttribute(nameString, user.getUserName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -179,14 +183,15 @@ public class NotificationConvertor {
    * @param isNew the is new
    * @return the text for the new moderator notification
    */
-  private static String getTextForNewModerator(int associatedGroupId, int associatedUserId, boolean isNew) {
+  private static String getTextForNewModerator(int associatedGroupId, int associatedUserId,
+      boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     SlackGroup group = groupRepository.getGroupById(associatedGroupId);
     StringTemplate stringTemplate = NotificationType.NEW_MODERATOR.getText();
-    stringTemplate.removeAttribute("name");
-    stringTemplate.removeAttribute("group");
-    stringTemplate.setAttribute("name", user.getUserName());
-    stringTemplate.setAttribute("group", group.getGroupName());
+    stringTemplate.removeAttribute(nameString);
+    stringTemplate.removeAttribute(groupString);
+    stringTemplate.setAttribute(nameString, user.getUserName());
+    stringTemplate.setAttribute(groupString, group.getGroupName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -199,25 +204,23 @@ public class NotificationConvertor {
    * Count associated notifications from map and given resultant string representation.
    *
    * @param associatedMessages the associated messages
-   * @param isNew the is new
-   * @param unreadMessages the unread messages
    * @param senderType the sender type
    * @return the string
    */
   private static String countAssociatedFromMap(Map<String, Integer> associatedMessages,
-      boolean isNew, NotificationType unreadMessages, String senderType) {
+      String senderType) {
     StringTemplate stringTemplate;
     StringBuilder result = new StringBuilder();
+    String countString = "count";
     for (Entry<String, Integer> entrySet : associatedMessages.entrySet()) {
-      stringTemplate = unreadMessages.getText();
-      stringTemplate.removeAttribute("count");
-      stringTemplate.setAttribute("count", entrySet.getValue());
-      stringTemplate.removeAttribute("name");
-      stringTemplate.setAttribute("name", senderType + " " + entrySet.getKey());
-      if (isNew) {
-        result.append(stringTemplate.toString());
-        result.append("  NEW");
-      }
+      stringTemplate = NotificationType.UNREAD_MESSAGES.getText();
+      stringTemplate.removeAttribute(countString);
+      stringTemplate.setAttribute(countString, entrySet.getValue());
+      stringTemplate.removeAttribute(nameString);
+      stringTemplate.setAttribute(nameString, senderType + " " + entrySet.getKey());
+      result.append(stringTemplate.toString());
+      result.append("  NEW");
+
       result.append("\n");
     }
     return result.toString();

@@ -30,9 +30,6 @@ class SendGroupInvite extends ACommand {
       group = groupRepository.getGroupByName(groupName);
     } else if (params.length == 1) {
       ClientRunnable currClient = getClient(senderId);
-      if (currClient == null) {
-        return "Your client is null";
-      }
       int currChannelId = currClient.getActiveChannelId();
       group = groupRepository.getGroupByChannelId(currChannelId);
     } else {
