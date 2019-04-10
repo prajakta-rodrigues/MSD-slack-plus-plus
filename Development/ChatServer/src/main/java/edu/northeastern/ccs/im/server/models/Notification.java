@@ -242,4 +242,5 @@ public class Notification {
     notification.setCreatedDate(Timestamp.valueOf(LocalDateTime.now()));
     return notification;
   }
+
 }
