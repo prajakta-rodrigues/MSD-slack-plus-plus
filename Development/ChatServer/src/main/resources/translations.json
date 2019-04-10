@@ -29,7 +29,13 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
-      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall." :
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall.",
+      "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
+      "Print out the names of all of my friends.": "Print out the names of all of my friends.",
+      "Removes a user's moderatorship." : "Removes a user's moderatorship.",
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
 
     },
     "french":{
@@ -62,7 +68,13 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
-      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall." :
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall.",
+      "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
+      "Print out the names of all of my friends.": "Print out the names of all of my friends.",
+      "Removes a user's moderatorship." : "Removes a user's moderatorship.",
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
     },
     "spanish":{
       "Change your current chat room to the specified Group.\nParameters: group name":
@@ -94,7 +106,13 @@
       "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
-      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group."
+      "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall." :
+      "Recalls a message based on the given number.\nParameters: the number of most recently sent message to recall.",
+      "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
+      "Print out the names of all of my friends.": "Print out the names of all of my friends.",
+      "Removes a user's moderatorship." : "Removes a user's moderatorship.",
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
     }
 
 }
