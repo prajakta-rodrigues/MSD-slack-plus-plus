@@ -69,16 +69,16 @@ ALTER TABLE slack.group
 	ADD COLUMN creator_id int(15) NOT NULL,
     ADD CONSTRAINT FOREIGN KEY (creator_id)
 		REFERENCES user(id),
-	ADD CONSTRAINT UNIQUE (channel_id);
+	ADD CONSTRAINT UNIQUE (channel_id),
+    ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE,
+    ADD COLUMN password VARCHAR(100) DEFAULT NULL;
     
 ALTER TABLE slack.message
 	ADD COLUMN text varchar(500) NOT NULL;
     
-ALTER TABLE slack.group ADD COLUMN deleted TINYINT NOT NULL DEFAULT FALSE;
-    
 INSERT INTO slack.channel VALUES();
 INSERT INTO slack.user VALUES(-1, 'Slackbot', null, null, null, null, null, null, null);
-INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1, false);
+INSERT INTO slack.group VALUES (1, 'general', CURDATE(), 0, NULL, 1, -1, false, null);
         
 delimiter //
 CREATE PROCEDURE slack.make_group (
@@ -257,9 +257,8 @@ constraint fk_invitee_id foreign key(invitee_id)  references slack.user(id),
 constraint fk_invitor_id foreign key(invitor_id) references slack.user(id),
 constraint fk_invitation_group_id foreign key(group_id) references slack.group(id)) ENGINE=INNODB;
 
-ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL';
 update slack.user set type = 'SYSTEM' where id = -1;
 update slack.user set type = 'GENERAL' where id = null;
+ALTER TABLE slack.user MODIFY COLUMN type VARCHAR(20) NOT NULL DEFAULT 'GENERAL';
 
 alter table slack.user add column dnd boolean default false;
-DESCRIBE slack.notification;
