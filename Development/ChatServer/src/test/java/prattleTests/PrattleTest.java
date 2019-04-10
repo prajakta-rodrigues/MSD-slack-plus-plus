@@ -2577,6 +2577,7 @@ public class PrattleTest {
     assertEquals("sender", mh.getSenderName());
     assertEquals("Group", mh.getSender().getValue());
     assertEquals("text", mh.getText());
+  }
 
   @Test
   public void testEightySixSuccess() throws SQLException {
