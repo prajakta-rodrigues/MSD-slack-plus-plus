@@ -22,6 +22,7 @@ class AcceptGroupInvite extends ACommand {
     if (group == null) {
       return "Specified group doesn't exist";
     }
+    String password = group.getPassword();
 
     boolean result = false;
 
@@ -34,7 +35,12 @@ class AcceptGroupInvite extends ACommand {
     }
 
     if (result) {
-      return "Invite accepted successfully!";
+      StringBuilder ans = new StringBuilder("Invite accepted successfully!");
+      if (password != null) {
+        ans.append(" Join group with password: ");
+        ans.append(password);
+      }
+      return ans.toString();
     }
     return "You do not have an invite to the group";
   }

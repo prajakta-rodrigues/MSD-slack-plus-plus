@@ -12,6 +12,8 @@ import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import static edu.northeastern.ccs.im.server.constants.StringConstants.NotificationMessages.DELETED_GROUP_TAG;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.NotificationMessages.GROUP_STRING;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.NotificationMessages.NAME_STRING;
 
 /**
  * The Class NotificationConvertor provides methods to convert notifications their into text
@@ -35,8 +37,6 @@ public class NotificationConvertor {
    * The Constant LOGGER.
    */
   private static final Logger LOGGER = Logger.getLogger(NotificationConvertor.class.getName());
-  private static String groupString = "group";
-  private static String nameString = "name";
 
   static {
     userRepository = new UserRepository(DatabaseConnection.getDataSource());
@@ -125,10 +125,10 @@ public class NotificationConvertor {
     SlackGroup group = groupRepository.getGroupById(associatedGroupId);
 
     StringTemplate stringTemplate = NotificationType.GROUP_INVITE.getText();
-    stringTemplate.removeAttribute(nameString);
-    stringTemplate.removeAttribute(groupString);
-    stringTemplate.setAttribute(nameString, user.getUserName());
-    stringTemplate.setAttribute(groupString, getGroupName(group));
+    stringTemplate.removeAttribute(NAME_STRING);
+    stringTemplate.removeAttribute(GROUP_STRING);
+    stringTemplate.setAttribute(NAME_STRING, user.getUserName());
+    stringTemplate.setAttribute(GROUP_STRING, getGroupName(group));
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -147,8 +147,8 @@ public class NotificationConvertor {
   private static String getTextForFriendRequestApproval(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST_APPROVED.getText();
-    stringTemplate.removeAttribute(nameString);
-    stringTemplate.setAttribute(nameString, user.getUserName());
+    stringTemplate.removeAttribute(NAME_STRING);
+    stringTemplate.setAttribute(NAME_STRING, user.getUserName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -167,8 +167,8 @@ public class NotificationConvertor {
   private static String getTextForFriendRequest(int associatedUserId, boolean isNew) {
     User user = userRepository.getUserByUserId(associatedUserId);
     StringTemplate stringTemplate = NotificationType.FRIEND_REQUEST.getText();
-    stringTemplate.removeAttribute(nameString);
-    stringTemplate.setAttribute(nameString, user.getUserName());
+    stringTemplate.removeAttribute(NAME_STRING);
+    stringTemplate.setAttribute(NAME_STRING, user.getUserName());
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -190,10 +190,10 @@ public class NotificationConvertor {
     User user = userRepository.getUserByUserId(associatedUserId);
     SlackGroup group = groupRepository.getGroupById(associatedGroupId);
     StringTemplate stringTemplate = NotificationType.NEW_MODERATOR.getText();
-    stringTemplate.removeAttribute(nameString);
-    stringTemplate.removeAttribute(groupString);
-    stringTemplate.setAttribute(nameString, user.getUserName());
-    stringTemplate.setAttribute(groupString, getGroupName(group));
+    stringTemplate.removeAttribute(NAME_STRING);
+    stringTemplate.removeAttribute(GROUP_STRING);
+    stringTemplate.setAttribute(NAME_STRING, user.getUserName());
+    stringTemplate.setAttribute(GROUP_STRING, getGroupName(group));
     StringBuilder result = new StringBuilder();
     result.append(stringTemplate.toString());
     if (isNew) {
@@ -218,8 +218,8 @@ public class NotificationConvertor {
       stringTemplate = NotificationType.UNREAD_MESSAGES.getText();
       stringTemplate.removeAttribute(countString);
       stringTemplate.setAttribute(countString, entrySet.getValue());
-      stringTemplate.removeAttribute(nameString);
-      stringTemplate.setAttribute(nameString, senderType + " " + entrySet.getKey());
+      stringTemplate.removeAttribute(NAME_STRING);
+      stringTemplate.setAttribute(NAME_STRING, senderType + " " + entrySet.getKey());
       result.append(stringTemplate.toString());
       result.append("  NEW");
 

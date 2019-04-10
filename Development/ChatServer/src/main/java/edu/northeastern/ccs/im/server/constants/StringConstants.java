@@ -36,5 +36,7 @@ public class StringConstants {
   public static class NotificationMessages {
     private NotificationMessages(){}
     public static final String DELETED_GROUP_TAG = "  DELETED";
+    public static final String GROUP_STRING = "group";
+    public static final String NAME_STRING = "name";
   }
 }

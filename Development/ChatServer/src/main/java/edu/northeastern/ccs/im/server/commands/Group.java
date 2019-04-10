@@ -22,33 +22,39 @@ class Group extends ACommand {
       return "No Group Name provided";
     }
     SlackGroup targetGroup = groupRepository.getGroupByName(params[0]);
-    ClientRunnable sender = getClient(senderId);
-    if (targetGroup != null) {
-      if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
-        return "You are not a member of this group";
-      }
-      int channelId = targetGroup.getChannelId();
-      changeClientChannel(channelId, sender);
-      messages = messageRepository
-          .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
-      StringBuilder latestMessages =
-          new StringBuilder(
-              String.format("Active channel set to Group %s", targetGroup.getGroupName()));
-      for (Message msg : messages) {
-        String nextLine = "\n" + msg.getName() + " : " + msg.getText();
-        latestMessages.append(nextLine);
-      }
-      if (!messages.isEmpty()) {
-        latestMessages.append("\n" + "-------------------------");
-      }
-      return latestMessages.toString();
-    } else {
+    if (targetGroup == null) {
       return String.format("Group %s does not exist", params[0]);
     }
+    ClientRunnable sender = getClient(senderId);
+    if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
+      return "You are not a member of this group";
+    }
+    String password = targetGroup.getPassword();
+    if (password != null && params.length < 2) {
+      return "This group requires a password";
+    } else if (params.length >= 2 && !params[1].equals(password)) {
+      return "You have input the incorrect password";
+    }
+    int channelId = targetGroup.getChannelId();
+    changeClientChannel(channelId, sender);
+    messages = messageRepository
+            .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    StringBuilder latestMessages =
+            new StringBuilder(
+                    String.format("Active channel set to Group %s", targetGroup.getGroupName()));
+    for (Message msg : messages) {
+      String nextLine = "\n" + msg.getName() + " : " + msg.getText();
+      latestMessages.append(nextLine);
+    }
+    if (!messages.isEmpty()) {
+      latestMessages.append("\n" + "-------------------------");
+    }
+    return latestMessages.toString();
   }
 
   @Override
   public String description() {
-    return "Change your current chat room to the specified Group.\nParameters: group name";
+    return "Change your current chat room to the specified Group.\nParameters: group name, " +
+            "(if locked) password";
   }
 }

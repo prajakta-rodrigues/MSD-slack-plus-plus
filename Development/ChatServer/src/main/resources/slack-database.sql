@@ -84,12 +84,13 @@ delimiter //
 CREATE PROCEDURE slack.make_group (
 	creatorId int(15),
     groupId int(15),
-    groupName varchar(30)
+    groupName varchar(30),
+    optionalPassword varchar(100)
 )
 BEGIN
 	INSERT INTO slack.channel VALUES();
-    INSERT INTO slack.group(creator_id, id, name, channel_id, created_date) VALUES 
-		(creatorId, groupId, groupName, LAST_INSERT_ID(), CURTIME());
+    INSERT INTO slack.group(creator_id, id, name, channel_id, created_date, password) VALUES 
+		(creatorId, groupId, groupName, LAST_INSERT_ID(), CURTIME(), optionalPassword);
 END //
 
 CREATE PROCEDURE slack.make_dm (
