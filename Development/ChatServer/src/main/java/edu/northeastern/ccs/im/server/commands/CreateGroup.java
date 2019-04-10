@@ -9,7 +9,7 @@ class CreateGroup extends ACommand {
 
   @Override
   public String apply(String[] params, Integer senderId) {
-    if (params == null || params.length < 1) {
+    if (params == null) {
       return "No Group Name provided";
     }
     if (groupRepository.getGroupByName(params[0]) != null) {
