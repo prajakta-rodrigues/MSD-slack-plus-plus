@@ -352,7 +352,9 @@ public class Message {
    */
   public static String listToString(List<Message> messages) {
     StringBuilder latestMessages = new StringBuilder();
-    for (Message msg : messages) {
+    Message msg;
+    for (int i = messages.size() - 1; i >= 0; i--) {
+      msg = messages.get(i);
       String nextLine = "\n" + msg.getName() + " : " + msg.getText();
       latestMessages.append(nextLine);
     }
