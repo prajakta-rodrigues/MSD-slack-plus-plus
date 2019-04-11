@@ -15,7 +15,8 @@ class CreateGroup extends ACommand {
     if (groupRepository.getGroupByName(params[0]) != null) {
       return "A group with this name already exists";
     }
-    if (groupRepository.addGroup(new SlackGroup(senderId, params[0]))) {
+    String password = params.length < 2 ? null : params[1];
+    if (groupRepository.addGroup(new SlackGroup(senderId, params[0], password))) {
       return String.format("Group %s created", params[0]);
     } else {
       return "Something went wrong and your group was not created.";
@@ -24,6 +25,6 @@ class CreateGroup extends ACommand {
 
   @Override
   public String description() {
-    return "Create a group with the given name.\nParameters: Group name";
+    return "Create a group with the given name.\nParameters: Group name, (optional) password";
   }
 }

@@ -42,14 +42,9 @@ public class GroupRepository extends Repository {
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-          for (Map<String, Object> result : results) {
-            group = new SlackGroup((Integer) result.get("id"),
-                (Integer) result.get("creator_id"),
-                String.valueOf(result.get("name")),
-                (Integer) result.get("channel_id"));
+          if (rs.first()) {
+            group = groupFromResultSet(rs);
           }
-
         }
       }
     } catch (Exception e) {
@@ -75,16 +70,9 @@ public class GroupRepository extends Repository {
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setString(1, groupName);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-
-          for (Map<String, Object> result : results) {
-            group = new SlackGroup((Integer) result.get("id"),
-                (Integer) result.get("creator_id"),
-                String.valueOf(result.get("name")),
-                (Integer) result.get("channel_id"));
+          if (rs.first()) {
+            group = groupFromResultSet(rs);
           }
-
         }
       }
     } catch (Exception e) {
@@ -105,11 +93,12 @@ public class GroupRepository extends Repository {
     int count = 0;
     try {
       connection = dataSource.getConnection();
-      String query = "CALL slack.make_group(?,?,?)";
+      String query = "CALL slack.make_group(?,?,?,?)";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, group.getCreatorId());
         preparedStmt.setInt(2, group.getGroupId());
         preparedStmt.setString(3, group.getGroupName());
+        preparedStmt.setString(4, group.getPassword());
         count = preparedStmt.executeUpdate();
       }
 
@@ -125,7 +114,7 @@ public class GroupRepository extends Repository {
    * Find if the group has the given member.
    *
    * @param memberId the id of the user in question
-   * @param groupId the name of the group
+   * @param groupId  the name of the group
    * @return Whether or not the given userId is a member of the given group.
    */
   public boolean groupHasMember(int memberId, int groupId) {
@@ -133,8 +122,8 @@ public class GroupRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query = "SELECT user_id " +
-          "FROM slack.user_group ug JOIN slack.group g ON (g.id = ug.group_id)" +
-          "WHERE group_id = ? AND user_id = ? AND !deleted";
+              "FROM slack.user_group ug JOIN slack.group g ON (g.id = ug.group_id)" +
+              "WHERE group_id = ? AND user_id = ? AND !deleted";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, groupId);
         preparedStmt.setInt(2, memberId);
@@ -161,8 +150,8 @@ public class GroupRepository extends Repository {
     try {
       connection = dataSource.getConnection();
       String query = "SELECT name " +
-          "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
-          "WHERE ug.user_id = ? AND !deleted";
+              "FROM slack.group g JOIN slack.user_group ug ON (g.id = ug.group_id)" +
+              "WHERE ug.user_id = ? AND !deleted";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, memberId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -196,12 +185,8 @@ public class GroupRepository extends Repository {
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, channelId);
         try (ResultSet rs = preparedStmt.executeQuery()) {
-          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-          for (Map<String, Object> result : results) {
-            group = new SlackGroup((Integer) result.get("id"),
-                (Integer) result.get("creator_id"),
-                String.valueOf(result.get("name")),
-                (Integer) result.get("channel_id"));
+          if (rs.first()) {
+            group = groupFromResultSet(rs);
           }
         }
       }
@@ -215,6 +200,7 @@ public class GroupRepository extends Repository {
 
   /**
    * 'Deletes' the group by id.
+   *
    * @param groupId the id of the group to be deleted.
    * @return whether or not the update succeeded.
    */
@@ -236,5 +222,21 @@ public class GroupRepository extends Repository {
       closeConnection(connection);
     }
     return success;
+  }
+
+  /**
+   * Converts a resultSet into a SlackGroup.
+   * @param rs the Result of the query.
+   * @return the SlackGroup represented by the ResultSet
+   * @throws SQLException the exception thrown by JDBC
+   */
+  private static SlackGroup groupFromResultSet(ResultSet rs) throws SQLException {
+    return new SlackGroup(
+            rs.getInt("id"),
+            rs.getInt("creator_id"),
+            rs.getString("name"),
+            rs.getInt("channel_id"),
+            rs.getBoolean("deleted"),
+            rs.getString("password"));
   }
 }

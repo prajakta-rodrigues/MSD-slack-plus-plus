@@ -1,16 +1,10 @@
 package prattleTests;
 
-import edu.northeastern.ccs.im.server.repositories.FriendRepository;
-import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
-import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
-
-import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -36,8 +30,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.sql.DataSource;
 
 import edu.northeastern.ccs.im.client.Buddy;
-import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.ClientRunnable;
+import edu.northeastern.ccs.im.server.NetworkConnection;
+import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.constants.ErrorCodes;
 import edu.northeastern.ccs.im.server.models.GroupInvitation;
 import edu.northeastern.ccs.im.server.models.InviteesGroup;
@@ -46,19 +41,22 @@ import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.MessageHistory;
 import edu.northeastern.ccs.im.server.models.MessageRecipientType;
 import edu.northeastern.ccs.im.server.models.MessageType;
-import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.models.Notification;
 import edu.northeastern.ccs.im.server.models.NotificationType;
-import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 import edu.northeastern.ccs.im.server.models.User;
 import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.DirectMessageRepository;
+import edu.northeastern.ccs.im.server.repositories.FriendRepository;
+import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupInviteRepository;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
+import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
 import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_NOTIFICATION;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTYSIX_SUCCESS;
@@ -67,6 +65,7 @@ import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMess
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -171,13 +170,13 @@ public class PrattleTest {
    * Initialize the command data before each test.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Before
   @SuppressWarnings("unchecked")
   public void initCommandData()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     NetworkConnection networkConnection1 = Mockito.mock(NetworkConnection.class);
     cr1 = new ClientRunnable(networkConnection1) {
       @Override()
@@ -212,41 +211,41 @@ public class PrattleTest {
     cr1.run();
     cr2.run();
     Field authenticatedClient = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("authenticated");
+            .getDeclaredField("authenticated");
     authenticatedClient.setAccessible(true);
 
     Field cm = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("channelMembers");
+            .getDeclaredField("channelMembers");
     cm.setAccessible(true);
 
     Field authenticate = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-        .getDeclaredField("authenticated");
+            .getDeclaredField("authenticated");
     authenticate.setAccessible(true);
     authenticate.set(cr1, true);
     authenticate.set(cr2, true);
     Field initialized = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-        .getDeclaredField("initialized");
+            .getDeclaredField("initialized");
     initialized.setAccessible(true);
     initialized.set(cr1, true);
     initialized.set(cr2, true);
     Field userId = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-        .getDeclaredField("userId");
+            .getDeclaredField("userId");
     userId.setAccessible(true);
     userId.set(cr1, 2);
     userId.set(cr2, 1);
 
     Map<Integer, ClientRunnable> authenticated = (Hashtable<Integer, ClientRunnable>) authenticatedClient
-        .get(null);
+            .get(null);
     authenticated.put(2, cr1);
     authenticated.put(1, cr2);
 
     Map<Integer, Set<ClientRunnable>> channelMembers = (Hashtable<Integer, Set<ClientRunnable>>) cm
-        .get(null);
+            .get(null);
     channelMembers.get(1).add(cr1);
     channelMembers.get(1).add(cr2);
 
     Field wl = Class.forName("edu.northeastern.ccs.im.server.ClientRunnable")
-        .getDeclaredField("waitingList");
+            .getDeclaredField("waitingList");
     wl.setAccessible(true);
     waitingList1 = (ConcurrentLinkedQueue<Message>) wl.get(cr1);
     waitingList2 = (ConcurrentLinkedQueue<Message>) wl.get(cr2);
@@ -254,10 +253,10 @@ public class PrattleTest {
     omar = new User(1, "omar", "password", UserType.GENERAL);
     mark = new User(2, "mark", "password", UserType.GENERAL);
 
-    GroupRepository groupRepository = new MockGroupRepository();
+    groupRepository = new MockGroupRepository();
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
@@ -268,12 +267,12 @@ public class PrattleTest {
     friendRepository = Mockito.mock(FriendRepository.class);
 
     Field ur = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("userRepository");
+            .getDeclaredField("userRepository");
     ur.setAccessible(true);
     ur.set(null, userRepository);
 
     Field commandUr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("userRepository");
+            .getDeclaredField("userRepository");
     commandUr.setAccessible(true);
     commandUr.set(null, userRepository);
 
@@ -282,30 +281,30 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(omar);
 
     Field dmr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("dmRepository");
+            .getDeclaredField("dmRepository");
     dmr.setAccessible(true);
     dmr.set(null, dmRepository);
 
     userGroupRepository = Mockito.mock(UserGroupRepository.class);
 
     Field userGroupRepo =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("userGroupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("userGroupRepository");
     userGroupRepo.setAccessible(true);
     userGroupRepo.set(null, userGroupRepository);
 
     Field frr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("friendRequestRepository");
+            .getDeclaredField("friendRequestRepository");
     frr.setAccessible(true);
     frr.set(null, friendRequestRepository);
 
     Field fr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("friendRepository");
+            .getDeclaredField("friendRepository");
     fr.setAccessible(true);
     fr.set(null, friendRepository);
 
     Field ugr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("userGroupRepository");
+            .getDeclaredField("userGroupRepository");
     ugr.setAccessible(true);
     ugr.set(null, userGroupRepository);
 
@@ -314,22 +313,22 @@ public class PrattleTest {
 
     groupInviteRepository = Mockito.mock(GroupInviteRepository.class);
     Field fieldInviteRepo =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupInviteRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupInviteRepository");
     fieldInviteRepo.setAccessible(true);
     fieldInviteRepo.set(null, groupInviteRepository);
 
     notificationRepository = Mockito.mock(NotificationRepository.class);
     Field fieldNotificationRepository =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("notificationRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("notificationRepository");
     fieldNotificationRepository.setAccessible(true);
     fieldNotificationRepository.set(null, notificationRepository);
 
     messageRepository = Mockito.mock(MessageRepository.class);
     Field fieldMessageRepository =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("messageRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("messageRepository");
     fieldMessageRepository.setAccessible(true);
     fieldMessageRepository.set(null, messageRepository);
   }
@@ -353,6 +352,7 @@ public class PrattleTest {
 
       mockDb.put("general", new SlackGroup(1, -1, "general", 1));
       mockDb.put("group2", new SlackGroup(2, -1, "group2", 2));
+      mockDb.put("groupWithPass", new SlackGroup(3, -1, "groupWithPass", 3, false, "password"));
     }
 
     /* (non-Javadoc)
@@ -436,18 +436,18 @@ public class PrattleTest {
   /**
    * Test ServerConstants Types.
    *
-   * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchMethodException the no such method exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws ClassNotFoundException    the class not found exception
+   * @throws NoSuchMethodException     the no such method exception
+   * @throws IllegalAccessException    the illegal access exception
    * @throws InvocationTargetException the invocation target exception
-   * @throws InstantiationException the instantiation exception
+   * @throws InstantiationException    the instantiation exception
    */
   @Test
   public void testChatloggerTypes()
-      throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+          throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
     Constructor constructor = Class
-        .forName("edu.northeastern.ccs.im.server.constants.ServerConstants")
-        .getDeclaredConstructor();
+            .forName("edu.northeastern.ccs.im.server.constants.ServerConstants")
+            .getDeclaredConstructor();
     constructor.setAccessible(true);
     constructor.newInstance();
   }
@@ -455,16 +455,16 @@ public class PrattleTest {
   /**
    * Test makeHelloMessage in Message.
    *
-   * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException    the class not found exception
+   * @throws NoSuchMethodException     the no such method exception
    * @throws InvocationTargetException the invocation target exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException    the illegal access exception
    */
   @Test
   public void testMessageClass()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.server.models.Message")
-        .getDeclaredMethod("makeHelloMessage", String.class);
+            .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "mike");
     Message msd1 = Message.makeBroadcastMessage("koka", "Hello There");
@@ -479,20 +479,20 @@ public class PrattleTest {
   /**
    * Test handle type methods in Message.
    *
-   * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException    the class not found exception
+   * @throws NoSuchMethodException     the no such method exception
    * @throws InvocationTargetException the invocation target exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException    the illegal access exception
    */
   @Test
   public void testClientMessageClass()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String jaffa = "jaffa";
     String hello = "hello";
     Method makeMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
+            .getDeclaredMethod("makeMessage", String.class, String.class, int.class, String.class);
     Method makeHelloMessageMethod = Class.forName("edu.northeastern.ccs.im.client.Message")
-        .getDeclaredMethod("makeHelloMessage", String.class);
+            .getDeclaredMethod("makeHelloMessage", String.class);
     makeMessageMethod.setAccessible(true);
     makeHelloMessageMethod.setAccessible(true);
     makeMessageMethod.invoke(null, "HLO", jaffa, -1, hello);
@@ -500,7 +500,7 @@ public class PrattleTest {
     makeMessageMethod.invoke(null, "NAK", jaffa, -1, hello);
     makeHelloMessageMethod.invoke(null, jaffa);
     edu.northeastern.ccs.im.client.Message sc = edu.northeastern.ccs.im.client.Message
-        .makeLoginMessage("jaffa");
+            .makeLoginMessage("jaffa");
     sc.isAcknowledge();
     sc.isBroadcastMessage();
     sc.isDisplayMessage();
@@ -577,14 +577,14 @@ public class PrattleTest {
   /**
    * Test buddy.
    *
-   * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchMethodException the no such method exception
+   * @throws ClassNotFoundException    the class not found exception
+   * @throws NoSuchMethodException     the no such method exception
    * @throws InvocationTargetException the invocation target exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException    the illegal access exception
    */
   @Test
   public void testBuddy()
-      throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+          throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     String bud = "edu.northeastern.ccs.im.client.Buddy";
     String daffa = "daffa";
     String jaffa = "jaffa";
@@ -608,17 +608,17 @@ public class PrattleTest {
   /**
    * Test stop server.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testStopServer()
-      throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field isReady = Class.forName("edu.northeastern.ccs.im.server.Prattle")
-        .getDeclaredField("isReady");
+            .getDeclaredField("isReady");
     isReady.setAccessible(true);
     isReady.set(null, true);
     Prattle.stopServer();
@@ -699,7 +699,7 @@ public class PrattleTest {
     assertEquals(1, waitingList1.size());
     Message callback = waitingList1.remove();
     assertTrue(callback.getText()
-        .contains("/groups Print out the names of each Group you are a member of\n"));
+            .contains("/groups Print out the names of each Group you are a member of\n"));
     assertEquals(bot, callback.getName());
   }
 
@@ -792,15 +792,15 @@ public class PrattleTest {
    * Test create group fails.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testCreateGroupFails()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     Mockito.when(groupRepository.addGroup(any())).thenReturn(false);
@@ -977,17 +977,17 @@ public class PrattleTest {
   /**
    * Test notification command null list.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testNotificationCommandNullList() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("notificationRepository");
+            .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
@@ -1002,17 +1002,17 @@ public class PrattleTest {
   /**
    * Test notification command empty list.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testNotificationCommandEmptyList() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("notificationRepository");
+            .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
@@ -1028,25 +1028,25 @@ public class PrattleTest {
   /**
    * Test notification command notification list.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testNotificationCommandNotificationList()
-      throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          throws NoSuchFieldException, SecurityException,
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     Field notificationRepoField = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("notificationRepository");
+            .getDeclaredField("notificationRepository");
     notificationRepoField.setAccessible(true);
     NotificationRepository notificationRepo = Mockito.mock(NotificationRepository.class);
     notificationRepoField.set(null, notificationRepo);
 
     Field userRepoField = Class
-        .forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
-        .getDeclaredField("userRepository");
+            .forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+            .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
@@ -1068,7 +1068,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
     Message callback = waitingList2.remove();
     assertEquals("Notifications:\n" +
-        "testY has sent you a friend request.  NEW\n", callback.getText());
+            "testY has sent you a friend request.  NEW\n", callback.getText());
 
   }
 
@@ -1077,22 +1077,22 @@ public class PrattleTest {
    *
    * @throws IllegalAccessException the illegal access exception
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    */
   @Test
   public void testMustBeMemberToSetGroup()
-      throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
-    GroupRepository groupRepository = Mockito.mock(MockGroupRepository.class);
+          throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+    groupRepository = Mockito.mock(MockGroupRepository.class);
 
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
 
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString()))
-        .thenReturn(new SlackGroup(1, "special_group"));
+            .thenReturn(new SlackGroup(1, "special_group", null));
 
     ((MockGroupRepository) groupRepository).mockDb = new HashMap<>();
 
@@ -1147,7 +1147,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 2, "/dm omar"));
     Message callback = waitingList1.remove();
     assertEquals("You are not friends with omar. Send them a friend request to direct message.",
-        callback.getText());
+            callback.getText());
     assertEquals(1, cr2.getActiveChannelId());
   }
 
@@ -1190,21 +1190,21 @@ public class PrattleTest {
   /**
    * Test send group invite current group not moderator.
    *
-   * @throws SQLException the SQL exception
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws SQLException             the SQL exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testSendGroupInviteCurrentGroupNotModerator()
-      throws SQLException, NoSuchFieldException,
-      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          throws SQLException, NoSuchFieldException,
+          SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1213,7 +1213,7 @@ public class PrattleTest {
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invite rita"));
     Message callback = waitingList2.remove();
     assertEquals("You are not a moderator of given group", callback.getText());
@@ -1222,21 +1222,21 @@ public class PrattleTest {
   /**
    * Test send group invite current group success.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testSendGroupInviteCurrentGroupSuccess()
-      throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          throws NoSuchFieldException, SecurityException,
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1245,10 +1245,10 @@ public class PrattleTest {
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(groupInviteRepository.add(Mockito.any(GroupInvitation.class))).thenReturn(true);
     Mockito.when(notificationRepository.addNotification(Mockito.any(Notification.class)))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invite rita"));
     Message callback = waitingList2.remove();
     assertEquals("Invite sent successfully", callback.getText());
@@ -1257,20 +1257,20 @@ public class PrattleTest {
   /**
    * Test send group invite current group fail.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testSendGroupInviteCurrentGroupFail() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     User user = new User(1, "rita", "pwd", UserType.GENERAL);
@@ -1279,10 +1279,10 @@ public class PrattleTest {
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(groupInviteRepository.add(Mockito.any(GroupInvitation.class))).thenReturn(false);
     Mockito.when(notificationRepository.addNotification(Mockito.any(Notification.class)))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invite rita"));
     Message callback = waitingList2.remove();
     assertEquals("Failed to send invite", callback.getText());
@@ -1303,19 +1303,19 @@ public class PrattleTest {
   /**
    * Test accept invite group doesnt exist.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
+   * @throws IllegalAccessException   the illegal access exception
    */
   @Test
   public void testAcceptInviteGroupDoesntExist() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(null);
@@ -1328,26 +1328,26 @@ public class PrattleTest {
   /**
    * Test accept invite group success.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testAcceptInviteGroupSuccess() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
     assertEquals("Invite accepted successfully!", callback.getText());
@@ -1357,26 +1357,26 @@ public class PrattleTest {
   /**
    * Test accept invite group error.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testAcceptInviteGroupError() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
     assertEquals("You do not have an invite to the group", callback.getText());
@@ -1386,26 +1386,26 @@ public class PrattleTest {
   /**
    * Test accept invite group SQL exception.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testAcceptInviteGroupSQLException() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
     Mockito.when(groupRepository.getGroupByName(Mockito.anyString())).thenReturn(group);
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt()))
-        .thenThrow(new SQLException());
+            .thenThrow(new SQLException());
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
     assertEquals("You do not have an invite to the group", callback.getText());
@@ -1415,20 +1415,20 @@ public class PrattleTest {
   /**
    * Test accept invite group already in group.
    *
-   * @throws NoSuchFieldException the no such field exception
-   * @throws SecurityException the security exception
-   * @throws ClassNotFoundException the class not found exception
+   * @throws NoSuchFieldException     the no such field exception
+   * @throws SecurityException        the security exception
+   * @throws ClassNotFoundException   the class not found exception
    * @throws IllegalArgumentException the illegal argument exception
-   * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws IllegalAccessException   the illegal access exception
+   * @throws SQLException             the SQL exception
    */
   @Test
   public void testAcceptInviteGroupAlreadyInGroup() throws NoSuchFieldException, SecurityException,
-      ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
+          ClassNotFoundException, IllegalArgumentException, IllegalAccessException, SQLException {
     groupRepository = Mockito.mock(GroupRepository.class);
     Field groupRep =
-        Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-            .getDeclaredField("groupRepository");
+            Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
+                    .getDeclaredField("groupRepository");
     groupRep.setAccessible(true);
     groupRep.set(null, groupRepository);
     SlackGroup group = new SlackGroup(1, 1, "testgp", 1);
@@ -1436,7 +1436,7 @@ public class PrattleTest {
     SQLException e = Mockito.mock(SQLException.class);
     Mockito.when(e.getErrorCode()).thenReturn(ErrorCodes.MYSQL_DUPLICATE_PK);
     Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt()))
-        .thenThrow(e);
+            .thenThrow(e);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/accept gp"));
     Message callback = waitingList2.remove();
     assertEquals("You are already part of the group", callback.getText());
@@ -1451,11 +1451,11 @@ public class PrattleTest {
     List<InviteesGroup> list = new ArrayList<>();
     list.add(new InviteesGroup("tim", "tom"));
     Mockito.when(groupInviteRepository.getGroupInvitationsByInvitorId(Mockito.anyInt()))
-        .thenReturn(list);
+            .thenReturn(list);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/sentinvites"));
     Message callback = waitingList2.remove();
     assertEquals("Invitations sent:\n" +
-        "Invite sent to user tim for group tom\n", callback.getText());
+            "Invite sent to user tim for group tom\n", callback.getText());
   }
 
   /**
@@ -1465,7 +1465,7 @@ public class PrattleTest {
   public void testSentInvitesNoInvites() {
     List<InviteesGroup> list = new ArrayList<>();
     Mockito.when(groupInviteRepository.getGroupInvitationsByInvitorId(Mockito.anyInt()))
-        .thenReturn(list);
+            .thenReturn(list);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/sentinvites"));
     Message callback = waitingList2.remove();
     assertEquals("Invitations sent:\n", callback.getText());
@@ -1479,11 +1479,11 @@ public class PrattleTest {
     List<InvitorsGroup> list = new ArrayList<>();
     list.add(new InvitorsGroup("tim", "tom"));
     Mockito.when(groupInviteRepository.getGroupInvitationsByInviteeId(Mockito.anyInt()))
-        .thenReturn(list);
+            .thenReturn(list);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invites"));
     Message callback = waitingList2.remove();
     assertEquals("Invitations:\n" +
-        "Moderator tim invites you to join group tom\n", callback.getText());
+            "Moderator tim invites you to join group tom\n", callback.getText());
   }
 
   /**
@@ -1493,7 +1493,7 @@ public class PrattleTest {
   public void testNoMyInvites() {
     List<InvitorsGroup> list = new ArrayList<>();
     Mockito.when(groupInviteRepository.getGroupInvitationsByInviteeId(Mockito.anyInt()))
-        .thenReturn(list);
+            .thenReturn(list);
     Prattle.commandMessage(Message.makeCommandMessage("tuffaha", 1, "/invites"));
     Message callback = waitingList2.remove();
     assertEquals("Invitations:\n", callback.getText());
@@ -1557,9 +1557,9 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
     Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(friendRepository.successfullyAcceptFriendRequest(anyInt(), anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("mark and omar are now friends.", callback.getText());
@@ -1573,13 +1573,13 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
     Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("Something went wrong and we could not accept omar's friend request.",
-        callback.getText());
+            callback.getText());
   }
 
   /**
@@ -1590,13 +1590,13 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
     Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("You already sent omar a friend request.",
-        callback.getText());
+            callback.getText());
   }
 
   /**
@@ -1607,9 +1607,9 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(mark);
     Mockito.when(friendRepository.areFriends(anyInt(), anyInt())).thenReturn(false);
     Mockito.when(friendRequestRepository.hasPendingFriendRequest(anyInt(), anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Mockito.when(friendRequestRepository.successfullySendFriendRequest(anyInt(), anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/friend omar"));
     Message callback = waitingList1.remove();
     assertEquals("mark sent omar a friend request.", callback.getText());
@@ -1643,15 +1643,15 @@ public class PrattleTest {
    * Tests that the groupMembers command list all group members.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testGroupMembersCommand()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup helloGroup = new SlackGroup(100, 2, "hello", 100);
@@ -1683,15 +1683,15 @@ public class PrattleTest {
    * Tests that the groupMembers with a null group.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testGroupMembersCommand2()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     Prattle.commandMessage(Message.makeCommandMessage("mark", 2, "/groupMembers"));
@@ -1714,40 +1714,40 @@ public class PrattleTest {
    * Tests that removing a group member when a group doesn't exist.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testRemoveUserWithoutGroup()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(null);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("You must set a group as your active channel to kick a member.",
-        callback.getText());
+            callback.getText());
   }
 
   /**
    * Tests that removing a group member when a user is not moderator.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testRemoveUserWhenNotModerator()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     List<String> moderators = new ArrayList<>();
     moderators.add("pmar");
@@ -1761,21 +1761,21 @@ public class PrattleTest {
    * Tests exception while removing a group member.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
    */
   @Test
   public void testRemoveUserException()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     Mockito.when(userGroupRepository.getModerators(Mockito.anyInt()))
-        .thenThrow(new IllegalArgumentException());
+            .thenThrow(new IllegalArgumentException());
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("You are not the moderator of this group.", callback.getText());
@@ -1785,22 +1785,22 @@ public class PrattleTest {
    * Tests User null exception while removing a group member.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws SQLException           the SQL exception
    */
   @Test
   public void testUserByUsernameNullException()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
@@ -1811,25 +1811,25 @@ public class PrattleTest {
    * Tests  user not in Group while removing a group member.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws SQLException           the SQL exception
    */
   @Test
   public void testUserNotInGroup()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(false);
+            .thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("Could not find clobb as a member of this group.", callback.getText());
@@ -1839,27 +1839,27 @@ public class PrattleTest {
    * Tests  user removed from group.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws SQLException           the SQL exception
    */
   @Test
   public void testUserRemovedFromGroup()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(userGroupRepository.removeMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("User omar successfully kicked from group.", callback.getText());
@@ -1869,25 +1869,25 @@ public class PrattleTest {
    * Tests  user removed from group exception.
    *
    * @throws ClassNotFoundException the class not found exception
-   * @throws NoSuchFieldException the no such field exception
+   * @throws NoSuchFieldException   the no such field exception
    * @throws IllegalAccessException the illegal access exception
-   * @throws SQLException the SQL exception
+   * @throws SQLException           the SQL exception
    */
   @Test
   public void testUserRemovedFromGroupException()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
-    SlackGroup slackGroup = new SlackGroup(0, "koka");
+    SlackGroup slackGroup = new SlackGroup(0, "koka", null);
     Mockito.when(groupRepository.getGroupByChannelId(Mockito.anyInt())).thenReturn(slackGroup);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(omar);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick clobb"));
     Message callback = waitingList2.remove();
     assertEquals("Something went wrong. Failed to kick member omar.", callback.getText());
@@ -1897,15 +1897,15 @@ public class PrattleTest {
    * Tests that added a moderator works.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModerator()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup helloGroup = new SlackGroup(100, 2, "hello", 100);
@@ -1923,7 +1923,7 @@ public class PrattleTest {
     User chicken = new User(5, "Chicken", "password", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName("Chicken")).thenReturn(chicken);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/addModerator Chicken"));
     waitingList1.remove();
     waitingList1.remove();
@@ -1935,15 +1935,15 @@ public class PrattleTest {
    * Tests that added a moderator fails if they are already a moderator.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModeratorDuplicateMod()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup helloGroup = new SlackGroup(100, 2, "hello", 100);
@@ -1962,7 +1962,7 @@ public class PrattleTest {
     User cowgirl = new User(5, "cowgirl", "password", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserName("cowgirl")).thenReturn(cowgirl);
     Mockito.when(groupRepository.groupHasMember(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
+            .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/addModerator cowgirl"));
     waitingList1.remove();
     waitingList1.remove();
@@ -1974,15 +1974,15 @@ public class PrattleTest {
    * Tests that added a moderator fails if the desired moderator isn't in the group first.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModerator2()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup hiGroup = new SlackGroup(900, 2, "hi", 100);
@@ -2001,22 +2001,22 @@ public class PrattleTest {
     waitingList1.remove();
     Message callback = waitingList1.remove();
     assertEquals("The desired user is not part of the group. Send them an invite first.",
-        callback.getText());
+            callback.getText());
   }
 
   /**
    * Tests that added a moderator fails if the sender isn't a moderator.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModeratorNotMod()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup hiGroup = new SlackGroup(900, 2, "hi", 100);
@@ -2038,15 +2038,15 @@ public class PrattleTest {
    * Tests that added a moderator fails with a null group.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModeratorNullGroup()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     List<String> mods = new ArrayList<>();
@@ -2065,15 +2065,15 @@ public class PrattleTest {
    * Tests that added a moderator fails with no params.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testAddModeratorNoParams()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     List<String> mods = new ArrayList<>();
@@ -2091,15 +2091,15 @@ public class PrattleTest {
    * Tests that dm fails with a null group.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testDomNoGroup()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     List<String> mods = new ArrayList<>();
@@ -2114,15 +2114,15 @@ public class PrattleTest {
    * Tests that added a dom fails if the sender isn't a moderator.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testDomFailsWhenNotMod()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup supGroup = new SlackGroup(900, 2, "sup", 100);
@@ -2144,15 +2144,15 @@ public class PrattleTest {
    * Tests that dom fails if there isn't another moderator.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testDomFailsWithNoOtherModerator()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup helloGroup = new SlackGroup(100, 2, "hello", 100);
@@ -2168,23 +2168,23 @@ public class PrattleTest {
     waitingList1.remove();
     Message callback = waitingList1.remove();
     assertEquals(
-        "You are the only moderator of the group. Please add another moderator before removing yourself from being one.",
-        callback.getText());
+            "You are the only moderator of the group. Please add another moderator before removing yourself from being one.",
+            callback.getText());
   }
 
   /**
    * Tests that dom works.
    *
    * @throws ClassNotFoundException class not found exception
-   * @throws NoSuchFieldException no such field exception
+   * @throws NoSuchFieldException   no such field exception
    * @throws IllegalAccessException illegal access exception
    */
   @Test
   public void testDomWorks()
-      throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+          throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
-        .getDeclaredField("groupRepository");
+            .getDeclaredField("groupRepository");
     gr.setAccessible(true);
     gr.set(null, groupRepository);
     SlackGroup helloGroup = new SlackGroup(100, 2, "hello", 100);
@@ -2273,7 +2273,7 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString())).thenReturn(null);
     Prattle.commandMessage(
-        Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-04-21 2018-04-21"));
+            Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-04-21 2018-04-21"));
     Message callback = waitingList1.remove();
     assertEquals("No user found with given user name", callback.getText());
   }
@@ -2286,9 +2286,9 @@ public class PrattleTest {
     User user = new User(2, "omar", "pwd", UserType.GOVERNMENT);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString()))
-        .thenReturn(new User(1, "ian", "pwd", UserType.GENERAL));
+            .thenReturn(new User(1, "ian", "pwd", UserType.GENERAL));
     Prattle.commandMessage(
-        Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-14-21 2018-04-21"));
+            Message.makeCommandMessage("omar", 2, "/wiretap hiye 2018-14-21 2018-04-21"));
     Message callback = waitingList1.remove();
     assertEquals("Incorrect format specified for dates", callback.getText());
   }
@@ -2301,20 +2301,20 @@ public class PrattleTest {
     User user = new User(2, "omar", "pwd", UserType.GOVERNMENT);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Mockito.when(userRepository.getUserByUserName(Mockito.anyString()))
-        .thenReturn(new User(1, "ian", "pwd", UserType.GENERAL));
+            .thenReturn(new User(1, "ian", "pwd", UserType.GENERAL));
     List<MessageHistory> messageHistory = new ArrayList<>();
     messageHistory.add(new MessageHistory("us1", MessageRecipientType.USER, "us2",
-        MessageRecipientType.GROUP, "hey", Timestamp.valueOf("2018-04-21 00:00:00")));
+            MessageRecipientType.GROUP, "hey", Timestamp.valueOf("2018-04-21 00:00:00")));
     Mockito.when(messageRepository.getDirectMessageHistory(Mockito.anyInt(),
-        Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
+            Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
     Mockito.when(messageRepository.getGroupMessageHistory(Mockito.anyInt(), Mockito.anyString(),
-        Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
+            Mockito.any(Timestamp.class), Mockito.any(Timestamp.class))).thenReturn(messageHistory);
     Prattle.commandMessage(
-        Message.makeCommandMessage("omar", 2, "/wiretap ian 2018-04-21 2018-04-21"));
+            Message.makeCommandMessage("omar", 2, "/wiretap ian 2018-04-21 2018-04-21"));
     Message callback = waitingList1.remove();
     assertEquals("Conversation history for ian:\n" +
-        "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n" +
-        "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n", callback.getText());
+            "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n" +
+            "2018-04-21 00:00:00 Group us2 sent User us1 : hey\n", callback.getText());
   }
 
   /**
@@ -2325,7 +2325,7 @@ public class PrattleTest {
     User user = new User(2, "omar", "pwd", UserType.SYSTEM);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Prattle.commandMessage(
-        Message.makeCommandMessage("omar", 2, "/help"));
+            Message.makeCommandMessage("omar", 2, "/help"));
     Message callback = waitingList1.remove();
     assertEquals("No commands available", callback.getText());
   }
@@ -2340,9 +2340,9 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/help"));
     Message callback = waitingList1.remove();
     assertEquals("Available COMMANDS:\n"
-            + "/wiretap Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> "
-            + "(Date format:mm/dd/yyyy)\n" + "/help Lists all of the available commands.",
-        callback.getText());
+                    + "/wiretap Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> "
+                    + "(Date format:mm/dd/yyyy)\n" + "/help Lists all of the available commands.",
+            callback.getText());
   }
 
   /**
@@ -2439,8 +2439,8 @@ public class PrattleTest {
    */
   @Test
   public void testKickException() throws SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "hiGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "hiGroup", null);
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(anyInt(), anyInt())).thenThrow(new SQLException());
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/kick sean"));
@@ -2453,8 +2453,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupInviteParamsLength2AndNullGroup() {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "hiGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "hiGroup", null);
     Mockito.when(groupRepository.getGroupByName(anyString())).thenReturn(group);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/invite sean hiGroup"));
     Message callback = waitingList2.remove();
@@ -2476,8 +2476,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupInviteFailedModeratorCheck() throws SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "byeGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "byeGroup", null);
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(anyInt(), anyInt())).thenThrow(new SQLException());
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/invite koka"));
@@ -2490,8 +2490,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupInviteNullUser() throws SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "heyGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "heyGroup", null);
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(anyInt(), anyInt())).thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(anyString())).thenReturn(null);
@@ -2505,8 +2505,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupInviteDuplicateInvite() throws SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "sweetGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "sweetGroup", null);
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(anyInt(), anyInt())).thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(anyString())).thenReturn(omar);
@@ -2523,8 +2523,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupInviteException() throws SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "tomatoes");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "tomatoes", null);
     Mockito.when(groupRepository.getGroupByChannelId(anyInt())).thenReturn(group);
     Mockito.when(userGroupRepository.isModerator(anyInt(), anyInt())).thenReturn(true);
     Mockito.when(userRepository.getUserByUserName(anyString())).thenReturn(omar);
@@ -2549,8 +2549,8 @@ public class PrattleTest {
    */
   @Test
   public void testGroupMessagesQueue() {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
-    SlackGroup group = new SlackGroup(1, "misterGroup");
+    groupRepository = Mockito.mock(GroupRepository.class);
+    SlackGroup group = new SlackGroup(1, "misterGroup", null);
     Mockito.when(groupRepository.getGroupByName(anyString())).thenReturn(group);
     Mockito.when(groupRepository.groupHasMember(anyInt(), anyInt())).thenReturn(true);
     List<Message> listOfMessages = new ArrayList<>();
@@ -2559,11 +2559,11 @@ public class PrattleTest {
     Mockito.when(m1.getName()).thenReturn("omar");
     listOfMessages.add(m1);
     Mockito.when(messageRepository.getLatestMessagesFromChannel(anyInt(), anyInt()))
-        .thenReturn(listOfMessages);
+            .thenReturn(listOfMessages);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/group general"));
     Message callback = waitingList2.remove();
     assertEquals("Active channel set to Group general\nomar : text\n-------------------------",
-        callback.getText());
+            callback.getText());
   }
 
   /**
@@ -2572,7 +2572,7 @@ public class PrattleTest {
   @Test
   public void testMessageHistory() {
     MessageHistory mh = new MessageHistory("receiver", MessageRecipientType.USER, "sender",
-        MessageRecipientType.GROUP, "text", Timestamp.valueOf(LocalDateTime.now()));
+            MessageRecipientType.GROUP, "text", Timestamp.valueOf(LocalDateTime.now()));
     assertEquals("receiver", mh.getReceiverName());
     assertEquals("User", mh.getReceiver().getValue());
     assertEquals("sender", mh.getSenderName());
@@ -2628,7 +2628,7 @@ public class PrattleTest {
 
   @Test
   public void testNullGroup() throws SQLException {
-    cr1.setActiveChannelId(3);
+    cr1.setActiveChannelId(-1);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
     Message callback = waitingList1.remove();
@@ -2637,7 +2637,7 @@ public class PrattleTest {
 
   @Test
   public void testFailedDelete() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException, SQLException {
-    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    groupRepository = Mockito.mock(GroupRepository.class);
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.ACommand")
             .getDeclaredField("groupRepository");
     gr.setAccessible(true);
@@ -2648,6 +2648,7 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals(GENERIC_ERROR, callback.getText());
   }
+
   /**
    * Tests  /lang command.
    */
@@ -2657,7 +2658,7 @@ public class PrattleTest {
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Languages")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
-    gr.set(null,translationSupport);
+    gr.set(null, translationSupport);
     String languagesSupported = "spanish,german";
     when(translationSupport.getAllLanguagesSupported()).thenReturn(languagesSupported);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/lang"));
@@ -2669,7 +2670,7 @@ public class PrattleTest {
    * Tests translate option when no target language is provided.
    */
   @Test
-  public void testNoTargetLanguageToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+  public void testNoTargetLanguageToTranslate() {
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate"));
     Message callback = waitingList2.remove();
     assertEquals("You have to enter a language", callback.getText());
@@ -2679,7 +2680,7 @@ public class PrattleTest {
    * Tests translate option when target language is not supported.
    */
   @Test
-  public void testTargetLanguageNotSupportedToTranslate() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+  public void testTargetLanguageNotSupportedToTranslate() {
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate biscuit"));
     Message callback = waitingList2.remove();
     assertEquals("You have to enter a valid language or code. " +
@@ -2695,7 +2696,7 @@ public class PrattleTest {
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
-    gr.set(null,translationSupport);
+    gr.set(null, translationSupport);
     Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish"));
     Message callback = waitingList2.remove();
@@ -2711,14 +2712,50 @@ public class PrattleTest {
     Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
             .getDeclaredField("translationSupport");
     gr.setAccessible(true);
-    gr.set(null,translationSupport);
+    gr.set(null, translationSupport);
     String translatedText = "Hola";
     Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(true);
-    when(translationSupport.translateTextToGivenLanguage(Mockito.anyString(),Mockito.anyString()))
+    when(translationSupport.translateTextToGivenLanguage(Mockito.anyString(), Mockito.anyString()))
             .thenReturn(translatedText);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate spanish hello"));
     Message callback = waitingList2.remove();
     assertEquals("Hola", callback.getText());
   }
 
+  @Test
+  public void testAcceptLockedGroupInvite() throws SQLException {
+    Mockito.when(groupInviteRepository.acceptInvite(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/accept groupWithPass"));
+    Message callback = waitingList1.remove();
+    assertTrue(callback.getText().contains("Join group with password: password"));
+  }
+
+  @Test
+  public void testCreateLockedGroup() {
+    SlackGroup group = new SlackGroup(4, -1, "aGroup", 1, false, "pass");
+    groupRepository.addGroup(group);
+    assertNotNull(groupRepository.getGroupByName("aGroup").getPassword());
+  }
+
+  @Test
+  public void testJoinLockedGroupSuccess() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group groupWithPass password"));
+    assertEquals(3, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testJoinLockedGroupNoPass() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group groupWithPass"));
+    Message callback = waitingList1.remove();
+    assertEquals("This group requires a password", callback.getText());
+    assertEquals(1, cr1.getActiveChannelId());
+  }
+
+  @Test
+  public void testJoinLockedGroupWrongPass() {
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/group groupWithPass pasword"));
+    Message callback = waitingList1.remove();
+    assertEquals("You have input the incorrect password", callback.getText());
+    assertEquals(1, cr1.getActiveChannelId());
+  }
 }
