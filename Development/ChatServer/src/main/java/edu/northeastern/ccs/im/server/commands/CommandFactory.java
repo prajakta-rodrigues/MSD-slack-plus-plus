@@ -11,7 +11,8 @@ import edu.northeastern.ccs.im.server.models.UserType;
  */
 public abstract class CommandFactory {
 
-  private CommandFactory(){}
+  private CommandFactory() {
+  }
 
   /**
    * The Constant COMMANDS.
@@ -51,6 +52,7 @@ public abstract class CommandFactory {
     USER_COMMANDS.put("/86", new EightySix());
     USER_COMMANDS.put("/dnd", new Dnd());
     USER_COMMANDS.put("/search", new SearchUsers());
+    USER_COMMANDS.put("/recall", new Recall());
     USER_COMMANDS.put("/translate", new Translate());
     USER_COMMANDS.put("/lang", new Languages());
   }

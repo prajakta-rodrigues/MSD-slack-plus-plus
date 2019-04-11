@@ -81,7 +81,7 @@ public abstract class Prattle {
   /**
    * Constant COMMANDS.
    */
-  private static final Map<UserType,Map<String, Command>> COMMANDS;
+  private static final Map<UserType, Map<String, Command>> COMMANDS;
 
 
   // All of the static initialization occurs in this "method"
@@ -89,7 +89,7 @@ public abstract class Prattle {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
     authenticated = new Hashtable<>();
-    
+
     userRepository = RepositoryFactory.getUserRepository();
     messageRepository = RepositoryFactory.getMessageRepository();
 
@@ -139,34 +139,36 @@ public abstract class Prattle {
       params = param.split(" ");
     }
     int senderId = message.getUserId();
-    
-    User user =  userRepository.getUserByUserId(senderId);
+
+    User user = userRepository.getUserByUserId(senderId);
     ClientRunnable client = getClient(senderId);
-    
-    if(client == null || !client.isInitialized()) {
-    	return;
+
+    if (client == null || !client.isInitialized()) {
+      return;
     }
-    
-    if(null == user || null == user.getType()) {
-    	client
-        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User not recognized"));
-    	return;
+
+    if (null == user || null == user.getType()) {
+      client
+          .enqueueMessage(
+              Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "User not recognized"));
+      return;
     }
-    
+
     Map<String, Command> commands = COMMANDS.get(user.getType());
-    
-    if(commands == null) {
-    	client
-        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "No commands available"));
-    	return;
+
+    if (commands == null) {
+      client
+          .enqueueMessage(
+              Message.makeBroadcastMessage(ServerConstants.SLACKBOT, "No commands available"));
+      return;
     }
 
     String callbackContents = commands.keySet().contains(commandLower)
         ? commands.get(commandLower).apply(params, senderId)
         : String.format("Command %s not recognized", command);
     // send callback message
-      client
-          .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
+    client
+        .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
   }
 
   /**
@@ -182,6 +184,7 @@ public abstract class Prattle {
 
   /**
    * Get all clients on the server that have been authenticated (successfully logged in).
+   *
    * @return Authenticated clientRunnables
    */
   public static Collection<ClientRunnable> getAuthenticatedClients() {
@@ -319,9 +322,6 @@ public abstract class Prattle {
    * @param client the client
    */
   public static void changeClientChannel(int channelId, ClientRunnable client) {
-    if (client == null) {
-      throw new IllegalArgumentException("Client not found");
-    }
     int oldChannel = client.getActiveChannelId();
     client.setActiveChannelId(channelId);
     if (channelMembers.containsKey(channelId)) {
