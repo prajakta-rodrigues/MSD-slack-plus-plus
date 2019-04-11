@@ -165,7 +165,11 @@ public class GroupRepository extends Repository {
       }
     } catch (SQLException e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    } finally {
+    } catch(Exception e) {
+      System.out.println("in group repo");
+      e.printStackTrace();
+    }
+    finally {
       closeConnection(connection);
     }
     return groups.toString();

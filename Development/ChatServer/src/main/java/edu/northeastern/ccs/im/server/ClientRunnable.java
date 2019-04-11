@@ -155,7 +155,15 @@ public class ClientRunnable implements Runnable {
       enqueueMessage(sendMsg);
       return;
     }
-    if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
+    boolean verify = false;
+    try {
+      verify = BCrypt.checkpw(msg.getText(), user.getPassword());
+    }
+    catch(Exception e) {
+      //for testing
+      e.printStackTrace();
+    }
+    if (verify) {
       setName(user.getUserName());
       userId = user.getUserId();
       Prattle.authenticateClient(this);
@@ -340,7 +348,7 @@ public class ClientRunnable implements Runnable {
   private void registerUser(Message msg) {
     Message sendMsg;
     int id = (msg.getName().hashCode() & 0xfffffff);
-    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
+    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt());
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd, UserType.GENERAL));
     if (result) {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
