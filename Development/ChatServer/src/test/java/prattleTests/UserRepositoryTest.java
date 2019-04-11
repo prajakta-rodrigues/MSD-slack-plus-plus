@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import java.util.List;
 import javax.sql.DataSource;
 
 import org.junit.Test;
@@ -323,7 +324,7 @@ public class UserRepositoryTest {
     Mockito.when(value.executeUpdate()).thenThrow(new SQLException());
     assertFalse(userRepository.setActiveChannel(1, 1));
   }
-  
+
   /**
    * Test get DND status.
    *
@@ -350,7 +351,7 @@ public class UserRepositoryTest {
     Mockito.when(resultSet.getObject(1)).thenReturn(true);
     assertTrue(userRepository.getDNDStatus(1));
   }
-  
+
   /**
    * Test get DND status throw SQL exception.
    *
@@ -367,7 +368,7 @@ public class UserRepositoryTest {
     Mockito.doThrow(new SQLException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     assertFalse(userRepository.getDNDStatus(1));
   }
-  
+
 
   /**
    * Test get DND status throw exception.
@@ -385,9 +386,8 @@ public class UserRepositoryTest {
     Mockito.doThrow(new IllegalArgumentException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     assertFalse(userRepository.getDNDStatus(1));
   }
- 
 
-  
+
   /**
    * Testset DND status.
    *
@@ -406,7 +406,7 @@ public class UserRepositoryTest {
     Mockito.when(value.executeUpdate()).thenReturn(1);
     assertTrue(userRepository.setDNDStatus(1, true));
   }
-  
+
   /**
    * Test set DND status throw SQL exception.
    *
@@ -423,7 +423,7 @@ public class UserRepositoryTest {
     Mockito.doThrow(new SQLException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     assertFalse(userRepository.setDNDStatus(1, true));
   }
-  
+
 
   /**
    * Test set DND status throw exception.
@@ -441,6 +441,71 @@ public class UserRepositoryTest {
     Mockito.doThrow(new IllegalArgumentException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     assertFalse(userRepository.setDNDStatus(1, true));
   }
+
+  /**
+   * Test search user names.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testSearchUserNames() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+
+    Mockito.doNothing().when(value).setString(Mockito.anyInt(), Mockito.anyString());
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    Mockito.when(value.executeQuery()).thenReturn(resultSet);
+    ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
+    Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+    Mockito.when(metadata.getColumnCount()).thenReturn(1);
+    Mockito.when(metadata.getColumnName(1)).thenReturn("handle");
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+    Mockito.when(resultSet.getObject(1)).thenReturn("Prajakta");
+    List<String> userNames = userRepository.searchUsersBySearchTerm("P");
+    assertEquals(1, userNames.size());
+  }
+
+  /**
+   * Test search user names throw sql exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testSearchUserNamesThrowSQLException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new SQLException()).when(value).setString(Mockito.anyInt(), Mockito.anyString());
+    List<String> userNames = userRepository.searchUsersBySearchTerm("koka");
+    assertEquals(0,userNames.size());
+  }
+
+  /**
+   * Test search usernames throw exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testSearchUsernamesThrowException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new IllegalArgumentException()).when(value).setString(Mockito.anyInt(), Mockito.anyString());
+    List<String> userNames = userRepository.searchUsersBySearchTerm("koka");
+    assertEquals(0,userNames.size());
+  }
+
  
   
   
