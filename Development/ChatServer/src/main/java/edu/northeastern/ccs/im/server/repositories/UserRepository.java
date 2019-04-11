@@ -262,9 +262,7 @@ public class UserRepository extends Repository {
           connection.close();
         }
       }
-    } catch (SQLException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e);
-    }catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
