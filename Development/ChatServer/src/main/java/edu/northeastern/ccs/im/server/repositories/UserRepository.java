@@ -250,7 +250,7 @@ public class UserRepository extends Repository {
     List<String> userNames = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select user.handle from slack.user where handle LIKE ?";
+      String query = "select user.handle from slack.user where handle LIKE ? ORDER BY user.handle";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setString(1, searchTerm+"%");
         try (ResultSet rs = preparedStmt.executeQuery()) {
@@ -262,7 +262,6 @@ public class UserRepository extends Repository {
           }
           connection.close();
         }
-        Collections.sort(userNames);
       }
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
