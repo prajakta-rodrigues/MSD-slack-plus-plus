@@ -7,7 +7,6 @@ import edu.northeastern.ccs.im.server.constants.ServerConstants;
 import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.User;
 
-import static com.sun.org.apache.xml.internal.serializer.utils.Utils.messages;
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
 
