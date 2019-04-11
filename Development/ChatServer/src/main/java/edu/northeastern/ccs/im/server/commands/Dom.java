@@ -1,12 +1,14 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NONEXISTING_GROUP;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.ONLY_MODERATOR_FAILURE;
 
@@ -29,7 +31,7 @@ class Dom extends ACommand {
     int currChannelId = currClient.getActiveChannelId();
     SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
     if (currGroup == null) {
-      return NONEXISTING_GROUP;
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     int currGroupId = currGroup.getGroupId();
     List<String> mods = userGroupRepository.getModerators(currGroupId);
@@ -40,11 +42,11 @@ class Dom extends ACommand {
       return ONLY_MODERATOR_FAILURE;
     }
     userGroupRepository.removeModerator(senderId, currGroupId);
-    return userHandle + " removed themself from being a moderator of this group.";
+    return String.format(CommandMessages.SUCCESSFUL_DOM, userHandle);
   }
 
   @Override
   public String description() {
-    return "Removes a user's moderatorship.";
+    return CommandDescriptions.DOM_DESCRIPTION;
   }
 }

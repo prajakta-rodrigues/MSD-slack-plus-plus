@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.models.Notification;
@@ -16,7 +18,7 @@ class NotificationHandler extends ACommand {
     List<Notification> listNotifications =
             notificationRepository.getAllNotificationsByReceiverId(senderId);
     if (listNotifications == null || listNotifications.isEmpty()) {
-      return "No notifications to show";
+      return ErrorMessages.NO_NOTIFICATIONS;
     }
     String result = NotificationConvertor.getNotificationsAsText(listNotifications);
     notificationRepository.markNotificationsAsNotNew(listNotifications);
@@ -26,7 +28,7 @@ class NotificationHandler extends ACommand {
 
   @Override
   public String description() {
-    return "Shows recent notifications";
+    return CommandDescriptions.NOTIFICATION_DESCRIPTION;
   }
 
 }

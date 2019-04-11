@@ -1,5 +1,9 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
+
 /**
  * The Class Dnd.
  */
@@ -11,7 +15,7 @@ public class Dnd extends ACommand {
    */
   @Override
   public String description() {
-    return "Sets Do not disturb mode and no notifications will be shown. Parameters: true";
+    return CommandDescriptions.DND_DESCRIPTION;
   }
 
   /**
@@ -22,13 +26,13 @@ public class Dnd extends ACommand {
   @Override
   public String apply(String[] params, Integer senderId) {
     if(null == params) {
-      return "No params specified";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }    
     boolean setDND = Boolean.parseBoolean(params[0]);
     if(userRepository.setDNDStatus(senderId, setDND)) {
-      return "Set DND mode to "+ setDND;
+      return String.format(CommandMessages.SUCCESSFUL_DND, setDND);
     }
-    return "Unable to set DND";
+    return ErrorMessages.UNSUCCESSFUL_DND;
   }
 
 }
