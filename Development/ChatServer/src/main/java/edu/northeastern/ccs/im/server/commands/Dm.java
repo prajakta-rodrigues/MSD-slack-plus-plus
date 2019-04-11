@@ -1,8 +1,13 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import java.util.List;
+
 import edu.northeastern.ccs.im.server.ClientRunnable;
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
+import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.User;
 
+import static com.sun.org.apache.xml.internal.serializer.utils.Utils.messages;
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
 
@@ -39,8 +44,10 @@ class Dm extends ACommand {
           + ". Send them a friend request to direct message.";
     } else {
       changeClientChannel(channelId, sender);
+      List<Message> messages = messageRepository
+              .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
 
-      return String.format("You are now messaging %s", params[0]);
+      return String.format("You are now messaging %s", params[0]) + Message.listToString(messages);
     }
   }
 

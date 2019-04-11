@@ -51,11 +51,11 @@ public class MessageHistory implements Comparable<MessageHistory> {
   public String toString() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     StringBuilder str = new StringBuilder();
-    str.append(sdf.format(sentDate) + " ");
-    str.append(senderType.getValue() + " ");
-    str.append(senderName + " sent ");
-    str.append(receiverType.getValue() + " ");
-    str.append(receiverName + " : " + text);
+    str.append(sdf.format(sentDate)).append(" ");
+    str.append(senderType.getValue()).append(" ");
+    str.append(senderName).append(" sent ");
+    str.append(receiverType.getValue()).append(" ");
+    str.append(receiverName).append(" : ").append(text);
     return str.toString();
   }
 

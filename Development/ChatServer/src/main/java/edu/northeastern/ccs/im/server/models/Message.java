@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.models;
 
+import java.util.List;
+
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.Prattle;
 
@@ -340,5 +342,23 @@ public class Message {
       result += " " + NULL_OUTPUT.length() + " " + NULL_OUTPUT;
     }
     return result;
+  }
+
+  /**
+   * Converts a list of messages into a String that can be used to display to users when a channel
+   * change occurs.
+   * @param messages the list of messages to parse into a string
+   * @return String of all the messages.
+   */
+  public static String listToString(List<Message> messages) {
+    StringBuilder latestMessages = new StringBuilder();
+    for (Message msg : messages) {
+      String nextLine = "\n" + msg.getName() + " : " + msg.getText();
+      latestMessages.append(nextLine);
+    }
+    if (!messages.isEmpty()) {
+      latestMessages.append("\n" + "-------------------------");
+    }
+    return latestMessages.toString();
   }
 }
