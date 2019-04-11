@@ -323,17 +323,19 @@ public abstract class Prattle {
    */
   public static void changeClientChannel(int channelId, ClientRunnable client) {
     int oldChannel = client.getActiveChannelId();
-    client.setActiveChannelId(channelId);
-    if (channelMembers.containsKey(channelId)) {
-      channelMembers.get(channelId).add(client);
-    } else {
-      Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
-      channelSet.add(client);
-      channelMembers.put(channelId, channelSet);
-    }
-    channelMembers.get(oldChannel).remove(client);
-    if (channelMembers.get(oldChannel).isEmpty()) {
-      channelMembers.remove(oldChannel);
+    if (channelId != oldChannel) {
+      client.setActiveChannelId(channelId);
+      if (channelMembers.containsKey(channelId)) {
+        channelMembers.get(channelId).add(client);
+      } else {
+        Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
+        channelSet.add(client);
+        channelMembers.put(channelId, channelSet);
+      }
+      channelMembers.get(oldChannel).remove(client);
+      if (channelMembers.get(oldChannel).isEmpty()) {
+        channelMembers.remove(oldChannel);
+      }
     }
   }
 }

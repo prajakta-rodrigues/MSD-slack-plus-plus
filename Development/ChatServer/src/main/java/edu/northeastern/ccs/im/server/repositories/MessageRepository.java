@@ -273,5 +273,4 @@ public class MessageRepository extends Repository {
     }
     return messageId;
   }
-
 }
