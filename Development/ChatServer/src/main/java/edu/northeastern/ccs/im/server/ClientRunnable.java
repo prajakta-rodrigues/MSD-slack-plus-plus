@@ -14,7 +14,9 @@ import edu.northeastern.ccs.im.server.models.Notification;
 import edu.northeastern.ccs.im.server.models.NotificationConvertor;
 import edu.northeastern.ccs.im.server.models.User;
 import edu.northeastern.ccs.im.server.models.UserType;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
@@ -81,9 +83,11 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
-  private final UserRepository userRepository;
+  private UserRepository userRepository;
   
   private NotificationRepository notificationRepository;
+
+  private MessageRepository messageRepository;
 
   private GregorianCalendar notificationCalendar;
 
@@ -112,8 +116,9 @@ public class ClientRunnable implements Runnable {
 
     authenticated = false;
 
-    userRepository = new UserRepository();
-    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    userRepository = RepositoryFactory.getUserRepository();
+    notificationRepository = RepositoryFactory.getNotificationRepository();
+    messageRepository = RepositoryFactory.getMessageRepository();
     notificationCalendar = new GregorianCalendar();
   }
 
@@ -169,8 +174,10 @@ public class ClientRunnable implements Runnable {
       Prattle.authenticateClient(this);
       // Set that the client is initialized.
       authenticated = true;
+      List<Message> messages = messageRepository
+              .getLatestMessagesFromChannel(activeChannelId, ServerConstants.LATEST_MESSAGES_COUNT);
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-          "Succesful login. Continue to message");
+          "Succesful login. Continue to message" + Message.listToString(messages));
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
           "Wrong password for given username. Try again.");

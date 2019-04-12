@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -236,6 +238,38 @@ public class UserRepository extends Repository {
       closeConnection(connection);
     }
     return result > 0;
+  }
+
+  /**
+   * Gets users whose usernames start with search term.
+   *
+   * @param searchTerm the search word for similar username
+   * @return list of usernames
+   */
+  public List<String> searchUsersBySearchTerm(String searchTerm) {
+    List<String> userNames = new ArrayList<>();
+    try {
+      connection = dataSource.getConnection();
+      String query = "select user.handle from slack.user where handle LIKE ? ORDER BY user.handle";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setString(1, searchTerm+"%");
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+
+          for (Map<String, Object> result : results) {
+            userNames.add(String.valueOf(result.get("handle")));
+          }
+          connection.close();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
+    }
+    return userNames;
   }
 }
 

@@ -4,17 +4,11 @@
       "Change your current chat room to the specified Group. \nParameters: group name",
       "Send out group invite to user.\n Parameters : handle, groupName":
               "Send out group invite to user.\n Parameters : handle, groupName",
-      "Print out the names of all of my friends.":
-              "Print out the names of all of my friends.",
       "Create a group with the given name.\nParameters: Group name":
               "Create a group with the given name.\nParameters: Group name",
       "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
-      "Accepts group invite request. \n Parameters : groupname":
-      "Accepts group invite request. \n Parameters : groupname",
       "Start a DM with the given user.\nParameters: user id":
       "Start a DM with the given user.\nParameters: user id",
-      "Friends the user with the given handle.\nParameters: User to friend":
-      "Friends the user with the given handle.\nParameters: User to friend",
       "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
       "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
       "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
@@ -35,7 +29,13 @@
       "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
       "Print out the names of all of my friends.": "Print out the names of all of my friends.",
       "Removes a user's moderatorship." : "Removes a user's moderatorship.",
-      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator.",
+      "As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick":"As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick",
+      "find all the available languages which you can use /translate on":"find all the available languages which you can use /translate on",
+      "You can translate any sentence \nParameters: language to translate it to":"You can translate any sentence \nParameters: language to translate it to",
+      "Search for users starting with similar search term.\nParameters: search term":"Search for users starting with similar search term.\nParameters: search term",
+      "Displays all the group invites sent by you to other users":"Displays all the group invites sent by you to other users"
+
 
     },
     "french":{
@@ -43,17 +43,11 @@
       "Change your current chat room to the specified Group. \nParameters: group name",
       "Send out group invite to user.\n Parameters : handle, groupName":
       "Send out group invite to user.\n Parameters : handle, groupName",
-      "Print out the names of all of my friends.":
-      "Print out the names of all of my friends.",
       "Create a group with the given name.\nParameters: Group name":
       "Create a group with the given name.\nParameters: Group name",
       "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
-      "Accepts group invite request. \n Parameters : groupname":
-      "Accepts group invite request. \n Parameters : groupname",
       "Start a DM with the given user.\nParameters: user id":
       "Start a DM with the given user.\nParameters: user id",
-      "Friends the user with the given handle.\nParameters: User to friend":
-      "Friends the user with the given handle.\nParameters: User to friend",
       "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
       "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
       "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
@@ -74,24 +68,25 @@
       "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
       "Print out the names of all of my friends.": "Print out the names of all of my friends.",
       "Removes a user's moderatorship." : "Removes a user's moderatorship.",
-      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator.",
+      "As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick":"As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick",
+      "find all the available languages which you can use /translate on":"find all the available languages which you can use /translate on",
+      "You can translate any sentence \nParameters: language to translate it to":"You can translate any sentence \nParameters: language to translate it to",
+      "Search for users starting with similar search term.\nParameters: search term":"Search for users starting with similar search term.\nParameters: search term",
+      "Displays all the group invites sent by you to other users":"Displays all the group invites sent by you to other users"
+
+
     },
     "spanish":{
       "Change your current chat room to the specified Group.\nParameters: group name":
       "Change your current chat room to the specified Group. \nParameters: group name",
       "Send out group invite to user.\n Parameters : handle, groupName":
       "Send out group invite to user.\n Parameters : handle, groupName",
-      "Print out the names of all of my friends.":
-      "Print out the names of all of my friends.",
       "Create a group with the given name.\nParameters: Group name":
       "Create a group with the given name.\nParameters: Group name",
       "Print out the names of each Group you are a member of":"Print out the names of each Group you are a member of",
-      "Accepts group invite request. \n Parameters : groupname":
-      "Accepts group invite request. \n Parameters : groupname",
       "Start a DM with the given user.\nParameters: user id":
       "Start a DM with the given user.\nParameters: user id",
-      "Friends the user with the given handle.\nParameters: User to friend":
-      "Friends the user with the given handle.\nParameters: User to friend",
       "Create a group with the given name. \nParameters: Group name":"Create a group with the given name. \nParameters: Group name",
       "Print out the handles of the active users on the server":"Print out the handles of the active users on the server",
       "Start a DM with the given user. \nParameters: user id":"Start a DM with the given user. \nParameters: user id",
@@ -112,7 +107,13 @@
       "Friends the user with the given handle.\nParameters: User to friend" : "Friends the user with the given handle.\nParameters: User to friend",
       "Print out the names of all of my friends.": "Print out the names of all of my friends.",
       "Removes a user's moderatorship." : "Removes a user's moderatorship.",
-      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator."
+      "Adds the given user as a moderator.\nParameters: User to add as a moderator." : "Adds the given user as a moderator.\nParameters: User to add as a moderator.",
+      "As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick":"As the moderator of your active group, kick a member from your group.\nParameters: handle of the user to kick",
+      "find all the available languages which you can use /translate on":"find all the available languages which you can use /translate on",
+      "You can translate any sentence \nParameters: language to translate it to":"You can translate any sentence \nParameters: language to translate it to",
+      "Search for users starting with similar search term.\nParameters: search term":"Search for users starting with similar search term.\nParameters: search term",
+      "Displays all the group invites sent by you to other users":"Displays all the group invites sent by you to other users"
+
     }
 
 }

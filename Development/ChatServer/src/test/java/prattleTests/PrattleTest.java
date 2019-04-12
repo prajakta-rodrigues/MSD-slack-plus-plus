@@ -2581,6 +2581,36 @@ public class PrattleTest {
   }
 
   @Test
+  public void testSearchUsersSuccess() {
+    List<String> userNames = new ArrayList<>();
+    userNames.add("poker");
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search p"));
+    Message callback = waitingList1.remove();
+    assertEquals("Users with similar names are:\npoker" , callback.getText());
+  }
+
+  @Test
+  public void testSearchUsersInvalidParams() {
+    List<String> userNames = new ArrayList<>();
+    userNames.add("poker");
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search"));
+    Message callback = waitingList1.remove();
+    assertEquals("Please enter a search term to find similar usernames" , callback.getText());
+  }
+
+  @Test
+  public void testSearchUsersNoUsersFound() {
+    List<String> userNames = new ArrayList<>();
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search p"));
+    Message callback = waitingList1.remove();
+    assertEquals("No users found" , callback.getText());
+  }
+  
+
+  @Test
   public void testEightySixSuccess() throws SQLException {
     Prattle.changeClientChannel(1, cr2);
     Prattle.changeClientChannel(2, cr1);
