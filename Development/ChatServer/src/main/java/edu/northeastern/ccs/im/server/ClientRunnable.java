@@ -163,13 +163,16 @@ public class ClientRunnable implements Runnable {
     if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
       setName(user.getUserName());
       userId = user.getUserId();
-      Prattle.authenticateClient(this);
+      Prattle.authenticateClient(this, user.getType());
       // Set that the client is initialized.
       authenticated = true;
-      List<Message> messages = messageRepository
-              .getLatestMessagesFromChannel(activeChannelId, ServerConstants.LATEST_MESSAGES_COUNT);
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-          "Succesful login. Continue to message" + Message.listToString(messages));
+      StringBuilder userMsg = new StringBuilder("Succesful login. Continue to message");
+      if (user.getType() == UserType.GENERAL) {
+        List<Message> messages = messageRepository.getLatestMessagesFromChannel(activeChannelId,
+            ServerConstants.LATEST_MESSAGES_COUNT);
+        userMsg.append(Message.listToString(messages));
+      }
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
           "Wrong password for given username. Try again.");
@@ -354,7 +357,7 @@ public class ClientRunnable implements Runnable {
           "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
-      Prattle.authenticateClient(this);
+      Prattle.authenticateClient(this, UserType.GENERAL);
       authenticated = true;
 
     } else {

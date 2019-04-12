@@ -19,8 +19,8 @@
       "Check all the group invites received":
       "Check all the group invites received",
       "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
       "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
@@ -58,8 +58,8 @@
       "Check all the group invites received":
       "Check all the group invites received",
       "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
       "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
@@ -97,8 +97,8 @@
       "Check all the group invites received":
       "Check all the group invites received",
       "Print out the handles of the users in a group.":"Print out the handles of the users in a group.",
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)" : 
-      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)",
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)" : 
+      "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)",
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true" : 
       "Sets Do not disturb mode and no notifications will be shown. Parameters: true",
       "As the moderator, destroys your current active group.":"As the moderator, destroys your current active group.",
