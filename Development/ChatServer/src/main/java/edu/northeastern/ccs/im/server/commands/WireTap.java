@@ -64,6 +64,6 @@ import edu.northeastern.ccs.im.server.models.User;
    */
   @Override
   public String description() {
-    return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)";
+    return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)";
   }
 }
