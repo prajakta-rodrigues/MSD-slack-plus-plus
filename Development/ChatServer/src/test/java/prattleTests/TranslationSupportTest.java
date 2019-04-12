@@ -2,17 +2,13 @@ package prattleTests;
 
 import com.google.cloud.translate.Language;
 import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 import edu.northeastern.ccs.im.server.utility.TranslationSupport;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

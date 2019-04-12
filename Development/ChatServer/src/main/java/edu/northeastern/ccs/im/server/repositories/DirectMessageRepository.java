@@ -16,10 +16,6 @@ import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
  */
 public class DirectMessageRepository extends Repository {
 
-  public DirectMessageRepository() {
-    super();
-  }
-
   public DirectMessageRepository(DataSource ds) {
     super(ds);
   }

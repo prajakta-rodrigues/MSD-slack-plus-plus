@@ -2,7 +2,6 @@ package edu.northeastern.ccs.im.server.commands;
 
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import java.util.List;
-import sun.java2d.windows.GDIRenderer;
 
 /**
  * Displays all of a User's friends.

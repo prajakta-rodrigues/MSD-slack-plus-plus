@@ -22,7 +22,6 @@ public class StringConstants {
     public static final String GROUP_TAKEN = "A group with this name already exists.";
     public static final String NON_EXISTING_GROUP = "The desired group does not exist.";
     public static final String NON_EXISTING_USER = "The desired user does not exist.";
-    public static final String NULL_CLIENT = "Your client does not exist.";
     public static final String UNSUCCESSFUL_INVITE = "Invite successfully sent.";
     public static final String COMMAND_ALREADY_PROCESSED = "Your request has already been sent before.";
     public static final String FRIEND_ONESELF_ERROR = "You cannot be friends with yourself on this app. xD";
@@ -40,7 +39,7 @@ public class StringConstants {
     public static final String USER_NOT_IN_GROUP = "The desired user is not within the group. Send them an invite first.";
     public static final String CURRENT_USER_NOT_IN_GROUP = "You are not a member of this group.";
     public static final String PASSWRD_REQURIED = "This group requires a password.";
-    public static final String INCORRECT_PASSWRD = "This group requires a password.";
+    public static final String INCORRECT_PASSWRD = "Incorrect password.";
     public static final String ALREADY_FRIENDS = "You are already friends with %s.";
     public static final String ALREADY_MODERATOR = "The desired user is already a moderator.";
     public static final String UNSUCCESSFUL_DND = "Unable to set DND.";
@@ -55,31 +54,29 @@ public class StringConstants {
 
     private CommandDescriptions() {
     }
-
-    public static final String EIGHTY_SIX_DESCRIPTION = "As the moderator, destroys your current active group.";
-    public static final String WIRETAP_DESCRIPTION = "Wiretap conversations of a user. Parameters : <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)";
-    public static final String TRANSLATE_DESCRIPTION = "You can translate any sentence. Parameters: language to translate it to";
-    public static final String SEND_GROUP_INVITE_DESCRIPTION = "Send out group invite to user. Parameters : handle, groupName";
-    public static final String RECALL_DESCRIPTION = "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.";
-    public static final String NOTIFICATION_DESCRIPTION = "Shows recent notifications.";
-    public static final String LANGUAGES_DESCRIPTION = "find all the available languages which you can use /translate on";
-    public static final String KICK_DESCRIPTION = "As the moderator of your active group, kick a member from your group. Parameters: handle of the user to kick.";
-    public static final String HELP_DESCRIPTION = "Lists all of the available commands.";
-    public static final String GROUP_SENT_INVITES_DESCRIPTIONS = "Displays all the group invites sent by you to other users.";
-    public static final String GROUPS_DESCRIPTION = "Print out the names of each Group you are a member of.";
-    public static final String GROUP_MEMBERS_DESCRIPTION = "Print out the handles of the users in a group.";
-    public static final String GROUP_INVITES_DESCRIPTION = "Check all the group invites received.";
-    public static final String GROUP_DESCRIPTION = "Change your current chat room to the specified Group. Parameters: group name, (if locked) password";
-    public static final String FRIENDS_DESCRIPTION = "Print out the names of all of my friends.";
-    public static final String FRIEND_DESCRIPTION = "Friends the user with the given handle. Parameters: User to friend";
-    public static final String DOM_DESCRIPTION = "Removes a user's moderatorship.";
-    public static final String DND_DESCRIPTION = "Sets Do not disturb mode and no notifications will be shown. Parameters: true";
-    public static final String DM_DESCRIPTION = "Start a DM with the given user. Parameters: user id";
-    public static final String CREATE_GROUP_DESCRIPTION = "Create a group with the given name.Parameters: Group name, (optional) password.";
-    public static final String CIRCLE_DESCRIPTION = "Print out the handles of the active users on the server.";
+    public static final String ACCEPT_GROUP_INVITE_DESCRIPTION = "Accepts group invite request. Parameters : group name.";
     public static final String ADD_MODERATOR_DESCRIPTION = "Adds the given user as a moderator.Parameters: User to add as a moderator.";
-    public static final String ACCEPT_GROUP_INVITE_DESCRIPTION = "Accepts group invite request. Parameters : group name";
-
+    public static final String CIRCLE_DESCRIPTION = "Print out the handles of the active users on the server.";
+    public static final String CREATE_GROUP_DESCRIPTION = "Create a group with the given name.Parameters: Group name, (optional) password.";
+    public static final String DM_DESCRIPTION = "Start a DM with the given user. Parameters: user id.";
+    public static final String DND_DESCRIPTION = "Sets Do not disturb mode and no notifications will be shown. Parameters: true.";
+    public static final String DOM_DESCRIPTION = "Removes a user's moderatorship.";
+    public static final String EIGHTY_SIX_DESCRIPTION = "As the moderator, destroys your current active group.";
+    public static final String FRIEND_DESCRIPTION = "Friends the user with the given handle. Parameters: User to friend.";
+    public static final String FRIENDS_DESCRIPTION = "Print out the names of all of my friends.";
+    public static final String GROUP_DESCRIPTION = "Change your current chat room to the specified Group. Parameters: group name, (if locked) password.";
+    public static final String GROUP_INVITES_DESCRIPTION = "Check all the group invites received.";
+    public static final String GROUP_MEMBERS_DESCRIPTION = "Print out the handles of the users in a group.";
+    public static final String GROUPS_DESCRIPTION = "Print out the names of each Group you are a member of.";
+    public static final String GROUP_SENT_INVITES_DESCRIPTIONS = "Displays all the group invites sent by you to other users.";
+    public static final String HELP_DESCRIPTION = "Lists all of the available commands.";
+    public static final String KICK_DESCRIPTION = "As the moderator of your active group, kick a member from your group. Parameters: handle of the user to kick.";
+    public static final String LANGUAGES_DESCRIPTION = "Find all the available languages which you can use /translate on.";
+    public static final String NOTIFICATION_DESCRIPTION = "Shows recent notifications.";
+    public static final String RECALL_DESCRIPTION = "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.";
+    public static final String SEND_GROUP_INVITE_DESCRIPTION = "Send out group invite to user. Parameters : handle, groupName.";
+    public static final String TRANSLATE_DESCRIPTION = "You can translate any sentence. Parameters: language to translate it to.";
+    public static final String WIRETAP_DESCRIPTION = "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).";
   }
 
   public static class CommandMessages {
@@ -100,7 +97,7 @@ public class StringConstants {
     public static final String SUCCESSFUL_DOM = "%s removed themselves from being a moderator of this group.";
     public static final String SUCCESSFUL_DND = "Set DND mode to %s.";
     public static final String SUCCESSFUL_DM = "You are now messaging %s.";
-    public static final String SUCCESSFUL_GROUP_CREATED = "You are now messaging %s.";
+    public static final String SUCCESSFUL_GROUP_CREATED = "Group %s created.";
     public static final String SUCCESSFUL_MODERATOR_ADD = "%s added %s as a moderator of this group.";
     public static final String JOIN_WITH_PASS = " Join group with password: ";
 

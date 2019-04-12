@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -165,7 +166,7 @@ public abstract class Prattle {
 
     String callbackContents = commands.keySet().contains(commandLower)
         ? commands.get(commandLower).apply(params, senderId)
-        : String.format("Command %s not recognized", command);
+        : String.format(ErrorMessages.COMMAND_NOT_RECOGNIZED, command);
     // send callback message
     client
         .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
