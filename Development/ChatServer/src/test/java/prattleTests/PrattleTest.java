@@ -2708,13 +2708,25 @@ public class PrattleTest {
 
   /**
    * Tests translate option when target language is not supported.
+   * @throws ClassNotFoundException 
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
    */
   @Test
-  public void testTargetLanguageNotSupportedToTranslate() {
+  public void testTargetLanguageNotSupportedToTranslate() throws NoSuchFieldException,
+      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+        .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null, translationSupport);
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate biscuit"));
     Message callback = waitingList2.remove();
-    assertEquals("You have to enter a valid language or code. " +
-            "check /lang command to find the supported languages", callback.getText());
+    assertEquals("You have to enter a valid language or code. "
+        + "check /lang command to find the supported languages", callback.getText());
   }
 
   /**
