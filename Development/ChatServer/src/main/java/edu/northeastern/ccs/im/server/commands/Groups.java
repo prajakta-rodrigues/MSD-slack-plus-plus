@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+
 /**
  * List all groups on the server.
  */
@@ -12,6 +14,6 @@ class Groups extends ACommand {
 
   @Override
   public String description() {
-    return "Print out the names of each Group you are a member of";
+    return CommandDescriptions.GROUPS_DESCRIPTION;
   }
 }

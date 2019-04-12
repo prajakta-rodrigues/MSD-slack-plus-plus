@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
 /**
@@ -21,6 +22,6 @@ class Languages implements Command {
 
   @Override
   public String description() {
-    return "find all the available languages which you can use /translate on";
+    return CommandDescriptions.LANGUAGES_DESCRIPTION;
   }
 }

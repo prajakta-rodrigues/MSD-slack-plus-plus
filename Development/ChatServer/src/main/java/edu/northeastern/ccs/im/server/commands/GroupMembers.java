@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -25,7 +27,7 @@ class GroupMembers extends ACommand {
     int currChannelId = currClient.getActiveChannelId();
     SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
     if (currGroup == null) {
-      return "Your group is non-existent.";
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     List<String> mods = userGroupRepository.getModerators(currGroup.getGroupId());
     List<String> queriedMembers = userGroupRepository.getGroupMembers(currGroup.getGroupId());
@@ -42,6 +44,6 @@ class GroupMembers extends ACommand {
 
   @Override
   public String description() {
-    return "Print out the handles of the users in a group.";
+    return CommandDescriptions.GROUP_MEMBERS_DESCRIPTION;
   }
 }

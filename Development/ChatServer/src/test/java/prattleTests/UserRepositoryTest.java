@@ -50,6 +50,7 @@ public class UserRepositoryTest {
     Mockito.when(value.executeUpdate()).thenReturn(1);
     Mockito.doNothing().when(connection).close();
     assertTrue(userRepository.addUser(new User(0, "test", "pwd", UserType.GENERAL)));
+    
   }
 
   /**

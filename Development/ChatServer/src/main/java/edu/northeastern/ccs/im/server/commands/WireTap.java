@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +18,8 @@ import edu.northeastern.ccs.im.server.models.User;
  */
   class WireTap extends ACommand {
 
+    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
+
   /**
    * Wiretaps conversation of particular user between given dates
    *
@@ -26,25 +30,25 @@ import edu.northeastern.ccs.im.server.models.User;
   @Override
   public String apply(String[] params, Integer senderId) {
     if(null == params || params.length < 3) {
-      return "Invalid number of parameters";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
 
     User tappedUser = userRepository.getUserByUserName(params[0]);
 
     if(null == tappedUser) {
-      return "No user found with given user name";
+      return ErrorMessages.NON_EXISTING_USER;
     }
     Timestamp startDate;
     Timestamp endDate;
     try {
-      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STRING);
       dateFormat.setLenient(false);
       Date parsedDate = dateFormat.parse(params[1]);
       startDate = new Timestamp(parsedDate.getTime());
       parsedDate = dateFormat.parse(params[2]);
       endDate = new Timestamp(parsedDate.getTime());
     } catch (ParseException e) {
-      return "Incorrect format specified for dates";
+      return ErrorMessages.INCORRECT_DATE_FORMAT;
     }
     List<MessageHistory> messages = new ArrayList<>();
     messages.addAll(messageRepository.getDirectMessageHistory(tappedUser.getUserId(), startDate, endDate));
@@ -58,12 +62,12 @@ import edu.northeastern.ccs.im.server.models.User;
     return str.toString();
   }
 
-  /*
+  /**
    * Gives description of wiretap method
    * @return the description
    */
   @Override
   public String description() {
-    return "Wiretap conversations of a user.Parameters : <handle> <startDate> <endDate> (Date format:yyyy-MM-dd)";
+    return CommandDescriptions.WIRETAP_DESCRIPTION;
   }
 }

@@ -3,8 +3,13 @@ package edu.northeastern.ccs.im.server.commands;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
+
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
 import edu.northeastern.ccs.im.server.models.Message;
+
 import edu.northeastern.ccs.im.server.models.User;
 
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
@@ -25,34 +30,34 @@ class Dm extends ACommand {
   @Override
   public String apply(String[] params, Integer senderId) {
     if (params == null) {
-      return "No user name provided";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     User receiver = userRepository.getUserByUserName(params[0]);
     if (receiver == null) {
-      return String.format("User %s not found!", params[0]);
+      return ErrorMessages.NON_EXISTING_USER;
     }
     int receiverId = receiver.getUserId();
+
     if (!senderId.equals(receiverId) && !friendRepository
         .areFriends(senderId, receiverId)) {
-      return "You are not friends with " + params[0]
-          + ". Send them a friend request to direct message.";
+      return String.format(ErrorMessages.NOT_FRIENDS, params[0]);
     }
     int channelId = dmRepository.getDMChannel(senderId, receiverId);
     if (channelId < 0) {
       channelId = dmRepository.createDM(senderId, receiverId);
     }  
     if (channelId < 0) {
-      return "Failed to create direct message. Try again later.";
+      return ErrorMessages.GENERIC_ERROR;
     }
     ClientRunnable sender = getClient(senderId);
     changeClientChannel(channelId, sender);
     List<Message> messages = messageRepository
             .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
-    return String.format("You are now messaging %s", params[0]) + Message.listToString(messages);
+    return String.format(CommandMessages.SUCCESSFUL_DM, params[0]) + Message.listToString(messages);
   }
 
   @Override
   public String description() {
-    return "Start a DM with the given user.\nParameters: user id";
+    return CommandDescriptions.DM_DESCRIPTION;
   }
 }

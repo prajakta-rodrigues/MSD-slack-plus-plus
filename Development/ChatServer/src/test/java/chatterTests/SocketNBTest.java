@@ -1,7 +1,9 @@
 package chatterTests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +42,7 @@ public class SocketNBTest {
     SocketNB socketNB = new SocketNB("", 0);
     Method connectedMethod = Class.forName(clientSocketNB).getDeclaredMethod("isConnected");
     connectedMethod.setAccessible(true);
-    assertEquals(false, connectedMethod.invoke(socketNB));
+    assertFalse((Boolean) connectedMethod.invoke(socketNB));
   }
 
   /**
@@ -200,7 +202,7 @@ public class SocketNBTest {
   @Test
   public void testPrint() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-      NoSuchFieldException, IOException {
+      NoSuchFieldException {
     SocketNB socketNB = new SocketNB("localhost", 2421) {
       @Override
       protected boolean isConnected() {
@@ -223,9 +225,10 @@ public class SocketNBTest {
     fieldChannel.set(socketNB, mockChannel);
     closeMethod.invoke(socketNB, msg);
   }
-  
+
   @Test
-  public void testPrintNonEmptyMessage() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+  public void testPrintNonEmptyMessage()
+      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException,
       NoSuchFieldException, IOException {
     SocketNB socketNB = new SocketNB("localhost", 2421) {
@@ -251,9 +254,10 @@ public class SocketNBTest {
     fieldChannel.set(socketNB, mockChannel);
     closeMethod.invoke(socketNB, msg);
   }
-  
+
   @Test(expected = InvocationTargetException.class)
-  public void testPrintException() throws NoSuchMethodException, SecurityException, ClassNotFoundException,
+  public void testPrintException()
+      throws NoSuchMethodException, SecurityException, ClassNotFoundException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException,
       NoSuchFieldException, IOException {
     SocketNB socketNB = new SocketNB("localhost", 2421) {
@@ -297,16 +301,17 @@ public class SocketNBTest {
     Mockito.when(selector.select(Mockito.anyLong())).thenReturn(0);
     enqueueMethod.invoke(socketNB, listMessages);
   }
-  
+
   @Test
-  public void testEnqueueMessageKeyReadableNewMessages() throws NoSuchMethodException, SecurityException,
+  public void testEnqueueMessageKeyReadableNewMessages()
+      throws NoSuchMethodException, SecurityException,
       ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
       InvocationTargetException, NoSuchFieldException, IOException {
     SocketNB socketNB = new SocketNB("localhost", 2421);
     Method enqueueMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
         .getDeclaredMethod("enqueueMessages", List.class);
     enqueueMethod.setAccessible(true);
-    List<Message> listMessages = new ArrayList<Message>();
+    List<Message> listMessages = new ArrayList<>();
     Field selectorField =
         Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("selector");
     selectorField.setAccessible(true);
@@ -329,14 +334,14 @@ public class SocketNBTest {
     SocketChannel mockChannel = Mockito.mock(SocketChannel.class);
     Mockito.when(mockChannel.read(Mockito.any(ByteBuffer.class))).thenReturn(1);
     fieldChannel.set(socketNB, mockChannel);
-    
+
     Field keyBuffer =
         Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("buff");
     keyBuffer.setAccessible(true);
     ByteBuffer buff = ByteBuffer.allocate(100);
     buff.put("HLO 6 test12 2 -1 2 --".getBytes());
     keyBuffer.set(socketNB, buff);
-    
+
     Mockito.when(selector.select(Mockito.anyLong())).thenReturn(2);
     Set<SelectionKey> set = Mockito.mock(Set.class);
     Mockito.when(selector.selectedKeys()).thenReturn(set);

@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.models;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -197,7 +198,6 @@ public class Message {
     } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
       result = makeSimpleLoginMessage(srcName);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
-      // to be replaced with static query
       ClientRunnable sender = Prattle.getClient(senderId);
       int activeChannelId = sender != null ? sender.getActiveChannelId() : -1;
       result = makeBroadcastMessage(srcName, senderId, text, activeChannelId);
@@ -359,7 +359,7 @@ public class Message {
       latestMessages.append(nextLine);
     }
     if (!messages.isEmpty()) {
-      latestMessages.append("\n" + "-------------------------");
+      latestMessages.append("\n" + StringConstants.LINE_SEPARATOR);
     }
     return latestMessages.toString();
   }

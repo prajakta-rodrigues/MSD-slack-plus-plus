@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -24,7 +25,7 @@ class EightySix extends ACommand {
     int channelId = sender.getActiveChannelId();
     SlackGroup group = groupRepository.getGroupByChannelId(channelId);
     if (group == null) {
-      return StringConstants.ErrorMessages.GENERIC_ERROR;
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     int groupId = group.getGroupId();
     String groupName = group.getGroupName();
@@ -43,14 +44,14 @@ class EightySix extends ACommand {
       Prattle.changeClientChannel(GENERAL_ID, client);
       client.enqueueMessage(
               Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-                      String.format(StringConstants.CommandMessages.EIGHTYSIX_NOTIFICATION,
+                      String.format(StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION,
                               groupName, modName)));
     }
-    return StringConstants.CommandMessages.EIGHTYSIX_SUCCESS;
+    return StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
   }
 
   @Override
   public String description() {
-    return StringConstants.CommandDescriptions.EIGHTYSIX_DESCRIPTION;
+    return StringConstants.CommandDescriptions.EIGHTY_SIX_DESCRIPTION;
   }
 }
