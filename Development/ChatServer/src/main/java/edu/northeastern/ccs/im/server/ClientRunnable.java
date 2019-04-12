@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
@@ -96,6 +98,7 @@ public class ClientRunnable implements Runnable {
    */
   private boolean authenticated;
 
+  static final Logger LOGGER = Logger.getLogger(ClientRunnable.class.getName());
   /**
    * Create a new thread with which we will communicate with this single client.
    *
@@ -120,6 +123,7 @@ public class ClientRunnable implements Runnable {
     notificationRepository = RepositoryFactory.getNotificationRepository();
     messageRepository = RepositoryFactory.getMessageRepository();
     notificationCalendar = new GregorianCalendar();
+    
   }
 
   /**
@@ -160,7 +164,14 @@ public class ClientRunnable implements Runnable {
       enqueueMessage(sendMsg);
       return;
     }
-    if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
+    boolean verify = false;
+    try {
+      verify = BCrypt.checkpw(msg.getText(), user.getPassword());
+    }
+    catch(Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage());
+    }
+    if (verify) {
       setName(user.getUserName());
       userId = user.getUserId();
       Prattle.authenticateClient(this, user.getType());
@@ -350,7 +361,7 @@ public class ClientRunnable implements Runnable {
   private void registerUser(Message msg) {
     Message sendMsg;
     int id = (msg.getName().hashCode() & 0xfffffff);
-    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
+    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt());
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd, UserType.GENERAL));
     if (result) {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,

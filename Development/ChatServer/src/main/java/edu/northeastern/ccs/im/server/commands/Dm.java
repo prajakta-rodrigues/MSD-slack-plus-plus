@@ -32,22 +32,23 @@ class Dm extends ACommand {
       return String.format("User %s not found!", params[0]);
     }
     int receiverId = receiver.getUserId();
-    int existingId = dmRepository.getDMChannel(senderId, receiverId);
-    int channelId = existingId > 0 ? existingId : dmRepository.createDM(senderId, receiverId);
-    ClientRunnable sender = getClient(senderId);
-    if (channelId < 0) {
-      return "Failed to create direct message. Try again later.";
-    } else if (!senderId.equals(receiverId) && !friendRepository
+    if (!senderId.equals(receiverId) && !friendRepository
         .areFriends(senderId, receiverId)) {
       return "You are not friends with " + params[0]
           + ". Send them a friend request to direct message.";
-    } else {
-      changeClientChannel(channelId, sender);
-      List<Message> messages = messageRepository
-              .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
-
-      return String.format("You are now messaging %s", params[0]) + Message.listToString(messages);
     }
+    int channelId = dmRepository.getDMChannel(senderId, receiverId);
+    if (channelId < 0) {
+      channelId = dmRepository.createDM(senderId, receiverId);
+    }  
+    if (channelId < 0) {
+      return "Failed to create direct message. Try again later.";
+    }
+    ClientRunnable sender = getClient(senderId);
+    changeClientChannel(channelId, sender);
+    List<Message> messages = messageRepository
+            .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    return String.format("You are now messaging %s", params[0]) + Message.listToString(messages);
   }
 
   @Override

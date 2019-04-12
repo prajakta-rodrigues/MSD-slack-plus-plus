@@ -162,11 +162,17 @@ public class GroupRepositoryTest {
   }
 
   @Test
-  public void testGroupsHavingMemberException() throws SQLException {
+  public void testGroupsHavingMemberSQLException() throws SQLException {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     assertEquals("", groupRepository.groupsHavingMember(2));
   }
 
+  @Test
+  public void testGroupsHavingMemberException() throws SQLException {
+    Mockito.when(value.executeQuery()).thenThrow(new IllegalArgumentException());
+    assertEquals("", groupRepository.groupsHavingMember(2));
+  }
+  
   /**
    * Test get group by id.
    */
