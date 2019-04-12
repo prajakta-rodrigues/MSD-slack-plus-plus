@@ -2602,20 +2602,6 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("No users found" , callback.getText());
   }
-  
-
-  @Test
-  public void testEightySixSuccess() throws SQLException {
-    Prattle.changeClientChannel(1, cr2);
-    Prattle.changeClientChannel(2, cr1);
-    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
-    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
-    Message callback = waitingList1.remove();
-    assertEquals(EIGHTY_SIX_SUCCESS, callback.getText());
-    assertEquals(1, cr2.getActiveChannelId());
-    assertEquals(0, waitingList2.size());
-  }
 
   @Test
   public void testEightySixSuccessHandlesMembers() throws SQLException {
