@@ -10,7 +10,6 @@ public class StringConstants {
   }
 
   public static final String ENGLISH = "english";
-  public static final String SPANISH = "spanish";
   public static final String ACTIVE_CHANNEL_SET = "Active channel set to Group %s";
   public static final String LINE_SEPARATOR = "-------------------------";
 

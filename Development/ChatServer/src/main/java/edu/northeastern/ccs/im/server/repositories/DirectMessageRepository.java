@@ -22,16 +22,15 @@ public class DirectMessageRepository extends Repository {
 
   /**
    * Return the channel Id corresponding to the direct messages between users.
+   *
    * @param senderId the user who is trying to a send a message to another user
    * @param receiverId the user who is receiving a direct message
-   * @return the channel Id associated with the direct messages between the two users. Return -1
-   * if the query fails.
+   * @return the channel Id associated with the direct messages between the two users. Return -1 if
+   * the query fails.
    */
   public int getDMChannel(int senderId, int receiverId) {
     int channelId = -1;
-    String query = "SELECT DISTINCT channel_id " +
-            "FROM slack.direct_message " +
-            "WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)";
+    String query = "SELECT DISTINCT channel_id FROM slack.direct_message WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)";
     try {
       connection = dataSource.getConnection();
       try (PreparedStatement stmt = connection.prepareStatement(query)) {
@@ -42,24 +41,22 @@ public class DirectMessageRepository extends Repository {
         ResultSet rs = stmt.executeQuery();
         List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
         for (Map tuple : results) {
-          channelId = (Integer)tuple.get("channel_id");
+          channelId = (Integer) tuple.get("channel_id");
         }
       }
       connection.close();
     } catch (SQLException e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
-    }catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return channelId;
   }
 
   /**
-   * Create a new direct message between users and return the channelId
-   * of the newly created dm.
+   * Create a new direct message between users and return the channelId of the newly created dm.
    *
    * @param senderId Sender of the direct message.
    * @param receiverId Receiver of the direct message.
@@ -76,7 +73,7 @@ public class DirectMessageRepository extends Repository {
         ResultSet rs = stmt.executeQuery();
         List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
         for (Map tuple : results) {
-          channelId = (Integer)tuple.get("channelId");
+          channelId = (Integer) tuple.get("channelId");
         }
       }
       connection.close();
@@ -84,8 +81,7 @@ public class DirectMessageRepository extends Repository {
       LOGGER.log(Level.WARNING, e.getMessage(), e);
     } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return channelId;

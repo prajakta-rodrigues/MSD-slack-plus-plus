@@ -35,7 +35,7 @@ public class MessageHistory implements Comparable<MessageHistory> {
     return text;
   }
 
-  public Timestamp getSentDate() {
+  private Timestamp getSentDate() {
     return sentDate;
   }
 

@@ -1,6 +1,5 @@
 package edu.northeastern.ccs.im.server.commands;
 
-import edu.northeastern.ccs.im.server.constants.StringConstants;
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
