@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.client;
 
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 
 /**
@@ -106,7 +107,4 @@ public IMConnection getConnection(String[] args, Readable input) {
   protected boolean checkIfConnected(IMConnection connect) {
     return connect.connect();
   }
-  
-  
-  
 }

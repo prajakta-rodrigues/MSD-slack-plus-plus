@@ -13,6 +13,9 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.utility.ChatLogger;
+
 /**
  * This class is similar to the java.io.PrintWriter class, but this class's
  * methods work with our non-blocking Socket classes. This class could easily be
@@ -42,7 +45,7 @@ public class NetworkConnection implements Iterable<Message> {
 	private static final int MIN_MESSAGE_LENGTH = 7;
 
 	/** The default character set. */
-	private static final String CHARSET_NAME = "us-ascii";
+	private static final String CHARSET_NAME = "utf-8";
 
 	/**
 	 * Number of times to try sending a message before we give up in frustration.
@@ -206,7 +209,7 @@ public class NetworkConnection implements Iterable<Message> {
 	                    Message newMsg = Message.makeMessage(handle, sender, senderId, message);
 	                    messages.add(newMsg);
 	                    // And move the position to the start of the next character
-	                    start = charBuffer.position() + 1;
+	                    start = charBuffer.capacity();
 	                }
 	                // Move any read messages out of the buffer so that we can add to the end.
 	                buff.position(start);

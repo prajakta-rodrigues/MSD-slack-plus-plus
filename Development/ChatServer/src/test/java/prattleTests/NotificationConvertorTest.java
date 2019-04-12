@@ -1,16 +1,18 @@
 package prattleTests;
 
 import static org.junit.Assert.assertEquals;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mockito;
-import edu.northeastern.ccs.im.server.Notification;
-import edu.northeastern.ccs.im.server.NotificationConvertor;
-import edu.northeastern.ccs.im.server.NotificationType;
-import edu.northeastern.ccs.im.server.SlackGroup;
-import edu.northeastern.ccs.im.server.User;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationConvertor;
+import edu.northeastern.ccs.im.server.models.NotificationType;
+import edu.northeastern.ccs.im.server.models.SlackGroup;
+import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.models.UserType;
 import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 
@@ -32,15 +34,15 @@ public class NotificationConvertorTest {
   @Test
   public void testGetNotificationsAsTextNoNewUnreadMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
-    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("groupRepository");
     groupRepoField.setAccessible(true);
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
@@ -88,15 +90,15 @@ public class NotificationConvertorTest {
   @Test
   public void testGetNotificationsAsTextNewUnreadMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
-    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("groupRepository");
     groupRepoField.setAccessible(true);
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
@@ -152,7 +154,7 @@ public class NotificationConvertorTest {
   @Test
   public void testGetNotificationsAsTextException() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
@@ -171,20 +173,20 @@ public class NotificationConvertorTest {
         NotificationConvertor.getNotificationsAsText(listNotifications));
 
   }
-  
-  
+
+
   @Test
   public void testGetNotificationsAsTextNewGroupInviteMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
-    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("groupRepository");
     groupRepoField.setAccessible(true);
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
@@ -199,28 +201,28 @@ public class NotificationConvertorTest {
     n.setAssociatedUserId(2);
     n.setAssociatedGroupId(3);
     n.setNew(true);
-    
+
     listNotifications.add(n);
     SlackGroup group = new SlackGroup(1, 1, "gpp", 1);
     Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(group);
-    
+
     assertEquals("You have been invited to group gpp by moderator testY  NEW\n"
         , NotificationConvertor.getNotificationsAsText(listNotifications));
   }
-  
-  
+
+
   @Test
   public void testGetNotificationsAsTextNotNewGroupInviteMessages() throws NoSuchFieldException,
       SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
-    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("userRepository");
     userRepoField.setAccessible(true);
     UserRepository userRepository = Mockito.mock(UserRepository.class);
     userRepoField.set(null, userRepository);
-    User user = new User(2, "testY", "pwd");
+    User user = new User(2, "testY", "pwd", UserType.GENERAL);
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
 
-    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.NotificationConvertor")
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
         .getDeclaredField("groupRepository");
     groupRepoField.setAccessible(true);
     GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
@@ -235,14 +237,179 @@ public class NotificationConvertorTest {
     n.setAssociatedUserId(2);
     n.setAssociatedGroupId(3);
     n.setNew(false);
-    
+
     listNotifications.add(n);
     SlackGroup group = new SlackGroup(1, 1, "gpp", 1);
     Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(group);
-    
+
     assertEquals("You have been invited to group gpp by moderator testY\n"
         , NotificationConvertor.getNotificationsAsText(listNotifications));
   }
-  
 
+  @Test
+  public void testGetTextForNewModerator() throws NoSuchFieldException,
+      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+        .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "abcd", "efgh", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+        .getDeclaredField("groupRepository");
+    groupRepoField.setAccessible(true);
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    groupRepoField.set(null, groupRepository);
+
+    List<Notification> listNotifications = new ArrayList<>();
+    Notification n;
+    n = new Notification();
+    n.setId(1);
+    n.setRecieverId(1);
+    n.setType(NotificationType.NEW_MODERATOR);
+    n.setAssociatedUserId(2);
+    n.setAssociatedGroupId(3);
+    n.setNew(true);
+
+    listNotifications.add(n);
+    SlackGroup group = new SlackGroup(1, 1, "groupABCD", 100);
+    Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(group);
+
+    assertEquals("abcd added you as a moderator for group groupABCD  NEW\n"
+        , NotificationConvertor.getNotificationsAsText(listNotifications));
+  }
+
+  @Test
+  public void testGetTextForModNotNew() throws NoSuchFieldException,
+      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+        .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "mike", "pass", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+        .getDeclaredField("groupRepository");
+    groupRepoField.setAccessible(true);
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    groupRepoField.set(null, groupRepository);
+
+    List<Notification> listNotifications = new ArrayList<>();
+    Notification n;
+    n = new Notification();
+    n.setId(1);
+    n.setRecieverId(1);
+    n.setType(NotificationType.NEW_MODERATOR);
+    n.setAssociatedUserId(2);
+    n.setAssociatedGroupId(3);
+    n.setNew(false);
+
+    listNotifications.add(n);
+    SlackGroup group = new SlackGroup(1, 1, "helloSir", 100);
+    Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(group);
+
+    assertEquals("mike added you as a moderator for group helloSir\n"
+        , NotificationConvertor.getNotificationsAsText(listNotifications));
+  }
+
+  @Test
+  public void testGetTextForFriendRequestNotNew() throws NoSuchFieldException,
+      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+        .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "mike", "pass", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+
+    List<Notification> listNotifications = new ArrayList<>();
+    Notification n;
+    n = new Notification();
+    n.setId(1);
+    n.setRecieverId(1);
+    n.setType(NotificationType.FRIEND_REQUEST);
+    n.setAssociatedUserId(2);
+    n.setAssociatedGroupId(3);
+    n.setNew(false);
+
+    listNotifications.add(n);
+
+    assertEquals("mike has sent you a friend request.\n"
+        , NotificationConvertor.getNotificationsAsText(listNotifications));
+  }
+
+  @Test
+  public void testGetTextForEightSix() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+    SlackGroup deletedGroup = new SlackGroup(2,1,"86'd", 1);
+    User moderator = new User(3,"m","p",UserType.GENERAL);
+
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+            .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "mike", "pass", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+            .getDeclaredField("groupRepository");
+    groupRepoField.setAccessible(true);
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    groupRepoField.set(null, groupRepository);
+    Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(deletedGroup);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(moderator);
+
+    List<Notification> listNotifications = new ArrayList<>();
+    Notification n;
+    n = new Notification();
+    n.setType(NotificationType.EIGHTY_SIX);
+    n.setAssociatedUserId(2);
+    n.setAssociatedGroupId(3);
+    n.setNew(false);
+
+    listNotifications.add(n);
+
+    assertEquals("Group 86'd has been terminated by moderator m\n"
+            , NotificationConvertor.getNotificationsAsText(listNotifications));
+  }
+
+  @Test
+  public void testGetTextForEightSixNew() throws IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+    SlackGroup deletedGroup = new SlackGroup(2,1,"86'd", 1);
+    User moderator = new User(3,"m","p",UserType.GENERAL);
+
+    Field userRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+            .getDeclaredField("userRepository");
+    userRepoField.setAccessible(true);
+    UserRepository userRepository = Mockito.mock(UserRepository.class);
+    userRepoField.set(null, userRepository);
+    User user = new User(2, "mike", "pass", UserType.GENERAL);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
+
+    Field groupRepoField = Class.forName("edu.northeastern.ccs.im.server.models.NotificationConvertor")
+            .getDeclaredField("groupRepository");
+    groupRepoField.setAccessible(true);
+    GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
+    groupRepoField.set(null, groupRepository);
+    Mockito.when(groupRepository.getGroupById(Mockito.anyInt())).thenReturn(deletedGroup);
+    Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(moderator);
+
+    List<Notification> listNotifications = new ArrayList<>();
+    Notification n;
+    n = new Notification();
+    n.setType(NotificationType.EIGHTY_SIX);
+    n.setAssociatedUserId(2);
+    n.setAssociatedGroupId(3);
+    n.setNew(true);
+
+    listNotifications.add(n);
+
+    assertEquals("Group 86'd has been terminated by moderator m  NEW\n"
+            , NotificationConvertor.getNotificationsAsText(listNotifications));
+  }
 }

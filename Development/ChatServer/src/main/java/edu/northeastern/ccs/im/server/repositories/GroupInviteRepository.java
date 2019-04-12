@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.sql.DataSource;
-import edu.northeastern.ccs.im.server.GroupInvitation;
-import edu.northeastern.ccs.im.server.InviteesGroup;
-import edu.northeastern.ccs.im.server.InvitorsGroup;
+import edu.northeastern.ccs.im.server.models.GroupInvitation;
+import edu.northeastern.ccs.im.server.models.InviteesGroup;
+import edu.northeastern.ccs.im.server.models.InvitorsGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
@@ -69,7 +69,7 @@ public class GroupInviteRepository extends Repository {
    * @return the group invitations by invitee id
    */
   public List<InvitorsGroup> getGroupInvitationsByInviteeId(int inviteeId) {
-    InvitorsGroup groupInvitation = null;
+    InvitorsGroup groupInvitation;
     List<InvitorsGroup> listGroupInvitation = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
@@ -104,7 +104,7 @@ public class GroupInviteRepository extends Repository {
    * @return the group invitations by invitor id
    */
   public List<InviteesGroup> getGroupInvitationsByInvitorId(int invitorId) {
-    InviteesGroup groupInvitation = null;
+    InviteesGroup groupInvitation;
     List<InviteesGroup> listGroupInvitation = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
@@ -142,7 +142,7 @@ public class GroupInviteRepository extends Repository {
    * @throws SQLException when any error is propagated from database
    */
   public boolean acceptInvite(Integer userId, int groupId) throws SQLException {
-    int rs = 0;
+    int rs;
     boolean result = false;
     try {
       connection = dataSource.getConnection();
@@ -155,7 +155,7 @@ public class GroupInviteRepository extends Repository {
       }
       
       if(rs == 0) {
-        return result;
+        return false;
       }
       
       result = insertIntoUserGroup(connection , userId , groupId);

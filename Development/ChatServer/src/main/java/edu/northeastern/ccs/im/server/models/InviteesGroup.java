@@ -1,14 +1,18 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 /**
  * The Class InviteesGroup.
  */
 public class InviteesGroup {
 
-  /** The invitee handle. */
+  /**
+   * The invitee handle.
+   */
   private final String inviteeHandle;
-  
-  /** The group name. */
+
+  /**
+   * The group name.
+   */
   private final String groupName;
 
   /**

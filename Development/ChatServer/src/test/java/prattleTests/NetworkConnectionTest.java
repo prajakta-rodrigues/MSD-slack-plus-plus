@@ -26,8 +26,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.junit.Test;
 import org.mockito.Mockito;
 import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.Message;
-import edu.northeastern.ccs.im.server.MessageType;
+import edu.northeastern.ccs.im.server.models.Message;
+import edu.northeastern.ccs.im.server.models.MessageType;
 import edu.northeastern.ccs.im.server.NetworkConnection;
 import edu.northeastern.ccs.im.server.Prattle;
 
@@ -398,7 +398,6 @@ public class NetworkConnectionTest {
     networkConnection.close();
   }
 
-
   @Test
   public void testHasNext() throws IOException, NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -441,7 +440,6 @@ public class NetworkConnectionTest {
     iterator.hasNext();
   }
 
-
   @Test(expected = AssertionError.class)
   public void hasNextException() throws NoSuchFieldException, SecurityException,
       ClassNotFoundException, IllegalArgumentException, IllegalAccessException, IOException {
@@ -456,7 +454,6 @@ public class NetworkConnectionTest {
     Iterator<Message> iterator = networkConnection.iterator();
     iterator.hasNext();
   }
-  
 
   @Test
   public void hasNextSuccess() throws NoSuchFieldException, SecurityException,

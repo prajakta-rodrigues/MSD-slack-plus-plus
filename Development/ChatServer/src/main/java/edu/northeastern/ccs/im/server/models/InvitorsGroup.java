@@ -1,14 +1,18 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.models;
 
 /**
  * The Class InvitorsGroup.
  */
 public class InvitorsGroup {
 
-  /** The invitor handle. */
+  /**
+   * The invitor handle.
+   */
   private final String invitorHandle;
-  
-  /** The group name. */
+
+  /**
+   * The group name.
+   */
   private final String groupName;
 
   /**

@@ -1,4 +1,4 @@
-package edu.northeastern.ccs.im.server;
+package edu.northeastern.ccs.im.server.utility;
 
 import java.io.IOException;
 import java.util.logging.ConsoleHandler;
@@ -11,27 +11,34 @@ import java.util.logging.SimpleFormatter;
 
 /**
  * Logger class that handles logging of all levels of messages.
- * 
+ *
  * @author Maria Jump and Riya Nadkarni
  * @version 12-20-2018
  */
 public class ChatLogger {
-  /** Name of the logger file. */
-  private static final String LOGNAME = ChatLogger.class.getName();
-  /** The logger itself. */
-  private static final Logger LOGGER = Logger.getLogger(LOGNAME);
-  /** The directory holding the log file. */
-  private static final String DIR = System.getProperty("user.dir");
-  /** The path for the directory. */
-  private static final String PATH = String.format("%s/%s.log", DIR, LOGNAME);
 
   /**
-   * Static initializations for this class.
+   * Name of the logger file.
    */
+  private static final String LOGNAME = ChatLogger.class.getName();
+  /**
+   * The logger itself.
+   */
+  private static final Logger LOGGER = Logger.getLogger(LOGNAME);
+  /**
+   * The directory holding the log file.
+   */
+  private static final String DIR = System.getProperty("user.dir");
+  /**
+   * The path for the directory.
+   */
+  private static final String PATH = String.format("%s/%s.log", DIR, LOGNAME);
+
+  // Static initializations for this class.
   static {
     setMode(HandlerType.BOTH);
   }
-  
+
   /**
    * Private constructor. This class cannot be instantiated.
    */
@@ -41,7 +48,7 @@ public class ChatLogger {
 
   /**
    * Logs the error messages.
-   * 
+   *
    * @param msg error message to be logged
    */
   public static final void error(String msg) {
@@ -50,7 +57,7 @@ public class ChatLogger {
 
   /**
    * Logs the warnings.
-   * 
+   *
    * @param msg warning to be logged
    */
   public static final void warning(String msg) {
@@ -59,7 +66,7 @@ public class ChatLogger {
 
   /**
    * Logs the general messages.
-   * 
+   *
    * @param msg message to be logged
    */
   public static final void info(String msg) {
@@ -68,23 +75,23 @@ public class ChatLogger {
 
   /**
    * Toggles between the handler types.
-   * 
+   *
    * @param type the type of handler to be used by the logger
    */
-  public static void setMode(HandlerType type)  {
+  public static void setMode(HandlerType type) {
 
     switch (type) {
-    case FILE:
-      switchToFile();
-      break;
-    case CONSOLE:
-      switchToConsole();
-      break;
-    case BOTH:
-      switchToBoth();
-      break;
-    default:
-      throw new IllegalArgumentException("Invalid handler type.");
+      case FILE:
+        switchToFile();
+        break;
+      case CONSOLE:
+        switchToConsole();
+        break;
+      case BOTH:
+        switchToBoth();
+        break;
+      default:
+        throw new IllegalArgumentException("Invalid handler type.");
     }
     LOGGER.setLevel(Level.ALL);
     LOGGER.setUseParentHandlers(false);
@@ -92,7 +99,7 @@ public class ChatLogger {
 
   /**
    * Writes to the logger.
-   * 
+   *
    * @param lvl the level of severity of the message being logged
    * @param msg the message being logged.
    * @return true if the message was logged, false otherwise
@@ -145,11 +152,17 @@ public class ChatLogger {
    * Enum class for Handler Types.
    */
   public enum HandlerType {
-    /** The file handler. */
+    /**
+     * The file handler.
+     */
     FILE,
-    /** The console handler. */
+    /**
+     * The console handler.
+     */
     CONSOLE,
-    /** Both handlers. */
+    /**
+     * Both handlers.
+     */
     BOTH;
   }
 }

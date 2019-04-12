@@ -1,7 +1,9 @@
 package prattleTests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import edu.northeastern.ccs.im.server.repositories.UserGroupRepository;
 import java.sql.Connection;
@@ -16,6 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/**
+ * tests for the user group repository
+ */
 public class UserGroupRepositoryTest {
 
   /**
@@ -181,7 +186,7 @@ public class UserGroupRepositoryTest {
     Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     Mockito.doNothing().when(connection).close();
-    userGroupRepository.removeMember(-1,-1);
+    userGroupRepository.removeMember(-1, -1);
   }
 
   /**
@@ -192,26 +197,128 @@ public class UserGroupRepositoryTest {
   @Test
   public void testKickMembersException2() throws SQLException {
     Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
-    userGroupRepository.removeMember(-1,-1);
+    userGroupRepository.removeMember(-1, -1);
   }
-
 
   /**
    * Test remove group member.
+   */
+  @Test
+  public void testRemoveGroupMember() {
+    assertTrue(userGroupRepository.removeMember(-1, -1));
+  }
+
+  /**
+   * Test remove group member exception.
+   */
+  @Test
+  public void testRemoveGroupMemberException() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    assertFalse(userGroupRepository.removeMember(-1, -1));
+  }
+
+  /**
+   * Test add group mod.
+   */
+  @Test
+  public void testAddMod() {
+    assertTrue(userGroupRepository.addModerator(1, -1));
+  }
+
+  /**
+   * Test add moderator exception.
    *
    * @throws SQLException the sql exception
    */
   @Test
-  public void testRemoveGroupMember() throws SQLException {
-    PreparedStatement value = Mockito.mock(PreparedStatement.class);
-    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
-    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
-    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
-    Mockito.when(value.executeUpdate()).thenReturn(1);
+  public void testAddModException() throws SQLException {
+    Mockito.when(value.executeUpdate()).thenThrow(new SQLException());
     Mockito.doNothing().when(connection).close();
-    assertTrue(userGroupRepository.removeMember(-1,-1));
+    userGroupRepository.addModerator(31, 16);
+  }
+
+  /**
+   * Test add moderator exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testAddModException2() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    userGroupRepository.addModerator(10, 21);
+  }
+
+  /**
+   * Test remove moderator exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testRemoveModException() throws SQLException {
+    Mockito.when(value.executeUpdate()).thenThrow(new SQLException());
+    Mockito.doNothing().when(connection).close();
+    userGroupRepository.removeModerator(31, 16);
+  }
+
+  /**
+   * Test remove moderator exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testRemoveModException2() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    userGroupRepository.removeModerator(10, 21);
+  }
+
+  /**
+   * Test remove group mod.
+   */
+  @Test
+  public void testRemoveMod() {
+    assertTrue(userGroupRepository.removeModerator(1, -1));
+  }
+
+  /**
+   * Test isModerator exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testIsModeratorException() throws SQLException {
+    Mockito.when(value.executeQuery()).thenThrow(new SQLException());
+    Mockito.doNothing().when(connection).close();
+    try {
+      userGroupRepository.isModerator(31, 16);
+      fail("An exception should have been thrown here.");
+    } catch (SQLException e) {
+      // we expect this to happen
+    }
+  }
+
+  /**
+   * Test isModerator exception.
+   *
+   * @throws SQLException the sql exception
+   */
+  @Test
+  public void testIsModeratorException2() throws SQLException {
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenThrow(new SQLException());
+    try {
+      userGroupRepository.isModerator(10, 21);
+      fail("An exception should have been thrown here.");
+    } catch (SQLException e) {
+      // we expect this to happen
+    }
+  }
+
+  /**
+   * Test isModerator mod.
+   */
+  @Test
+  public void testIsModFalse() throws SQLException {
+    assertFalse(userGroupRepository.isModerator(1, -1));
   }
 
 }
-
 

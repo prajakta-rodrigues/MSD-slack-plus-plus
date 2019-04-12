@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.sql.DataSource;
-import edu.northeastern.ccs.im.server.Notification;
-import edu.northeastern.ccs.im.server.NotificationType;
+import edu.northeastern.ccs.im.server.models.Notification;
+import edu.northeastern.ccs.im.server.models.NotificationType;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
@@ -139,7 +139,7 @@ public class NotificationRepository extends Repository {
    */
   private List<Notification> getNotificationsFromResultSet(ResultSet rs) {
     List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
-    Notification notification = null;
+    Notification notification;
     List<Notification> listNotifications = new ArrayList<>();
     for (Map<String, Object> result : results) {
       notification = new Notification();
