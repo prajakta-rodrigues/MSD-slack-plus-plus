@@ -2337,8 +2337,7 @@ public class PrattleTest {
     Mockito.when(userRepository.getUserByUserId(Mockito.anyInt())).thenReturn(user);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/help"));
     Message callback = waitingList1.remove();
-    assertEquals("Available COMMANDS:\n"
-            + "/wiretap Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> "
+    assertEquals("Available COMMANDS:\n/wiretap Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> "
             + "(Date format:mm/dd/yyyy).\n" + "/help Lists all of the available commands.",
         callback.getText());
   }
@@ -2579,6 +2578,36 @@ public class PrattleTest {
   }
 
   @Test
+  public void testSearchUsersSuccess() {
+    List<String> userNames = new ArrayList<>();
+    userNames.add("poker");
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search p"));
+    Message callback = waitingList1.remove();
+    assertEquals("Users with similar names are:\npoker" , callback.getText());
+  }
+
+  @Test
+  public void testSearchUsersInvalidParams() {
+    List<String> userNames = new ArrayList<>();
+    userNames.add("poker");
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search"));
+    Message callback = waitingList1.remove();
+    assertEquals("Please enter a search term to find similar usernames" , callback.getText());
+  }
+
+  @Test
+  public void testSearchUsersNoUsersFound() {
+    List<String> userNames = new ArrayList<>();
+    when(userRepository.searchUsersBySearchTerm(anyString())).thenReturn(userNames);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/search p"));
+    Message callback = waitingList1.remove();
+    assertEquals("No users found" , callback.getText());
+  }
+  
+
+  @Test
   public void testEightySixSuccess() throws SQLException {
     Prattle.changeClientChannel(1, cr2);
     Prattle.changeClientChannel(2, cr1);
@@ -2684,9 +2713,21 @@ public class PrattleTest {
 
   /**
    * Tests translate option when target language is not supported.
+   * @throws ClassNotFoundException 
+   * @throws SecurityException 
+   * @throws NoSuchFieldException 
+   * @throws IllegalAccessException 
+   * @throws IllegalArgumentException 
    */
   @Test
-  public void testTargetLanguageNotSupportedToTranslate() {
+  public void testTargetLanguageNotSupportedToTranslate() throws NoSuchFieldException,
+      SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+    TranslationSupport translationSupport = Mockito.mock(TranslationSupport.class);
+    Field gr = Class.forName("edu.northeastern.ccs.im.server.commands.Translate")
+        .getDeclaredField("translationSupport");
+    gr.setAccessible(true);
+    gr.set(null, translationSupport);
+    Mockito.when(translationSupport.isLanguageSupported(Mockito.anyString())).thenReturn(false);
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/translate biscuit"));
     Message callback = waitingList2.remove();
     assertEquals(ErrorMessages.INCORRECT_COMMAND_PARAMETERS, callback.getText());

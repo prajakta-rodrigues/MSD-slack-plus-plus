@@ -1,9 +1,15 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import java.util.List;
+
 import edu.northeastern.ccs.im.server.ClientRunnable;
+
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
 import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
+import edu.northeastern.ccs.im.server.constants.ServerConstants;
+import edu.northeastern.ccs.im.server.models.Message;
+
 import edu.northeastern.ccs.im.server.models.User;
 
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
@@ -31,19 +37,23 @@ class Dm extends ACommand {
       return ErrorMessages.NON_EXISTING_USER;
     }
     int receiverId = receiver.getUserId();
-    int existingId = dmRepository.getDMChannel(senderId, receiverId);
-    int channelId = existingId > 0 ? existingId : dmRepository.createDM(senderId, receiverId);
-    ClientRunnable sender = getClient(senderId);
-    if (channelId < 0) {
-      return ErrorMessages.GENERIC_ERROR;
-    } else if (!senderId.equals(receiverId) && !friendRepository
+
+    if (!senderId.equals(receiverId) && !friendRepository
         .areFriends(senderId, receiverId)) {
       return String.format(ErrorMessages.NOT_FRIENDS, params[0]);
-    } else {
-      changeClientChannel(channelId, sender);
-
-      return String.format(CommandMessages.SUCCESSFUL_DM, params[0]);
     }
+    int channelId = dmRepository.getDMChannel(senderId, receiverId);
+    if (channelId < 0) {
+      channelId = dmRepository.createDM(senderId, receiverId);
+    }  
+    if (channelId < 0) {
+      return ErrorMessages.GENERIC_ERROR;
+    }
+    ClientRunnable sender = getClient(senderId);
+    changeClientChannel(channelId, sender);
+    List<Message> messages = messageRepository
+            .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    return String.format(CommandMessages.SUCCESSFUL_DM, params[0]) + Message.listToString(messages);
   }
 
   @Override

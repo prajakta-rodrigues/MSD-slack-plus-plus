@@ -40,19 +40,9 @@ class Group extends ACommand {
     }
     int channelId = targetGroup.getChannelId();
     changeClientChannel(channelId, sender);
-    messages = messageRepository
-        .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
-    StringBuilder latestMessages =
-        new StringBuilder(
-            String.format(StringConstants.ACTIVE_CHANNEL_SET, targetGroup.getGroupName()));
-    for (Message msg : messages) {
-      String nextLine = "\n" + msg.getName() + " : " + msg.getText();
-      latestMessages.append(nextLine);
-    }
-    if (!messages.isEmpty()) {
-      latestMessages.append("\n" + StringConstants.LINE_SEPARATOR);
-    }
-    return latestMessages.toString();
+    messages = messageRepository.getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    return String.format("Active channel set to Group %s", targetGroup.getGroupName())
+            + Message.listToString(messages);
   }
 
   @Override

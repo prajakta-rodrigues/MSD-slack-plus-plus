@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
@@ -14,7 +16,9 @@ import edu.northeastern.ccs.im.server.models.Notification;
 import edu.northeastern.ccs.im.server.models.NotificationConvertor;
 import edu.northeastern.ccs.im.server.models.User;
 import edu.northeastern.ccs.im.server.models.UserType;
+import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
+import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
@@ -81,9 +85,11 @@ public class ClientRunnable implements Runnable {
    */
   private Queue<Message> waitingList;
 
-  private final UserRepository userRepository;
+  private UserRepository userRepository;
   
   private NotificationRepository notificationRepository;
+
+  private MessageRepository messageRepository;
 
   private GregorianCalendar notificationCalendar;
 
@@ -92,6 +98,7 @@ public class ClientRunnable implements Runnable {
    */
   private boolean authenticated;
 
+  static final Logger LOGGER = Logger.getLogger(ClientRunnable.class.getName());
   /**
    * Create a new thread with which we will communicate with this single client.
    *
@@ -112,9 +119,11 @@ public class ClientRunnable implements Runnable {
 
     authenticated = false;
 
-    userRepository = new UserRepository();
-    notificationRepository = new NotificationRepository(DatabaseConnection.getDataSource());
+    userRepository = RepositoryFactory.getUserRepository();
+    notificationRepository = RepositoryFactory.getNotificationRepository();
+    messageRepository = RepositoryFactory.getMessageRepository();
     notificationCalendar = new GregorianCalendar();
+    
   }
 
   /**
@@ -155,14 +164,26 @@ public class ClientRunnable implements Runnable {
       enqueueMessage(sendMsg);
       return;
     }
-    if (BCrypt.checkpw(msg.getText(), user.getPassword())) {
+    boolean verify = false;
+    try {
+      verify = BCrypt.checkpw(msg.getText(), user.getPassword());
+    }
+    catch(Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage());
+    }
+    if (verify) {
       setName(user.getUserName());
       userId = user.getUserId();
-      Prattle.authenticateClient(this);
+      Prattle.authenticateClient(this, user.getType());
       // Set that the client is initialized.
       authenticated = true;
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-          "Succesful login. Continue to message");
+      StringBuilder userMsg = new StringBuilder("Succesful login. Continue to message");
+      if (user.getType() == UserType.GENERAL) {
+        List<Message> messages = messageRepository.getLatestMessagesFromChannel(activeChannelId,
+            ServerConstants.LATEST_MESSAGES_COUNT);
+        userMsg.append(Message.listToString(messages));
+      }
+      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
           "Wrong password for given username. Try again.");
@@ -340,14 +361,14 @@ public class ClientRunnable implements Runnable {
   private void registerUser(Message msg) {
     Message sendMsg;
     int id = (msg.getName().hashCode() & 0xfffffff);
-    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt(8));
+    String hashedPwd = BCrypt.hashpw(msg.getText(), BCrypt.gensalt());
     boolean result = userRepository.addUser(new User(id, msg.getName(), hashedPwd, UserType.GENERAL));
     if (result) {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
           "Registration done. Continue to message.");
       setName(msg.getName());
       userId = id;
-      Prattle.authenticateClient(this);
+      Prattle.authenticateClient(this, UserType.GENERAL);
       authenticated = true;
 
     } else {

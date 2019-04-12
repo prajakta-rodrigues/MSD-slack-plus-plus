@@ -230,10 +230,16 @@ public abstract class Prattle {
    * Registers a ClientRunnable that has successfully logged in.
    *
    * @param toAuthenticate the ClientRunnable that has just logged in
+   * @param userType type of the user.
    */
-  static void authenticateClient(ClientRunnable toAuthenticate) {
+  static void authenticateClient(ClientRunnable toAuthenticate, UserType userType) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
-    channelMembers.get(GENERAL_ID).add(toAuthenticate);
+    if (userType.equals(UserType.GENERAL)) {
+      Set<ClientRunnable> channelSet = channelMembers.containsKey(GENERAL_ID)
+              ? channelMembers.get(GENERAL_ID)
+              : Collections.synchronizedSet(new HashSet<ClientRunnable>());
+      channelSet.add(toAuthenticate);
+    }
     userRepository.setActive(true, toAuthenticate.getUserId());
   }
 
@@ -324,17 +330,19 @@ public abstract class Prattle {
    */
   public static void changeClientChannel(int channelId, ClientRunnable client) {
     int oldChannel = client.getActiveChannelId();
-    client.setActiveChannelId(channelId);
-    if (channelMembers.containsKey(channelId)) {
-      channelMembers.get(channelId).add(client);
-    } else {
-      Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
-      channelSet.add(client);
-      channelMembers.put(channelId, channelSet);
-    }
-    channelMembers.get(oldChannel).remove(client);
-    if (channelMembers.get(oldChannel).isEmpty()) {
-      channelMembers.remove(oldChannel);
+    if (channelId != oldChannel) {
+      client.setActiveChannelId(channelId);
+      if (channelMembers.containsKey(channelId)) {
+        channelMembers.get(channelId).add(client);
+      } else {
+        Set<ClientRunnable> channelSet = Collections.synchronizedSet(new HashSet<>());
+        channelSet.add(client);
+        channelMembers.put(channelId, channelSet);
+      }
+      channelMembers.get(oldChannel).remove(client);
+      if (channelMembers.get(oldChannel).isEmpty()) {
+        channelMembers.remove(oldChannel);
+      }
     }
   }
 }

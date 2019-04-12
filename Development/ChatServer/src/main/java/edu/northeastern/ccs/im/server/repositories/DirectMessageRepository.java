@@ -47,6 +47,8 @@ public class DirectMessageRepository extends Repository {
       }
       connection.close();
     } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    }catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
@@ -74,11 +76,13 @@ public class DirectMessageRepository extends Repository {
         ResultSet rs = stmt.executeQuery();
         List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
         for (Map tuple : results) {
-          channelId = (Integer)tuple.get("channel_id");
+          channelId = (Integer)tuple.get("channelId");
         }
       }
       connection.close();
     } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
     }
     finally {
