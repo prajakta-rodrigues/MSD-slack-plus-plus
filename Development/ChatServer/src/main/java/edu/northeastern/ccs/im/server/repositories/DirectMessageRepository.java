@@ -32,7 +32,6 @@ public class DirectMessageRepository extends Repository {
    * if the query fails.
    */
   public int getDMChannel(int senderId, int receiverId) {
-    System.out.println("In here.........");
     int channelId = -1;
     String query = "SELECT DISTINCT channel_id " +
             "FROM slack.direct_message " +
@@ -48,7 +47,6 @@ public class DirectMessageRepository extends Repository {
         List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
         for (Map tuple : results) {
           channelId = (Integer)tuple.get("channel_id");
-          System.out.println("channel id" + channelId);
         }
       }
       connection.close();
