@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -31,13 +33,13 @@ class Circle extends ACommand {
     }
     String activeFriendsList = activeFriends.toString();
     if (activeFriendsList.equals("Active Friends:")) {
-      activeFriendsList = "No friends are active.";
+      activeFriendsList = ErrorMessages.NO_ACTIVE_FRIENDS;
     }
     return activeFriendsList;
   }
 
   @Override
   public String description() {
-    return "Print out the handles of the active users on the server";
+    return CommandDescriptions.CIRCLE_DESCRIPTION;
   }
 }

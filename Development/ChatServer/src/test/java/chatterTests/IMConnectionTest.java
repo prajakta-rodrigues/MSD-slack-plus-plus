@@ -3,7 +3,6 @@ package chatterTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.Thread.State;
@@ -11,7 +10,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -99,11 +97,11 @@ public class IMConnectionTest {
 
   /**
    * Checks if is connection active when connection is established.
- * @throws ClassNotFoundException 
- * @throws SecurityException 
- * @throws NoSuchFieldException 
- * @throws IllegalAccessException 
- * @throws IllegalArgumentException 
+ * @throws ClassNotFoundException exception
+ * @throws SecurityException exception
+ * @throws NoSuchFieldException exception
+ * @throws IllegalAccessException exception
+ * @throws IllegalArgumentException exception
    */
   @Test
   public void isConnectionActiveWhenConnected() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -170,11 +168,11 @@ public class IMConnectionTest {
 
   /**
    * Test disconnect success.
- * @throws ClassNotFoundException 
- * @throws SecurityException 
- * @throws NoSuchFieldException 
- * @throws IllegalAccessException 
- * @throws IllegalArgumentException 
+ * @throws ClassNotFoundException exception
+ * @throws SecurityException exception
+ * @throws NoSuchFieldException exception
+ * @throws IllegalAccessException exception
+ * @throws IllegalArgumentException exception
    */
   @Test
   public void testDisconnectSuccess() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -207,11 +205,11 @@ public class IMConnectionTest {
   
   /**
    * Test send message success.
- * @throws ClassNotFoundException 
- * @throws SecurityException 
- * @throws NoSuchFieldException 
- * @throws IllegalAccessException 
- * @throws IllegalArgumentException 
+ * @throws ClassNotFoundException exception
+ * @throws SecurityException exception
+ * @throws NoSuchFieldException exception
+ * @throws IllegalAccessException exception
+ * @throws IllegalArgumentException exception
    */
   @Test
   public void testSendMessageSuccess() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
@@ -279,11 +277,11 @@ public class IMConnectionTest {
 
   /**
    * Test Keyboard scanner public classes.
- * @throws ClassNotFoundException 
- * @throws SecurityException 
- * @throws NoSuchFieldException 
- * @throws IllegalAccessException 
- * @throws IllegalArgumentException 
+ * @throws ClassNotFoundException exception
+ * @throws SecurityException exception
+ * @throws NoSuchFieldException exception
+ * @throws IllegalAccessException exception
+ * @throws IllegalArgumentException exception
    */
   @Test(expected = NoSuchElementException.class)
   public void testKeyBoardScannerNext() throws NoSuchFieldException, SecurityException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException {

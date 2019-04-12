@@ -80,8 +80,7 @@ public class CommandLineMainTest {
 		
 		IMConnection imconnection = Mockito.mock(IMConnection.class);
 		commandLineMain = new CommandLineMain() {
-			private int i = 0;
-	
+
 			@Override
 			public IMConnection getConnection(String []args, Readable input) {
 				return imconnection;	

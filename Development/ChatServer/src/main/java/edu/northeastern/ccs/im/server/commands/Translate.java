@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.server.commands;
 
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.Arrays;
 import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 /**
@@ -18,13 +20,13 @@ import edu.northeastern.ccs.im.server.utility.TranslationSupport;
    public String apply(String[] params, Integer senderId) {
 
     if (params == null) {
-      return "You have to enter a language";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     if(!translationSupport.isLanguageSupported(params[0])){
-      return "You have to enter a valid language or code. check /lang command to find the supported languages";
+      return ErrorMessages.INVALID_LANG;
     }
     if(params.length<2){
-      return "You have to enter some text to translate";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     String[] words = Arrays.copyOfRange(params,1,params.length);
 
@@ -34,7 +36,6 @@ import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
   @Override
   public String description() {
-    return "You can translate any sentence \n" +
-        "Parameters: language to translate it to";
+    return CommandDescriptions.TRANSLATE_DESCRIPTION;
   }
 }

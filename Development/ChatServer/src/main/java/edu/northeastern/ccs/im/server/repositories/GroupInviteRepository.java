@@ -17,8 +17,8 @@ import edu.northeastern.ccs.im.server.models.InvitorsGroup;
 import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 /**
- * The Class GroupInviteRepository provides methods for accessing database 
- * entity group_invitations.
+ * The Class GroupInviteRepository provides methods for accessing database entity
+ * group_invitations.
  */
 public class GroupInviteRepository extends Repository {
 
@@ -73,16 +73,14 @@ public class GroupInviteRepository extends Repository {
     List<InvitorsGroup> listGroupInvitation = new ArrayList<>();
     try {
       connection = dataSource.getConnection();
-      String query = "select u.handle, g.name from slack.user u, slack.group g, "
-          + "slack.group_invitation ug where ug.invitee_id = ?"
-          + " and u.id = ug.invitor_id and g.id = ug.group_id";
+      String query = "select u.handle, g.name from slack.user u, slack.group g, slack.group_invitation ug where ug.invitee_id = ? and u.id = ug.invitor_id and g.id = ug.group_id";
       try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
         preparedStmt.setInt(1, inviteeId);
 
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            groupInvitation = new InvitorsGroup(String.valueOf(result.get("handle")), 
+            groupInvitation = new InvitorsGroup(String.valueOf(result.get("handle")),
                 String.valueOf(result.get("name")));
             listGroupInvitation.add(groupInvitation);
           }
@@ -117,7 +115,7 @@ public class GroupInviteRepository extends Repository {
         try (ResultSet rs = preparedStmt.executeQuery()) {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
-            groupInvitation = new InviteesGroup(String.valueOf(result.get("handle")), 
+            groupInvitation = new InviteesGroup(String.valueOf(result.get("handle")),
                 String.valueOf(result.get("name")));
             listGroupInvitation.add(groupInvitation);
           }
@@ -131,7 +129,7 @@ public class GroupInviteRepository extends Repository {
     }
     return listGroupInvitation;
   }
-  
+
 
   /**
    * Accept invite for given parameters.
@@ -153,22 +151,19 @@ public class GroupInviteRepository extends Repository {
         preparedStmt.setInt(2, groupId);
         rs = preparedStmt.executeUpdate();
       }
-      
-      if(rs == 0) {
+
+      if (rs == 0) {
         return false;
       }
-      
-      result = insertIntoUserGroup(connection , userId , groupId);
-      connection.commit();  
-    }
-    catch(SQLException e) {
+
+      result = insertIntoUserGroup(connection, userId, groupId);
+      connection.commit();
+    } catch (SQLException e) {
       connection.rollback();
       throw e;
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage(), e);
-    }
-    finally {
+    } finally {
       closeConnection(connection);
     }
     return result;
@@ -183,10 +178,11 @@ public class GroupInviteRepository extends Repository {
    * @return true, if successful
    * @throws SQLException when any error is propagated from database
    */
-  private boolean insertIntoUserGroup(Connection connection, Integer userId, int groupId) throws SQLException {
+  private boolean insertIntoUserGroup(Connection connection, Integer userId, int groupId)
+      throws SQLException {
     int rs = 0;
     String query = "insert into slack.user_group(user_id, group_id, isModerator, created_date) values(?,?,?,?)";
-    try(PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+    try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
       preparedStmt.setInt(1, userId);
       preparedStmt.setInt(2, groupId);
       preparedStmt.setBoolean(3, false);

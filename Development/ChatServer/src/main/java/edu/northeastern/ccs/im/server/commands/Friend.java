@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import edu.northeastern.ccs.im.server.models.Notification;
 import edu.northeastern.ccs.im.server.models.NotificationType;
 import edu.northeastern.ccs.im.server.models.User;
@@ -19,45 +22,45 @@ class Friend extends ACommand {
   @Override
   public String apply(String[] params, Integer senderId) {
     if (null == params) {
-      return "No user specified";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
 
     User newFriend = userRepository.getUserByUserName(params[0]);
     User currUser = userRepository.getUserByUserId(senderId);
     String currUserHandle = currUser.getUserName();
     if (newFriend == null) {
-      return "The specified user does not exist.";
+      return ErrorMessages.NON_EXISTING_USER;
     }
     Integer toFriendId = newFriend.getUserId();
     if (senderId.equals(toFriendId)) { // adding oneself as a friend
-      return "You cannot be friends with yourself on this app. xD";
+      return ErrorMessages.FRIEND_ONESELF_ERROR;
     }
     if (friendRepository.areFriends(senderId, toFriendId)) { // already friends
-      return "You are already friends with " + params[0] + ".";
+      return String.format(ErrorMessages.ALREADY_FRIENDS, params[0]);
     }
     if (friendRequestRepository.hasPendingFriendRequest(senderId, toFriendId)) {
       if (friendRepository.successfullyAcceptFriendRequest(senderId, toFriendId)) {
         Notification friendRequestNotif = Notification
-                .makeFriendRequestNotification(senderId, toFriendId,
-                        NotificationType.FRIEND_REQUEST_APPROVED);
+            .makeFriendRequestNotification(senderId, toFriendId,
+                NotificationType.FRIEND_REQUEST_APPROVED);
         notificationRepository.addNotification(friendRequestNotif);
-        return currUserHandle + " and " + params[0] + " are now friends.";
+        return String.format(CommandMessages.NEW_FRIENDS, currUserHandle, params[0]);
       }
-      return "Something went wrong and we could not accept " + params[0] + "'s friend request.";
+      return ErrorMessages.GENERIC_ERROR;
     } else {
       if (friendRequestRepository.successfullySendFriendRequest(senderId, toFriendId)) {
         Notification friendRequestNotif = Notification
-                .makeFriendRequestNotification(senderId, toFriendId, NotificationType.FRIEND_REQUEST);
+            .makeFriendRequestNotification(senderId, toFriendId, NotificationType.FRIEND_REQUEST);
         notificationRepository.addNotification(friendRequestNotif);
 
-        return currUserHandle + " sent " + params[0] + " a friend request.";
+        return String.format(CommandMessages.SUCCESSFUL_FRIEND_REQUEST_SENT, currUserHandle, params[0]);
       }
-      return "You already sent " + params[0] + " a friend request.";
+      return ErrorMessages.COMMAND_ALREADY_PROCESSED;
     }
   }
 
   @Override
   public String description() {
-    return "Friends the user with the given handle.\nParameters: User to friend";
+    return CommandDescriptions.FRIEND_DESCRIPTION;
   }
 }

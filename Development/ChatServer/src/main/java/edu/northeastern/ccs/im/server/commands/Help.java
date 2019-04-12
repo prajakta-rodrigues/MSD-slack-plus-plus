@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import java.util.Map;
 
 import edu.northeastern.ccs.im.server.models.User;
@@ -19,13 +21,14 @@ import edu.northeastern.ccs.im.server.utility.LanguageSupport;
    */
   @Override
   public String apply(String[] params, Integer senderId) {
-    StringBuilder availableCOMMANDS = new StringBuilder("Available COMMANDS:");
+    String availableCommands = "Available COMMANDS:";
+    StringBuilder availableCOMMANDS = new StringBuilder(availableCommands);
     User user =  userRepository.getUserByUserId(senderId);
     Map<String, Command> commands = CommandFactory.getCommands().get(user.getType());
 
     for (Map.Entry<String, Command> command : commands.entrySet()) {
       String nextLine = "\n" + command.getKey() + " " + LanguageSupport.getInstance()
-              .getLanguage("english", command.getValue().description());
+              .getLanguage(StringConstants.ENGLISH, command.getValue().description());
       availableCOMMANDS.append(nextLine);
     }
     return availableCOMMANDS.toString();
@@ -33,6 +36,6 @@ import edu.northeastern.ccs.im.server.utility.LanguageSupport;
 
   @Override
   public String description() {
-    return "Lists all of the available commands.";
+    return CommandDescriptions.HELP_DESCRIPTION;
   }
 }

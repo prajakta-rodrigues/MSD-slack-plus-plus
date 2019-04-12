@@ -11,9 +11,9 @@ public class MessageHistory implements Comparable<MessageHistory> {
   private final MessageRecipientType senderType;
   private final String text;
   private final Timestamp sentDate;
-  
-  public MessageHistory(String receiverName, MessageRecipientType receiver ,String senderName, 
-      MessageRecipientType sender ,String text, Timestamp sentDate) {
+
+  public MessageHistory(String receiverName, MessageRecipientType receiver, String senderName,
+      MessageRecipientType sender, String text, Timestamp sentDate) {
     super();
     this.receiverName = receiverName;
     this.senderName = senderName;
@@ -35,7 +35,7 @@ public class MessageHistory implements Comparable<MessageHistory> {
     return text;
   }
 
-  public Timestamp getSentDate() {
+  private Timestamp getSentDate() {
     return sentDate;
   }
 
@@ -46,16 +46,22 @@ public class MessageHistory implements Comparable<MessageHistory> {
   public MessageRecipientType getReceiver() {
     return receiverType;
   }
-  
+
   @Override
   public String toString() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     StringBuilder str = new StringBuilder();
-    str.append(sdf.format(sentDate)).append(" ");
-    str.append(senderType.getValue()).append(" ");
-    str.append(senderName).append(" sent ");
-    str.append(receiverType.getValue()).append(" ");
-    str.append(receiverName).append(" : ").append(text);
+    str.append(sdf.format(sentDate));
+    str.append(" ");
+    str.append(senderType.getValue());
+    str.append(" ");
+    str.append(senderName);
+    str.append(" sent ");
+    str.append(receiverType.getValue());
+    str.append(" ");
+    str.append(receiverName);
+    str.append(" : ");
+    str.append(text);
     return str.toString();
   }
 
@@ -63,5 +69,5 @@ public class MessageHistory implements Comparable<MessageHistory> {
   public int compareTo(MessageHistory messageHistory) {
     return this.sentDate.compareTo(messageHistory.getSentDate());
   }
-  
+
 }

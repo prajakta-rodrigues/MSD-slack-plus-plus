@@ -29,6 +29,8 @@ public class MessageRepository extends Repository {
     super(ds);
   }
 
+  private String sentDate = "sent_date";
+
   /**
    * Adds the message.
    *
@@ -142,15 +144,15 @@ public class MessageRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
           for (Map<String, Object> result : results) {
             String senderUserName = (String) result.get("sender");
-            if (senderUserName.equals((String) result.get("user1"))) {
+            if (senderUserName.equals(result.get("user1"))) {
               messageHistory.add(new MessageHistory((String) result.get("user2"),
                   MessageRecipientType.USER, senderUserName, MessageRecipientType.USER,
-                  String.valueOf(result.get("text")), (Timestamp) result.get("sent_date")));
+                  String.valueOf(result.get("text")), (Timestamp) result.get(sentDate)));
             } else {
               messageHistory
                   .add(new MessageHistory((String) result.get("user1"), MessageRecipientType.USER,
                       (String) result.get("user2"), MessageRecipientType.USER,
-                      String.valueOf(result.get("text")), (Timestamp) result.get("sent_date")));
+                      String.valueOf(result.get("text")), (Timestamp) result.get(sentDate)));
             }
           }
         }
@@ -195,11 +197,11 @@ public class MessageRepository extends Repository {
               messageHistory
                   .add(new MessageHistory((String) result.get("name"), MessageRecipientType.GROUP,
                       (String) result.get("handle"), MessageRecipientType.USER,
-                      (String) result.get("text"), (Timestamp) result.get("sent_date")));
+                      (String) result.get("text"), (Timestamp) result.get(sentDate)));
             } else {
               messageHistory.add(new MessageHistory(userHandle, MessageRecipientType.USER,
                   (String) result.get("name"), MessageRecipientType.GROUP,
-                  (String) result.get("text"), (Timestamp) result.get("sent_date")));
+                  (String) result.get("text"), (Timestamp) result.get(sentDate)));
             }
           }
         }
