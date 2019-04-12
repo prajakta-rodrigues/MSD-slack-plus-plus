@@ -2612,7 +2612,7 @@ public class PrattleTest {
         .thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
     Message callback = waitingList1.remove();
-    assertEquals(EIGHTYSIX_SUCCESS, callback.getText());
+    assertEquals(EIGHTY_SIX_SUCCESS, callback.getText());
     assertEquals(1, cr2.getActiveChannelId());
     assertEquals(0, waitingList2.size());
   }
