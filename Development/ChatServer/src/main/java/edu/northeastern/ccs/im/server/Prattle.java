@@ -229,12 +229,15 @@ public abstract class Prattle {
    * Registers a ClientRunnable that has successfully logged in.
    *
    * @param toAuthenticate the ClientRunnable that has just logged in
-   * @param userType 
+   * @param userType type of the user.
    */
   static void authenticateClient(ClientRunnable toAuthenticate, UserType userType) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
     if (userType.equals(UserType.GENERAL)) {
-      channelMembers.get(GENERAL_ID).add(toAuthenticate);
+      Set<ClientRunnable> channelSet = channelMembers.containsKey(GENERAL_ID)
+              ? channelMembers.get(GENERAL_ID)
+              : Collections.synchronizedSet(new HashSet<ClientRunnable>());
+      channelSet.add(toAuthenticate);
     }
     userRepository.setActive(true, toAuthenticate.getUserId());
   }
