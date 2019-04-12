@@ -951,7 +951,7 @@ public class PrattleTest {
   }
 
   /**
-   * Test messages received same group.
+   * Test messages received on  same group.
    */
   @Test
   public void testMessagesReceivedSameGroup() {
