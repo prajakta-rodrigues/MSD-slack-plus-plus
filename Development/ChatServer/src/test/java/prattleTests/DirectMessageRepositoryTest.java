@@ -32,9 +32,7 @@ public class DirectMessageRepositoryTest {
   private Connection connection;
 
   private PreparedStatement value;
-  
-  private ResultSet resultSet;
-  
+
   @Before
   public void initData() throws SQLException {
     DataSource db = Mockito.mock(DataSource.class);

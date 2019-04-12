@@ -89,11 +89,11 @@ public class ClientRunnableTest {
    * Setup for tests.
    *
    * @throws SQLException the SQL exception
-   * @throws ClassNotFoundException 
-   * @throws SecurityException 
-   * @throws NoSuchFieldException 
-   * @throws IllegalAccessException 
-   * @throws IllegalArgumentException 
+   * @throws ClassNotFoundException exception
+   * @throws SecurityException exception
+   * @throws NoSuchFieldException exception
+   * @throws IllegalAccessException exception
+   * @throws IllegalArgumentException exception
    */
   @Before
   public void initData() throws SQLException, NoSuchFieldException, SecurityException, 

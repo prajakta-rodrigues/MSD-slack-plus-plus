@@ -1,6 +1,5 @@
 package prattleTests;
 
-import edu.northeastern.ccs.im.server.commands.Command;
 import edu.northeastern.ccs.im.server.constants.StringConstants;
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
@@ -642,7 +641,6 @@ public class PrattleTest {
       socketChannel.connect(new InetSocketAddress("localhost", 4514));
       new NetworkConnection(socketChannel);
     }
-    assert true;
   }
 
   /**

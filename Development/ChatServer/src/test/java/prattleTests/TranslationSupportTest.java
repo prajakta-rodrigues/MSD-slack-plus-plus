@@ -93,8 +93,6 @@ public class TranslationSupportTest {
         gr.setAccessible(true);
         gr.set(translationSupport,translate);
         Language language = Mockito.mock(Language.class);
-        List<Language> languages = new ArrayList<>();
-        languages.add(language);
         Mockito.when(translate.listSupportedLanguages()).thenThrow(new NullPointerException());
         Mockito.when(language.getCode()).thenReturn("es");
         Mockito.when(language.getName()).thenReturn("spanish");
