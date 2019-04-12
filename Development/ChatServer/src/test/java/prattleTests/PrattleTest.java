@@ -2666,7 +2666,7 @@ public class PrattleTest {
   }
 
   /**
-   * Tests  /lang command.
+   * Tests  /lang command to display languages supported by translate.
    */
   @Test
   public void testAvailablesLanguagesToTranslate()
