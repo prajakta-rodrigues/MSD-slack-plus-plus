@@ -2616,10 +2616,8 @@ public class PrattleTest {
     Prattle.changeClientChannel(2, cr1);
     Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
-    Message callback1 = waitingList1.remove();
-    Message callback2 = waitingList1.remove();
-    assertEquals(String.format(EIGHTYSIX_NOTIFICATION, "group2", "omar"), callback1.getText());
-    assertEquals(EIGHTYSIX_SUCCESS, callback2.getText());
+    Message callback = waitingList1.remove();
+    assertEquals(EIGHTYSIX_SUCCESS, callback.getText());
     assertEquals(1, cr2.getActiveChannelId());
     assertEquals(0, waitingList2.size());
   }
