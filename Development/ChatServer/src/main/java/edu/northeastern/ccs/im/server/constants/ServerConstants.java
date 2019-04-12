@@ -49,7 +49,7 @@ public class ServerConstants {
   /**
    * Delay for notifications
    */
-  public static final int CHECK_NOTIFICATION_DELAY = 30000;
+  public static final int CHECK_NOTIFICATION_DELAY = 5000;
 
   /**
    * Private constructor to prevent anyone from creating one of these.
