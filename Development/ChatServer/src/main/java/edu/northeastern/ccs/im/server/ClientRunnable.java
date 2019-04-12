@@ -21,7 +21,6 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
-import edu.northeastern.ccs.im.server.utility.DatabaseConnection;
 
 import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
@@ -98,7 +97,7 @@ public class ClientRunnable implements Runnable {
    */
   private boolean authenticated;
 
-  static final Logger LOGGER = Logger.getLogger(ClientRunnable.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(ClientRunnable.class.getName());
   /**
    * Create a new thread with which we will communicate with this single client.
    *

@@ -166,7 +166,7 @@ public abstract class Prattle {
 
     String callbackContents = commands.keySet().contains(commandLower)
         ? commands.get(commandLower).apply(params, senderId)
-        : String.format(ErrorMessages.COMMAND_NOT_RECOGNIZED, command);
+        : ErrorMessages.COMMAND_NOT_RECOGNIZED;
     // send callback message
     client
         .enqueueMessage(Message.makeBroadcastMessage(ServerConstants.SLACKBOT, callbackContents));
