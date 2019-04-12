@@ -2681,6 +2681,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/lang"));
     Message callback = waitingList2.remove();
     assertEquals("spanish,german", callback.getText());
+
   }
 
   /**
