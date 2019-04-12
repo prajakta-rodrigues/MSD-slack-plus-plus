@@ -999,6 +999,7 @@ public class PrattleTest {
     Message callback = waitingList2.remove();
     assertEquals(ErrorMessages.NO_NOTIFICATIONS, callback.getText());
 
+
   }
 
   /**
