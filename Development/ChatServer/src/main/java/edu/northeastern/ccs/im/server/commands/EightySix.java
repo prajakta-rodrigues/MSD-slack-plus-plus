@@ -46,7 +46,7 @@ class EightySix extends ACommand {
               Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
                       String.format(StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION,
                               groupName, modName)));
-    }
+    } 
     return StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
   }
 
