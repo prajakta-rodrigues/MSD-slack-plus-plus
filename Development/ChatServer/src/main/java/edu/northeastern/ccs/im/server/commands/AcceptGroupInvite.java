@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.server.constants.ErrorCodes;
@@ -14,13 +17,13 @@ class AcceptGroupInvite extends ACommand {
   public String apply(String[] params, Integer userId) {
 
     if (null == params) {
-      return "No group specified";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
 
     SlackGroup group = groupRepository.getGroupByName(params[0]);
 
     if (group == null) {
-      return "Specified group doesn't exist";
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     String password = group.getPassword();
 
@@ -30,23 +33,23 @@ class AcceptGroupInvite extends ACommand {
       result = groupInviteRepository.acceptInvite(userId, group.getGroupId());
     } catch (SQLException e) {
       if (e.getErrorCode() == ErrorCodes.MYSQL_DUPLICATE_PK) {
-        return "You are already part of the group";
+        return ErrorMessages.ALREADY_IN_GROUP;
       }
     }
 
     if (result) {
-      StringBuilder ans = new StringBuilder("Invite accepted successfully!");
+      StringBuilder ans = new StringBuilder(CommandMessages.SUCCESSFUL_INVITE_ACCEPT);
       if (password != null) {
-        ans.append(" Join group with password: ");
+        ans.append(CommandMessages.JOIN_WITH_PASS);
         ans.append(password);
       }
       return ans.toString();
     }
-    return "You do not have an invite to the group";
+    return ErrorMessages.NO_INVITE;
   }
 
   @Override
   public String description() {
-    return "Accepts group invite request. \n Parameters : groupname";
+    return CommandDescriptions.ACCEPT_GROUP_INVITE_DESCRIPTION;
   }
 }

@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -10,6 +11,7 @@ import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
+import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
  * Destroys a SlackGroup and moves all active members to general.
@@ -23,7 +25,7 @@ class EightySix extends ACommand {
     int channelId = sender.getActiveChannelId();
     SlackGroup group = groupRepository.getGroupByChannelId(channelId);
     if (group == null) {
-      return StringConstants.ErrorMessages.GENERIC_ERROR;
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     int groupId = group.getGroupId();
     String groupName = group.getGroupName();
@@ -37,18 +39,19 @@ class EightySix extends ACommand {
     if (!groupRepository.deleteGroup(senderId, groupId)) {
       return StringConstants.ErrorMessages.GENERIC_ERROR;
     }
+    Prattle.changeClientChannel(GENERAL_ID, sender);
     for (ClientRunnable client : Prattle.getChannelClients(channelId)) {
-      client.setActiveChannelId(ServerConstants.GENERAL_ID);
+      Prattle.changeClientChannel(GENERAL_ID, client);
       client.enqueueMessage(
               Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
-                      String.format(StringConstants.CommandMessages.EIGHTYSIX_NOTIFICATION,
+                      String.format(StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION,
                               groupName, modName)));
-    }
-    return StringConstants.CommandMessages.EIGHTYSIX_SUCCESS;
+    } 
+    return StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
   }
 
   @Override
   public String description() {
-    return StringConstants.CommandDescriptions.EIGHTYSIX_DESCRIPTION;
+    return StringConstants.CommandDescriptions.EIGHTY_SIX_DESCRIPTION;
   }
 }

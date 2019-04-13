@@ -3,9 +3,9 @@ package edu.northeastern.ccs.im.server.commands;
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
-import edu.northeastern.ccs.im.server.models.Notification;
-import edu.northeastern.ccs.im.server.models.SlackGroup;
-import edu.northeastern.ccs.im.server.models.User;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 
 /**
  * Command to recall a sent message
@@ -22,25 +22,24 @@ public class Recall extends ACommand {
   @Override
   public String apply(String[] params, Integer senderId) {
     if (params == null) {
-      return "Incorrect command parameters";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     int messageToRecall = Integer.parseInt(params[0]); // make this 0-indexed
     if (messageToRecall < 1) {
-      return "Your message number must be positive";
+      return ErrorMessages.NON_POSITIVE_MESSAGE_NUMBER;
     }
     ClientRunnable currClient = getClient(senderId);
     int currChannelId = currClient.getActiveChannelId();
     boolean success = messageRepository.recallMessage(senderId, messageToRecall - 1, currChannelId);
     if (!success) {
-      return "Error: You have sent less than " + messageToRecall + " messages to this channel.";
+      return ErrorMessages.NOT_ENOUGH_MESSAGES;
     }
-    return "You have recalled message " + messageToRecall + ".";
+    return CommandMessages.SUCCESSFUL_RECALL;
   }
 
   @Override
   public String description() {
-    return "Recalls a message based on the given number.\n" +
-        "Parameters: the number of most recently sent message to recall.";
+    return CommandDescriptions.RECALL_DESCRIPTION;
   }
 
 }

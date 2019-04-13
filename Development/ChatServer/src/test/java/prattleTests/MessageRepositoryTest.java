@@ -3,17 +3,10 @@ package prattleTests;
 import edu.northeastern.ccs.im.server.Prattle;
 import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.MessageHistory;
-import edu.northeastern.ccs.im.server.models.SlackGroup;
-import edu.northeastern.ccs.im.server.repositories.FriendRequestRepository;
-import edu.northeastern.ccs.im.server.repositories.GroupRepository;
 import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import javax.sql.DataSource;
@@ -26,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 
 /**
@@ -192,7 +184,7 @@ public class MessageRepositoryTest {
    * @throws SQLException the sql exception
    */
   @Test
-  public void testGetMessagesFromChannelSQLException() throws SQLException { ;
+  public void testGetMessagesFromChannelSQLException() throws SQLException {
     Mockito.when(value.executeQuery()).thenThrow(new SQLException());
     Mockito.doNothing().when(connection).close();
     List<Message> messages = messageRepository.getLatestMessagesFromChannel(1, 2);
@@ -414,7 +406,7 @@ public class MessageRepositoryTest {
   public void testGetMessageId2() throws SQLException {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "hello"));
     Mockito.when(resultSet.getObject(1)).thenReturn(24);
-    assertEquals(24, messageRepository.getMessageId(2, 0, 1));;
+    assertEquals(24, messageRepository.getMessageId(2, 0, 1));
   }
 
   /**
@@ -423,6 +415,6 @@ public class MessageRepositoryTest {
   @Test
   public void testGetMessageIdMessageDoesNotExist() throws SQLException {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "okaySir"));
-    assertEquals(-1, messageRepository.getMessageId(2, 10, 1));;
+    assertEquals(-1, messageRepository.getMessageId(2, 10, 1));
   }
 }

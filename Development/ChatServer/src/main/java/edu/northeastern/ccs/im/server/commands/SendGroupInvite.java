@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -22,7 +25,7 @@ class SendGroupInvite extends ACommand {
   @Override
   public String apply(String[] params, Integer senderId) {
     if (null == params) {
-      return "No username or group given";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     SlackGroup group;
     if (params.length == 2) {
@@ -33,10 +36,10 @@ class SendGroupInvite extends ACommand {
       int currChannelId = currClient.getActiveChannelId();
       group = groupRepository.getGroupByChannelId(currChannelId);
     } else {
-      return "Command message not recognized";
+      return ErrorMessages.COMMAND_NOT_RECOGNIZED;
     }
     if (null == group) {
-      return "Group doesn't exist";
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     int groupId = group.getGroupId();
 
@@ -45,17 +48,17 @@ class SendGroupInvite extends ACommand {
     try {
       isModerator = userGroupRepository.isModerator(senderId, groupId);
     } catch (SQLException ex) {
-      return "Unable to send request";
+      return ErrorMessages.GENERIC_ERROR;
     }
 
     if (!isModerator) {
-      return "You are not a moderator of given group";
+      return ErrorMessages.NOT_MODERATOR;
     }
 
     User user = userRepository.getUserByUserName(params[0]);
 
     if (null == user) {
-      return "Invited user doesn't exist";
+      return ErrorMessages.NON_EXISTING_USER;
     }
     int inviteeId = user.getUserId();
 
@@ -66,20 +69,20 @@ class SendGroupInvite extends ACommand {
       result = groupInviteRepository.add(groupInvitation);
     } catch (SQLException e) {
       if (e.getErrorCode() == ErrorCodes.MYSQL_DUPLICATE_PK) {
-        return "You have already invited the user";
+        return ErrorMessages.COMMAND_ALREADY_PROCESSED;
       }
     }
     if (result) {
       Notification notification = Notification
               .makeGroupInviteNotification(groupId, senderId, inviteeId);
       notificationRepository.addNotification(notification);
-      return "Invite sent successfully";
+      return CommandMessages.SUCCESSFUL_INVITE;
     }
-    return "Failed to send invite";
+    return ErrorMessages.UNSUCCESSFUL_INVITE;
   }
 
   @Override
   public String description() {
-    return "Send out group invite to user.\n Parameters : handle, groupName";
+    return CommandDescriptions.SEND_GROUP_INVITE_DESCRIPTION;
   }
 }

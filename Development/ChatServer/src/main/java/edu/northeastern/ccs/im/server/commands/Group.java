@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -19,33 +21,31 @@ class Group extends ACommand {
   public String apply(String[] params, Integer senderId) {
     List<Message> messages;
     if (params == null) {
-      return "No Group Name provided";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     SlackGroup targetGroup = groupRepository.getGroupByName(params[0]);
     if (targetGroup == null) {
-      return String.format("Group %s does not exist", params[0]);
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     ClientRunnable sender = getClient(senderId);
     if (!groupRepository.groupHasMember(senderId, targetGroup.getGroupId())) {
-      return "You are not a member of this group";
+      return ErrorMessages.CURRENT_USER_NOT_IN_GROUP;
     }
     String password = targetGroup.getPassword();
     if (password != null && params.length < 2) {
-      return "This group requires a password";
+      return ErrorMessages.PASSWRD_REQURIED;
     } else if (params.length >= 2 && !params[1].equals(password)) {
-      return "You have input the incorrect password";
+      return ErrorMessages.INCORRECT_PASSWRD;
     }
     int channelId = targetGroup.getChannelId();
     changeClientChannel(channelId, sender);
-    messages = messageRepository
-            .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    messages = messageRepository.getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
     return String.format("Active channel set to Group %s", targetGroup.getGroupName())
             + Message.listToString(messages);
   }
 
   @Override
   public String description() {
-    return "Change your current chat room to the specified Group.\nParameters: group name, " +
-            "(if locked) password";
+    return CommandDescriptions.GROUP_DESCRIPTION;
   }
 }

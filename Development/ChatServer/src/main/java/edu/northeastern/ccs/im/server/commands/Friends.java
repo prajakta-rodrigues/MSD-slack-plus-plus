@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ import java.util.List;
 
   @Override
   public String description() {
-    return "Print out the names of all of my friends.";
+    return CommandDescriptions.FRIENDS_DESCRIPTION;
   }
 
 }

@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.server.commands;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.util.List;
 
 import edu.northeastern.ccs.im.server.ClientRunnable;
@@ -8,7 +11,6 @@ import edu.northeastern.ccs.im.server.models.SlackGroup;
 import edu.northeastern.ccs.im.server.models.User;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NONEXISTING_GROUP;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 
 /**
@@ -26,7 +28,7 @@ import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMess
   @Override
   public String apply(String[] params, Integer senderId) {
     if (params == null) {
-      return "Invalid command parameters.";
+      return ErrorMessages.INCORRECT_COMMAND_PARAMETERS;
     }
     ClientRunnable currClient = getClient(senderId);
     String userHandle = currClient.getName();
@@ -34,7 +36,7 @@ import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMess
     int currChannelId = currClient.getActiveChannelId();
     SlackGroup currGroup = groupRepository.getGroupByChannelId(currChannelId);
     if (currGroup == null) {
-      return NONEXISTING_GROUP;
+      return ErrorMessages.NON_EXISTING_GROUP;
     }
     int groupId = currGroup.getGroupId();
     List<String> mods = userGroupRepository.getModerators(groupId);
@@ -42,10 +44,10 @@ import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMess
       return NOT_MODERATOR;
     }
     if (!userGroupRepository.getGroupMembers(groupId).contains(newModHandle)) {
-      return "The desired user is not part of the group. Send them an invite first.";
+      return ErrorMessages.USER_NOT_IN_GROUP;
     }
     if (mods.contains(newModHandle)) {
-      return "The desired user is already a moderator";
+      return ErrorMessages.ALREADY_MODERATOR;
     }
     User newMod = userRepository.getUserByUserName(newModHandle);
     int newModId = newMod.getUserId();
@@ -53,11 +55,11 @@ import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMess
     Notification modNotification = Notification
             .makeNewModeratorNotification(groupId, senderId, newModId);
     notificationRepository.addNotification(modNotification);
-    return userHandle + " added " + newModHandle + " as a moderator of this group.";
+    return String.format(CommandMessages.SUCCESSFUL_MODERATOR_ADD, userHandle, newModHandle);
   }
 
   @Override
   public String description() {
-    return "Adds the given user as a moderator.\nParameters: User to add as a moderator.";
+    return CommandDescriptions.ADD_MODERATOR_DESCRIPTION;
   }
 }
