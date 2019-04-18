@@ -951,7 +951,7 @@ public class PrattleTest {
   }
 
   /**
-   * Test messages received same group.
+   * Test messages received on  same group.
    */
   @Test
   public void testMessagesReceivedSameGroup() {
@@ -998,6 +998,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 1, "/notification"));
     Message callback = waitingList2.remove();
     assertEquals(ErrorMessages.NO_NOTIFICATIONS, callback.getText());
+
 
   }
 
@@ -2602,22 +2603,6 @@ public class PrattleTest {
     Message callback = waitingList1.remove();
     assertEquals("No users found" , callback.getText());
   }
-  
-
-  @Test
-  public void testEightySixSuccess() throws SQLException {
-    Prattle.changeClientChannel(1, cr2);
-    Prattle.changeClientChannel(2, cr1);
-    Mockito.when(userGroupRepository.isModerator(Mockito.anyInt(), Mockito.anyInt()))
-        .thenReturn(true);
-    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/86"));
-    Message callback1 = waitingList1.remove();
-    Message callback2 = waitingList1.remove();
-    assertEquals(String.format(EIGHTY_SIX_NOTIFICATION, "group2", "omar"), callback1.getText());
-    assertEquals(EIGHTY_SIX_SUCCESS, callback2.getText());
-    assertEquals(1, cr2.getActiveChannelId());
-    assertEquals(0, waitingList2.size());
-  }
 
   @Test
   public void testEightySixSuccessHandlesMembers() throws SQLException {
@@ -2681,7 +2666,7 @@ public class PrattleTest {
   }
 
   /**
-   * Tests  /lang command.
+   * Tests  /lang command to display languages supported by translate.
    */
   @Test
   public void testAvailablesLanguagesToTranslate()
@@ -2696,6 +2681,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("josh", 1, "/lang"));
     Message callback = waitingList2.remove();
     assertEquals("spanish,german", callback.getText());
+
   }
 
   /**

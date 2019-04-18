@@ -11,6 +11,7 @@ import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
 
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
+import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
  * Destroys a SlackGroup and moves all active members to general.
@@ -38,13 +39,14 @@ class EightySix extends ACommand {
     if (!groupRepository.deleteGroup(senderId, groupId)) {
       return StringConstants.ErrorMessages.GENERIC_ERROR;
     }
+    Prattle.changeClientChannel(GENERAL_ID, sender);
     for (ClientRunnable client : Prattle.getChannelClients(channelId)) {
-      client.setActiveChannelId(ServerConstants.GENERAL_ID);
+      Prattle.changeClientChannel(GENERAL_ID, client);
       client.enqueueMessage(
               Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
                       String.format(StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION,
                               groupName, modName)));
-    }
+    } 
     return StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
   }
 
