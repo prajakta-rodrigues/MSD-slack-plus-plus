@@ -1,21 +1,24 @@
 package edu.northeastern.ccs.im.server.utility;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
 
+/**
+ * The Class FilterWords.
+ */
 public class FilterWords {
   
-  private static List<String> listFilterWords;
+  /** The filter words. */
+  private static String filterWords;
     
+  /** The Constant LOGGER. */
   static final Logger LOGGER = Logger.getLogger(FilterWords.class.getName());
   
   static {
-    listFilterWords = new ArrayList<>();
+    StringBuilder tmp = new StringBuilder();
     try {
       InputStream inputStream = FilterWords.class.getClassLoader()
           .getResourceAsStream(ServerConstants.FILTER_WORDS_FILE_NM);
@@ -23,23 +26,24 @@ public class FilterWords {
         @SuppressWarnings("resource")
         Scanner sc = new Scanner(inputStream);
         while (sc.hasNext()) {
-          listFilterWords.add(sc.nextLine());
+          tmp.append(sc.nextLine());
+          tmp.append("|");
         }
+        filterWords = tmp.length() > 0 ? tmp.substring(0, tmp.length() - 1) : tmp.toString(); 
       }
     } catch (Exception exception) {
       LOGGER.log(Level.SEVERE, "Unable to read filter words file");
     }
   }
 
+  /**
+   * Filter swear words from message.
+   *
+   * @param msg the msg
+   * @return the string
+   */
   public static String filterSwearWordsFromMessage(String msg) {
-    StringBuilder replacement;
-    for(String filterWord : listFilterWords) {
-      replacement = new StringBuilder();
-      for(int i = 0; i < filterWord.length(); i++) {
-        replacement.append("*");  
-      }
-      msg = msg.replaceAll(filterWord, replacement.toString());
-    }
+    msg = msg.replaceAll(filterWords, "***");
     return msg;
   }
   
