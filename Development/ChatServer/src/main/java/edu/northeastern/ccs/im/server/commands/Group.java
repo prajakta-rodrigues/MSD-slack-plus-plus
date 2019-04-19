@@ -7,6 +7,7 @@ import java.util.List;
 import edu.northeastern.ccs.im.server.ClientRunnable;
 import edu.northeastern.ccs.im.server.models.Message;
 import edu.northeastern.ccs.im.server.models.SlackGroup;
+import edu.northeastern.ccs.im.server.utility.FilterWords;
 import edu.northeastern.ccs.im.server.constants.ServerConstants;
 
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
@@ -40,8 +41,12 @@ class Group extends ACommand {
     int channelId = targetGroup.getChannelId();
     changeClientChannel(channelId, sender);
     messages = messageRepository.getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
+    String queuedMsg = Message.listToString(messages);
+    if(userRepository.getParentalControl(senderId)) {
+      queuedMsg = FilterWords.filterSwearWordsFromMessage(queuedMsg);
+    }
     return String.format("Active channel set to Group %s", targetGroup.getGroupName())
-            + Message.listToString(messages);
+            + queuedMsg;
   }
 
   @Override

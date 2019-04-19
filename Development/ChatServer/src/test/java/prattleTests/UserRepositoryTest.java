@@ -507,7 +507,122 @@ public class UserRepositoryTest {
     assertEquals(0,userNames.size());
   }
 
- 
+  /**
+   * Test get ParentalControl.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testGetParentalControl() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    ResultSet resultSet = Mockito.mock(ResultSet.class);
+    Mockito.when(value.executeQuery()).thenReturn(resultSet);
+    ResultSetMetaData metadata = Mockito.mock(ResultSetMetaData.class);
+    Mockito.when(resultSet.getMetaData()).thenReturn(metadata);
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+    Mockito.when(metadata.getColumnCount()).thenReturn(4);
+    Mockito.when(metadata.getColumnName(1)).thenReturn("parental_control");
+    Mockito.when(resultSet.next()).thenReturn(true).thenReturn(false);
+    Mockito.when(resultSet.getObject(1)).thenReturn(true);
+    assertTrue(userRepository.getParentalControl(1));
+  }
+
+  /**
+   * Test get ParentalControl throw SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testGetParentalControlThrowSQLException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new SQLException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    assertFalse(userRepository.getParentalControl(1));
+  }
+
+
+  /**
+   * Test get ParentalControl throw exception.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testGetParentalControlThrowException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new IllegalArgumentException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    assertFalse(userRepository.getParentalControl(1));
+  }
+
+
+  /**
+   * Testset ParentalControl status.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testsetParentalControl() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doNothing().when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    Mockito.doNothing().when(value).setBoolean(Mockito.anyInt(), Mockito.anyBoolean());
+    Mockito.when(value.executeUpdate()).thenReturn(1);
+    assertTrue(userRepository.setParentalControl(1, true));
+  }
+
+  /**
+   * Test SetParentalControl throw SQL exception.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testSetParentalControlThrowSQLException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new SQLException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    assertFalse(userRepository.setParentalControl(1, true));
+  }
+
+
+  /**
+   * Test SetParentalControl throw exception.
+   *
+   * @throws SQLException the SQL exception
+   */
+  @Test
+  public void testSetParentalControlThrowException() throws SQLException {
+    DataSource ds = Mockito.mock(DataSource.class);
+    userRepository = new UserRepository(ds);
+    Connection connection = Mockito.mock(Connection.class);
+    Mockito.when(ds.getConnection()).thenReturn(connection);
+    PreparedStatement value = Mockito.mock(PreparedStatement.class);
+    Mockito.when(connection.prepareStatement(Mockito.anyString())).thenReturn(value);
+    Mockito.doThrow(new IllegalArgumentException()).when(value).setInt(Mockito.anyInt(), Mockito.anyInt());
+    assertFalse(userRepository.setParentalControl(1, true));
+  }
   
   
 }

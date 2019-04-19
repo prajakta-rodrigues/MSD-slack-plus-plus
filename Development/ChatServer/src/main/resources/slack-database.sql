@@ -268,3 +268,6 @@ START TRANSACTION;
 INSERT INTO slack.channel VALUES();
 insert into user(id, handle, password, account_created_date, type, is_active, active_channel, dnd) values(2, 'secretary', '$2a$08$wjlaqMWDEj55M.uhyVY4Re7.6pq2DTrTLf2E3rimpwrxuZIm6u892', '2019-04-11 19:10:04' , 'GOVERNMENT', 0, LAST_INSERT_ID(), 1);
 COMMIT;
+
+alter table slack.user add column parental_control boolean;
+update slack.user set parental_control = false;

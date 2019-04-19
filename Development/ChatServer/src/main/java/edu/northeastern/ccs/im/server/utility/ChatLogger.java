@@ -51,7 +51,7 @@ public class ChatLogger {
    *
    * @param msg error message to be logged
    */
-  public static final void error(String msg) {
+  public static void error(String msg) {
     write(Level.SEVERE, msg);
   }
 
@@ -60,7 +60,7 @@ public class ChatLogger {
    *
    * @param msg warning to be logged
    */
-  public static final void warning(String msg) {
+  public static void warning(String msg) {
     write(Level.WARNING, msg);
   }
 
@@ -69,7 +69,7 @@ public class ChatLogger {
    *
    * @param msg message to be logged
    */
-  public static final void info(String msg) {
+  public static void info(String msg) {
     write(Level.INFO, msg);
   }
 
@@ -104,7 +104,7 @@ public class ChatLogger {
    * @param msg the message being logged.
    * @return true if the message was logged, false otherwise
    */
-  private static final boolean write(Level lvl, String msg) {
+  private static boolean write(Level lvl, String msg) {
     boolean done = true;
     try {
       LOGGER.log(lvl, msg);
@@ -163,6 +163,6 @@ public class ChatLogger {
     /**
      * Both handlers.
      */
-    BOTH;
+    BOTH
   }
 }
