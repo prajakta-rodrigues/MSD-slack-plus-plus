@@ -11,6 +11,6 @@ Live System server hosted on aws: [ec2-3-91-217-103.compute-1.amazonaws.com](ec2
  
 ## Demos
 Videos hosted on youtube relating to Slaq:
-*[System Demo] *()
-*[System Setup]*()
+*[System Demo] *()\
+*[System Setup]*()\
 *[Final presentation]*()
