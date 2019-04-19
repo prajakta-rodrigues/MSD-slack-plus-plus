@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.client;
 
+import java.lang.Thread.State;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -89,6 +90,33 @@ public class KeyboardScanner {
 			}
 		}
 		return singleton;
+	}
+
+	/**
+	 * Restart scanning for keyboard input after we have closed some keyboard
+	 * scanner.
+	 */
+	protected static void restart() {
+		if ((producer != null) && (producer.getState() == State.TERMINATED)) {
+			synchronized (KeyboardScanner.class) {
+				if ((producer != null) && (producer.getState() == State.TERMINATED)) {
+					producer = new Thread(new Runnable() {
+						public void run() {
+							@SuppressWarnings("resource")
+							Scanner scan = new Scanner(System.in);
+							boolean done = false;
+							while (!done) {
+								String keyboardIn = scan.nextLine();
+								messages.add(keyboardIn);
+							}
+						}
+					});
+					// Start the thread that reads in from the keyboard and
+					// blocks for the team.
+					producer.start();
+				}
+			}
+		}
 	}
 
 	/**
