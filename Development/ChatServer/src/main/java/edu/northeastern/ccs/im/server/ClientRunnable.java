@@ -166,7 +166,8 @@ public class ClientRunnable implements Runnable {
     boolean verify = false;
     try {
       verify = BCrypt.checkpw(msg.getText(), user.getPassword());
-    } catch (Exception e) {
+    }
+    catch(Exception e) {
       LOGGER.log(Level.SEVERE, e.getMessage());
     }
     if (verify) {
@@ -180,9 +181,15 @@ public class ClientRunnable implements Runnable {
         List<Message> messages = messageRepository.getLatestMessagesFromChannel(activeChannelId,
             ServerConstants.LATEST_MESSAGES_COUNT);
         userMsg.append(Message.listToString(messages));
-
+        
       }
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
+      boolean parentalControlFlag = userRepository.getParentalControl(userId);
+      if (parentalControlFlag) {
+        sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+            FilterWords.filterSwearWordsFromMessage(userMsg.toString()));
+      } else {
+        sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
+      }
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
           "Wrong password for given username. Try again.");
@@ -225,8 +232,6 @@ public class ClientRunnable implements Runnable {
    * @param message Complete message to be sent.
    */
   public void enqueueMessage(Message message) {
-    userRepository.getParentalControl(userId);
-    message.setText(FilterWords.filterSwearWordsFromMessage(message.getText()));
     waitingList.add(message);
   }
 
