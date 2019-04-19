@@ -21,7 +21,7 @@ import edu.northeastern.ccs.im.server.repositories.NotificationRepository;
 import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
-
+import edu.northeastern.ccs.im.server.utility.FilterWords;
 import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
@@ -181,8 +181,15 @@ public class ClientRunnable implements Runnable {
         List<Message> messages = messageRepository.getLatestMessagesFromChannel(activeChannelId,
             ServerConstants.LATEST_MESSAGES_COUNT);
         userMsg.append(Message.listToString(messages));
+        
       }
-      sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
+      boolean parentalControlFlag = userRepository.getParentalControl(userId);
+      if (parentalControlFlag) {
+        sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT,
+            FilterWords.filterSwearWordsFromMessage(userMsg.toString()));
+      } else {
+        sendMsg = Message.makeBroadcastMessage(ServerConstants.SLACKBOT, userMsg.toString());
+      }
     } else {
       sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
           "Wrong password for given username. Try again.");

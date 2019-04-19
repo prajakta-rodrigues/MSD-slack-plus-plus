@@ -22,7 +22,9 @@
     "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall." : "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.",
     "Send out group invite to user. Parameters : handle, groupName." :"Send out group invite to user. Parameters : handle, groupName.",
     "You can translate any sentence. Parameters: language to translate it to." : "You can translate any sentence. Parameters: language to translate it to.",
-    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)."
+    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).",
+    "Search for users starting with similar search term.Parameters: search term." : "Search for users starting with similar search term.Parameters: search term.",
+    "You can set the parental control mode on to filter content" : "You can set the parental control mode on to filter content"
   },
   "french": {
     "Accepts group invite request. Parameters : group name." : "Accepts group invite request. Parameters : group name.",
@@ -47,7 +49,9 @@
     "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall." : "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.",
     "Send out group invite to user. Parameters : handle, groupName." :"Send out group invite to user. Parameters : handle, groupName.",
     "You can translate any sentence. Parameters: language to translate it to." : "You can translate any sentence. Parameters: language to translate it to.",
-    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)."
+    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).",
+    "Search for users starting with similar search term.Parameters: search term.": "Search for users starting with similar search term.Parameters: search term.",
+    "You can set the parental control mode on to filter content" : "You can set the parental control mode on to filter content" 
   },
   "spanish": {
     "Accepts group invite request. Parameters : group name." : "Accepts group invite request. Parameters : group name.",
@@ -72,6 +76,8 @@
     "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall." : "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.",
     "Send out group invite to user. Parameters : handle, groupName." :"Send out group invite to user. Parameters : handle, groupName.",
     "You can translate any sentence. Parameters: language to translate it to." : "You can translate any sentence. Parameters: language to translate it to.",
-    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)."
+    "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy)." : "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).",
+    "Search for users starting with similar search term.Parameters: search term." : "Search for users starting with similar search term.Parameters: search term.",
+    "You can set the parental control mode on to filter content" : "You can set the parental control mode on to filter content"
   }
 }
