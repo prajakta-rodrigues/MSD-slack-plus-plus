@@ -58,11 +58,6 @@ public class IMConnection {
   private int userId;
 
   /**
-   * Holds the SwingWorker which is used to read and process all incoming data.
-   */
-  private SwingWorker<Void, Message> workerBee;
-
-  /**
    * Instance used to read the messages.
    */
   private MessageScanner messageScanner;
