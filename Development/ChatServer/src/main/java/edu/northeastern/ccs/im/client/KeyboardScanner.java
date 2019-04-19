@@ -68,7 +68,7 @@ public class KeyboardScanner {
 					singleton = new KeyboardScanner();
 					// Create the new queue of messages in which we will store
 					// each line that we input
-					messages = new CopyOnWriteArrayList<String>();
+					messages = new CopyOnWriteArrayList<>();
 					// Create the class which produces the keyboard output this
 					// class will examine.
 					producer = new Thread(new Runnable() {
@@ -137,7 +137,7 @@ public class KeyboardScanner {
 	 * 
 	 * @throws NoSuchElementException
 	 *             Exception thrown if the user has not entered any new lines of
-	 *             text ( {@link #next()} returns false).
+	 *             text ( { #next()} returns false).
 	 * @return Next word of text typed by the user.
 	 */
 	public String next() {
@@ -170,7 +170,6 @@ public class KeyboardScanner {
 		if (messages.isEmpty()) {
 			throw new NoSuchElementException("No new text has been typed in!");
 		}
-		String msg = messages.remove(0);
-		return msg;
+		return messages.remove(0);
 	}
 }

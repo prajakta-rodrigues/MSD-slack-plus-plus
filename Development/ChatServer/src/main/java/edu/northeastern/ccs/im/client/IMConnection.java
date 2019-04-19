@@ -79,8 +79,8 @@ public class IMConnection {
     if ((username == null) || username.trim().equals("")) {
       username = "TooDumbToEnterRealUsername";
     }
-    linkListeners = new Vector<LinkListener>();
-    messageListeners = new Vector<MessageListener>();
+    linkListeners = new Vector<>();
+    messageListeners = new Vector<>();
     userName = username;
     hostName = host;
     portNum = port;
@@ -203,17 +203,17 @@ public class IMConnection {
     Message sentMessage;
     if (message.charAt(0) == '/') {
       sentMessage = Message.makeCommandMessage(userName, userId, message);
-    } else if(message.startsWith(":authenticate ")) {
-      sentMessage = Message.makeAuthenticateMessage(userName, message.replaceFirst(":authenticate ", ""));
-    } else if(message.startsWith(":register ")) {
+    } else if (message.startsWith(":authenticate ")) {
+      sentMessage = Message
+          .makeAuthenticateMessage(userName, message.replaceFirst(":authenticate ", ""));
+    } else if (message.startsWith(":register ")) {
       sentMessage = Message.makeRegisterMessage(userName, message.replaceFirst(":register ", ""));
-    }
-    else {
+    } else {
       sentMessage = Message.makeBroadcastMessage(userName, userId, message);
     }
     socketConnection.print(sentMessage);
   }
-  
+
 
   /**
    * Send a message to log in to the IM server using the given username. For the moment, you will
@@ -223,6 +223,8 @@ public class IMConnection {
    * @return True if the connection was successfully made; false otherwise.
    */
   protected boolean login() {
+    SwingWorker<Void, Message> workerBee;
+
     // Now log in using this name.
     Message loginMessage = Message.makeLoginMessage(userName);
     try {

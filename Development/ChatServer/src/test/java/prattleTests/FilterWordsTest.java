@@ -23,7 +23,7 @@ public class FilterWordsTest {
   public void init() throws NoSuchFieldException, SecurityException, IllegalArgumentException,
       IllegalAccessException {
     String words = "bp|gp";
-    Field list = FilterWords.class.getDeclaredField("filterWords");
+    Field list = FilterWords.class.getDeclaredField("filterWordStr");
     list.setAccessible(true);
     list.set(null, words);
   }

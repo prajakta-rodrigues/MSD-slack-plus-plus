@@ -36,6 +36,8 @@ public class UserRepository extends Repository {
    */
   public UserRepository() { super(); }
 
+  private String handle = "handle";
+
 	/**
 	 * Gets the user by user name.
 	 *
@@ -55,7 +57,7 @@ public class UserRepository extends Repository {
 
 					for (Map<String, Object> result : results) {
 						user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-								String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+								String.valueOf(result.get(handle)), String.valueOf(result.get("password")),
 								UserType.valueOf((String)result.get("type")));
 					}
 					connection.close();
@@ -118,7 +120,7 @@ public class UserRepository extends Repository {
 
                     for (Map<String, Object> result : results) {
                         user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+                                String.valueOf(result.get(handle)), String.valueOf(result.get("password")),
                                 UserType.valueOf((String)result.get("type")));
                     }
                     connection.close();
@@ -257,7 +259,7 @@ public class UserRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
 
           for (Map<String, Object> result : results) {
-            userNames.add(String.valueOf(result.get("handle")));
+            userNames.add(String.valueOf(result.get(handle)));
           }
           connection.close();
         }
