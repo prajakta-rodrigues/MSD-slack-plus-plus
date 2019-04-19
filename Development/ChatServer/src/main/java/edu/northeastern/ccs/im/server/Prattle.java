@@ -114,9 +114,6 @@ public abstract class Prattle {
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
-          if(userRepository.getParentalControl(tt.getUserId())) {
-            message.setText(FilterWords.filterSwearWordsFromMessage(message.getText()));
-          }
           tt.enqueueMessage(message);
         }
       }

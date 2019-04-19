@@ -54,9 +54,6 @@ class Dm extends ACommand {
     List<Message> messages = messageRepository
             .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
     String queuedMsg = Message.listToString(messages);
-    if(userRepository.getParentalControl(senderId)) {
-      queuedMsg = FilterWords.filterSwearWordsFromMessage(queuedMsg);
-    }
     return String.format(CommandMessages.SUCCESSFUL_DM, params[0]) + queuedMsg;
   }
 
