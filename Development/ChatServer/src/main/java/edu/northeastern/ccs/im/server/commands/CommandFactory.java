@@ -55,6 +55,7 @@ public abstract class CommandFactory {
     USER_COMMANDS.put("/recall", new Recall());
     USER_COMMANDS.put("/translate", new Translate());
     USER_COMMANDS.put("/lang", new Languages());
+    USER_COMMANDS.put("/parentalcontrol", new ParentalControl());
   }
 
   public static Map<UserType, Map<String, Command>> getCommands() {

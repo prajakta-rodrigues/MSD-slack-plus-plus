@@ -1,6 +1,9 @@
 package edu.northeastern.ccs.im.server.commands;
 
 import java.util.List;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
+import edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages;
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 
 /**
  * To search users whose handle names starting with search term
@@ -16,14 +19,14 @@ public class SearchUsers extends ACommand{
   @Override
   public String apply(String[] params, Integer senderId) {
     if(params==null){
-      return "Please enter a search term to find similar usernames";
+      return ErrorMessages.NO_SEARCH_TERM;
     }
     List<String> userNames = userRepository.searchUsersBySearchTerm(params[0]);
     StringBuilder listOfSimilarUsers;
     if (userNames.isEmpty()) {
-      listOfSimilarUsers = new StringBuilder("No users found");
+      listOfSimilarUsers = new StringBuilder(CommandMessages.NO_USERS_FOUND);
     } else {
-      listOfSimilarUsers = new StringBuilder("Users with similar names are:");
+      listOfSimilarUsers = new StringBuilder(CommandMessages.USERS_FOUND);
     }
     for (String username : userNames) {
       listOfSimilarUsers.append("\n");
@@ -34,7 +37,7 @@ public class SearchUsers extends ACommand{
 
   @Override
   public String description() {
-    return "Search for users starting with similar search term.\nParameters: search term";
+    return CommandDescriptions.SEARCH_DESCRIPTION;
   }
 
 }

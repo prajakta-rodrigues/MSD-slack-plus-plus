@@ -63,7 +63,6 @@ import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
 import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.GENERIC_ERROR;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 import static junit.framework.Assert.assertNull;
@@ -2768,4 +2767,30 @@ public class PrattleTest {
     assertEquals(ErrorMessages.INCORRECT_PASSWRD, callback.getText());
     assertEquals(1, cr1.getActiveChannelId());
   }
+  
+  @Test
+  public void testParentalControlFail() {
+    when(userRepository.setParentalControl(anyInt(), Mockito.anyBoolean())).thenReturn(false);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/parentalcontrol true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Unable to set parental control mode", callback.getText());
+  }
+  
+  
+  @Test
+  public void testParentalControlSuccess() {
+    when(userRepository.setParentalControl(anyInt(), Mockito.anyBoolean())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/parentalcontrol true"));
+    Message callback = waitingList1.remove();
+    assertEquals("Parental control Mode set to true.", callback.getText());
+  }
+  
+  @Test
+  public void testParentalControlIncorrectParams() {
+    when(userRepository.setParentalControl(anyInt(), Mockito.anyBoolean())).thenReturn(true);
+    Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/parentalcontrol"));
+    Message callback = waitingList1.remove();
+    assertEquals("You did not specify the correct parameters.", callback.getText());
+  }
+  
 }

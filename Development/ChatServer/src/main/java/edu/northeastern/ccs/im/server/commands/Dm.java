@@ -11,7 +11,7 @@ import edu.northeastern.ccs.im.server.constants.ServerConstants;
 import edu.northeastern.ccs.im.server.models.Message;
 
 import edu.northeastern.ccs.im.server.models.User;
-
+import edu.northeastern.ccs.im.server.utility.FilterWords;
 import static edu.northeastern.ccs.im.server.Prattle.changeClientChannel;
 import static edu.northeastern.ccs.im.server.Prattle.getClient;
 
@@ -53,7 +53,11 @@ class Dm extends ACommand {
     changeClientChannel(channelId, sender);
     List<Message> messages = messageRepository
             .getLatestMessagesFromChannel(channelId, ServerConstants.LATEST_MESSAGES_COUNT);
-    return String.format(CommandMessages.SUCCESSFUL_DM, params[0]) + Message.listToString(messages);
+    String queuedMsg = Message.listToString(messages);
+    if(userRepository.getParentalControl(senderId)) {
+      queuedMsg = FilterWords.filterSwearWordsFromMessage(queuedMsg);
+    }
+    return String.format(CommandMessages.SUCCESSFUL_DM, params[0]) + queuedMsg;
   }
 
   @Override

@@ -46,7 +46,8 @@ public class StringConstants {
     public static final String NO_ACTIVE_FRIENDS = "No friends are active.";
     public static final String ALREADY_IN_GROUP = "You are already part of the group.";
     public static final String NO_INVITE = "You do not have an invite to the group.";
-
+    public static final String FAILED_SET_PARENTAL_CONTROL = "Unable to set parental control mode";
+    public static final String NO_SEARCH_TERM = "Please enter a search term to find similar usernames";
   }
 
   public static class CommandDescriptions {
@@ -76,6 +77,8 @@ public class StringConstants {
     public static final String SEND_GROUP_INVITE_DESCRIPTION = "Send out group invite to user. Parameters : handle, groupName.";
     public static final String TRANSLATE_DESCRIPTION = "You can translate any sentence. Parameters: language to translate it to.";
     public static final String WIRETAP_DESCRIPTION = "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).";
+    public static final String PARENTAL_CONTROL_DESCRIPTION = "You can set the parental control mode on to filter content";
+    public static final String SEARCH_DESCRIPTION = "Search for users starting with similar search term.Parameters: search term.";
   }
 
   public static class CommandMessages {
@@ -99,8 +102,9 @@ public class StringConstants {
     public static final String SUCCESSFUL_GROUP_CREATED = "Group %s created.";
     public static final String SUCCESSFUL_MODERATOR_ADD = "%s added %s as a moderator of this group.";
     public static final String JOIN_WITH_PASS = " Join group with password: ";
-
-
+    public static final String SUCCESSFUL_PARENTAL_CONTROL = "Parental control Mode set to %s.";
+    public static final String NO_USERS_FOUND = "No users found";
+    public static final String USERS_FOUND = "Users with similar names are:"; 
   }
 
   public static class NotificationMessages {

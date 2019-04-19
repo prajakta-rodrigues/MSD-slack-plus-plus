@@ -21,7 +21,7 @@ public class Buddy {
 	private static final ConcurrentHashMap<String, Buddy> INSTANCES;
 
 	static {
-		INSTANCES = new ConcurrentHashMap<String, Buddy>();
+		INSTANCES = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -60,8 +60,6 @@ public class Buddy {
 	 * 
 	 * @param name
 	 *            Name of the user whose instance we want.
-	 * @param connect
-	 *            IMConnection with which we communicate with this Buddy.
 	 * @return Buddy instance for the given user name. If one had not existed
 	 *         before, it will be created.
 	 */
@@ -84,8 +82,6 @@ public class Buddy {
 	 * 
 	 * @param name
 	 *            Name of the user whose instance we want.
-	 * @param connect
-	 *            IMConnection with which we communicate with this Buddy.
 	 */
 	protected static void removeBuddy(String name) {
 		INSTANCES.remove(name);

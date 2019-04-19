@@ -31,7 +31,7 @@ import edu.northeastern.ccs.im.server.repositories.MessageRepository;
 import edu.northeastern.ccs.im.server.repositories.RepositoryFactory;
 import edu.northeastern.ccs.im.server.repositories.UserRepository;
 import edu.northeastern.ccs.im.server.utility.ChatLogger;
-
+import edu.northeastern.ccs.im.server.utility.FilterWords;
 import static edu.northeastern.ccs.im.server.constants.ServerConstants.GENERAL_ID;
 
 /**
@@ -114,6 +114,9 @@ public abstract class Prattle {
       for (ClientRunnable tt : channelMembers.get(channelId)) {
         // Do not send the message to any clients that are not ready to receive it.
         if (tt.isInitialized() && message.getChannelId() == tt.getActiveChannelId()) {
+          if(userRepository.getParentalControl(tt.getUserId())) {
+            message.setText(FilterWords.filterSwearWordsFromMessage(message.getText()));
+          }
           tt.enqueueMessage(message);
         }
       }
@@ -235,9 +238,10 @@ public abstract class Prattle {
   static void authenticateClient(ClientRunnable toAuthenticate, UserType userType) {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
     if (userType.equals(UserType.GENERAL)) {
-      Set<ClientRunnable> channelSet = channelMembers.containsKey(GENERAL_ID)
-              ? channelMembers.get(GENERAL_ID)
-              : Collections.synchronizedSet(new HashSet<ClientRunnable>());
+      if(!channelMembers.containsKey(GENERAL_ID)) {
+        channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
+      }
+      Set<ClientRunnable> channelSet = channelMembers.get(GENERAL_ID);
       channelSet.add(toAuthenticate);
     }
     userRepository.setActive(true, toAuthenticate.getUserId());

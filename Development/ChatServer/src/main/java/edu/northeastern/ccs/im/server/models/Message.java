@@ -266,6 +266,14 @@ public class Message {
   public String getText() {
     return msgText;
   }
+  
+  /**
+   * Sets the text as message text
+   * @param text to be set
+   */
+  public void setText(String text) {
+    this.msgText = text; 
+  }
 
   /**
    * Determine if this message is broadcasting text to everyone.

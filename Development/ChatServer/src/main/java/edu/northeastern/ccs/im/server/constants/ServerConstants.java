@@ -45,6 +45,8 @@ public class ServerConstants {
   public static final int LATEST_MESSAGES_COUNT = 10;
 
   public static final int GENERAL_ID = 1;
+  
+  public static final String FILTER_WORDS_FILE_NM = "swear.txt";
 
   /**
    * Delay for notifications

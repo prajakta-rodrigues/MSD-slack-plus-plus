@@ -36,6 +36,8 @@ public class UserRepository extends Repository {
    */
   public UserRepository() { super(); }
 
+  private String handle = "handle";
+
 	/**
 	 * Gets the user by user name.
 	 *
@@ -55,7 +57,7 @@ public class UserRepository extends Repository {
 
 					for (Map<String, Object> result : results) {
 						user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-								String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+								String.valueOf(result.get(handle)), String.valueOf(result.get("password")),
 								UserType.valueOf((String)result.get("type")));
 					}
 					connection.close();
@@ -118,7 +120,7 @@ public class UserRepository extends Repository {
 
                     for (Map<String, Object> result : results) {
                         user = new User(Integer.parseInt(String.valueOf(result.get("id"))),
-                                String.valueOf(result.get("handle")), String.valueOf(result.get("password")),
+                                String.valueOf(result.get(handle)), String.valueOf(result.get("password")),
                                 UserType.valueOf((String)result.get("type")));
                     }
                     connection.close();
@@ -257,7 +259,7 @@ public class UserRepository extends Repository {
           List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
 
           for (Map<String, Object> result : results) {
-            userNames.add(String.valueOf(result.get("handle")));
+            userNames.add(String.valueOf(result.get(handle)));
           }
           connection.close();
         }
@@ -270,5 +272,63 @@ public class UserRepository extends Repository {
     }
     return userNames;
   }
+  
+  /**
+   * Gets the parental control flag.
+   *
+   * @param userId the user id whose parental control flag is to be fetched
+   * @return the parental control flag
+   */
+  public boolean getParentalControl(int userId) {
+    try {
+      connection = dataSource.getConnection();
+      String query = "select parental_control from slack.user WHERE id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(1, userId);
+        try (ResultSet rs = preparedStmt.executeQuery()) {
+          List<Map<String, Object>> results = DatabaseConnection.resultsList(rs);
+          return (Boolean)results.get(0).get("parental_control");
+        }
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch(Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    }
+    finally {
+      closeConnection(connection);
+    }
+    return false;
+  }
+  
+  /**
+   * Sets the parental control flag.
+   *
+   * @param userId the user id whose parental control flag is to be set
+   * @param parentalControlFlag the parental control flag to be set
+   * @return true, if successful
+   */
+  public boolean setParentalControl(int userId, boolean parentalControlFlag) {
+    int result = 0;
+    try {
+      connection = dataSource.getConnection();
+      String query = "update slack.user set parental_control = ? WHERE id = ?";
+      try (PreparedStatement preparedStmt = connection.prepareStatement(query)) {
+        preparedStmt.setInt(2, userId);
+        preparedStmt.setBoolean(1, parentalControlFlag);
+        result = preparedStmt.executeUpdate();
+      }
+    } catch (SQLException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e);
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, e.getMessage(), e);
+    } finally {
+      closeConnection(connection);
+    }
+    return result > 0;
+  }
+  
+  
+  
 }
 

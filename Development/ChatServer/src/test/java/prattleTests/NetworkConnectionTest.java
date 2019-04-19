@@ -381,7 +381,7 @@ public class NetworkConnectionTest {
     selectorField.setAccessible(true);
     selectorField.set(networkConnection, selector);
     Iterator<Message> iterator = networkConnection.iterator();
-    iterator.hasNext();
+    assertFalse(iterator.hasNext());
   }
 
   @Test(expected = AssertionError.class)
@@ -437,7 +437,7 @@ public class NetworkConnectionTest {
     Mockito.when(set.remove(Mockito.anyObject())).thenReturn(true);
     Mockito.when(selector.selectedKeys()).thenReturn(set);
     Iterator<Message> iterator = networkConnection.iterator();
-    iterator.hasNext();
+    assertTrue(iterator.hasNext());
   }
 
   @Test(expected = AssertionError.class)
@@ -452,7 +452,7 @@ public class NetworkConnectionTest {
     selectorField.setAccessible(true);
     selectorField.set(networkConnection, selector);
     Iterator<Message> iterator = networkConnection.iterator();
-    iterator.hasNext();
+    assertFalse(iterator.hasNext());
   }
 
   @Test
@@ -491,6 +491,6 @@ public class NetworkConnectionTest {
     buff.put("HLO 6 test12 2 -1 2 --".getBytes());
     buffField.set(networkConnection, buff);
     Iterator<Message> iterator = networkConnection.iterator();
-    iterator.hasNext();
+    assertTrue(iterator.hasNext());
   }
 }
