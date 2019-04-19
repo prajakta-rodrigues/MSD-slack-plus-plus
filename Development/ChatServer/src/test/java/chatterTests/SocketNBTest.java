@@ -1,6 +1,5 @@
 package chatterTests;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
@@ -119,7 +118,7 @@ public class SocketNBTest {
     Method enqueueMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
         .getDeclaredMethod("enqueueMessages", List.class);
     enqueueMethod.setAccessible(true);
-    List<Message> listMessages = new ArrayList<Message>();
+    List<Message> listMessages = new ArrayList<>();
     Field selectorField =
         Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("selector");
     selectorField.setAccessible(true);
@@ -144,7 +143,7 @@ public class SocketNBTest {
     Method enqueueMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
         .getDeclaredMethod("enqueueMessages", List.class);
     enqueueMethod.setAccessible(true);
-    List<Message> listMessages = new ArrayList<Message>();
+    List<Message> listMessages = new ArrayList<>();
     Field selectorField =
         Class.forName("edu.northeastern.ccs.im.client.SocketNB").getDeclaredField("selector");
     selectorField.setAccessible(true);
@@ -297,7 +296,7 @@ public class SocketNBTest {
     Method enqueueMethod = Class.forName("edu.northeastern.ccs.im.client.SocketNB")
         .getDeclaredMethod("enqueueMessages", List.class);
     enqueueMethod.setAccessible(true);
-    List<Message> listMessages = new ArrayList<Message>();
+    List<Message> listMessages = new ArrayList<>();
     Mockito.when(selector.select(Mockito.anyLong())).thenReturn(0);
     enqueueMethod.invoke(socketNB, listMessages);
   }

@@ -239,7 +239,7 @@ public abstract class Prattle {
     authenticated.put(toAuthenticate.getUserId(), toAuthenticate);
     if (userType.equals(UserType.GENERAL)) {
       if(!channelMembers.containsKey(GENERAL_ID)) {
-        channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<ClientRunnable>()));
+        channelMembers.put(GENERAL_ID, Collections.synchronizedSet(new HashSet<>()));
       }
       Set<ClientRunnable> channelSet = channelMembers.get(GENERAL_ID);
       channelSet.add(toAuthenticate);

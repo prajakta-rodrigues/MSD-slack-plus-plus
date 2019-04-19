@@ -63,7 +63,6 @@ import edu.northeastern.ccs.im.server.utility.ChatLogger;
 import edu.northeastern.ccs.im.server.utility.TranslationSupport;
 
 import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTY_SIX_NOTIFICATION;
-import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandMessages.EIGHTY_SIX_SUCCESS;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.GENERIC_ERROR;
 import static edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages.NOT_MODERATOR;
 import static junit.framework.Assert.assertNull;
