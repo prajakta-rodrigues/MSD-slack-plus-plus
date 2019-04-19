@@ -1,6 +1,5 @@
 package edu.northeastern.ccs.im.client;
 
-import java.lang.Thread.State;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -68,7 +67,7 @@ public class KeyboardScanner {
 					singleton = new KeyboardScanner();
 					// Create the new queue of messages in which we will store
 					// each line that we input
-					messages = new CopyOnWriteArrayList<String>();
+					messages = new CopyOnWriteArrayList<>();
 					// Create the class which produces the keyboard output this
 					// class will examine.
 					producer = new Thread(new Runnable() {
@@ -93,33 +92,6 @@ public class KeyboardScanner {
 	}
 
 	/**
-	 * Restart scanning for keyboard input after we have closed some keyboard
-	 * scanner.
-	 */
-	protected static void restart() {
-		if ((producer != null) && (producer.getState() == State.TERMINATED)) {
-			synchronized (KeyboardScanner.class) {
-				if ((producer != null) && (producer.getState() == State.TERMINATED)) {
-					producer = new Thread(new Runnable() {
-						public void run() {
-							@SuppressWarnings("resource")
-							Scanner scan = new Scanner(System.in);
-							boolean done = false;
-							while (!done) {
-								String keyboardIn = scan.nextLine();
-								messages.add(keyboardIn);
-							}
-						}
-					});
-					// Start the thread that reads in from the keyboard and
-					// blocks for the team.
-					producer.start();
-				}
-			}
-		}
-	}
-
-	/**
 	 * Returns true if there is another line of keyboard input. This method will
 	 * NOT block while waiting for input. This class does not advance past any
 	 * input.
@@ -137,7 +109,7 @@ public class KeyboardScanner {
 	 * 
 	 * @throws NoSuchElementException
 	 *             Exception thrown if the user has not entered any new lines of
-	 *             text ( {@link #next()} returns false).
+	 *             text ( { #next()} returns false).
 	 * @return Next word of text typed by the user.
 	 */
 	public String next() {
@@ -170,7 +142,6 @@ public class KeyboardScanner {
 		if (messages.isEmpty()) {
 			throw new NoSuchElementException("No new text has been typed in!");
 		}
-		String msg = messages.remove(0);
-		return msg;
+		return messages.remove(0);
 	}
 }

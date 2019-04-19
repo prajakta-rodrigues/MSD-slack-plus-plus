@@ -10,12 +10,14 @@ import edu.northeastern.ccs.im.server.constants.ServerConstants;
  * The Class FilterWords.
  */
 public class FilterWords {
+
+  private FilterWords(){}
   
   /** The filter words. */
-  private static String filterWords;
+  private static String filterWordStr;
     
   /** The Constant LOGGER. */
-  static final Logger LOGGER = Logger.getLogger(FilterWords.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(FilterWords.class.getName());
   
   static {
     StringBuilder tmp = new StringBuilder();
@@ -29,7 +31,7 @@ public class FilterWords {
           tmp.append(sc.nextLine());
           tmp.append("|");
         }
-        filterWords = tmp.length() > 0 ? tmp.substring(0, tmp.length() - 1) : tmp.toString(); 
+        filterWordStr = tmp.length() > 0 ? tmp.substring(0, tmp.length() - 1) : tmp.toString();
       }
     } catch (Exception exception) {
       LOGGER.log(Level.SEVERE, "Unable to read filter words file");
@@ -43,7 +45,7 @@ public class FilterWords {
    * @return the string
    */
   public static String filterSwearWordsFromMessage(String msg) {
-    msg = msg.replaceAll(filterWords, "***");
+    msg = msg.replaceAll(filterWordStr, "***");
     return msg;
   }
   
