@@ -7,7 +7,7 @@
 *Venkatesh koka* (venkateshkoka)
 
 ## AWS Server
-[Live system server hosted on aws](ec2-3-91-217-103.compute-1.amazonaws.com "AWS EC2 server instance")
+Live System server hosted on aws: [ec2-3-91-217-103.compute-1.amazonaws.com](ec2-3-91-217-103.compute-1.amazonaws.com "AWS EC2 Server Instance")
  
 ## Demos
 Videos hosted on youtube relating to Slaq:
