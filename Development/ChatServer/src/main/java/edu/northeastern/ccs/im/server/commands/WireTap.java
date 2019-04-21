@@ -1,7 +1,5 @@
 package edu.northeastern.ccs.im.server.commands;
 
-import edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions;
-import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,15 +8,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import edu.northeastern.ccs.im.server.constants.StringConstants.ErrorMessages;
 import edu.northeastern.ccs.im.server.models.MessageHistory;
 import edu.northeastern.ccs.im.server.models.User;
+
+import static edu.northeastern.ccs.im.server.constants.StringConstants.CommandDescriptions.WIRETAP_DESCRIPTION;
+import static edu.northeastern.ccs.im.server.constants.StringConstants.DATE_FORMAT_STRING;
 
 /**
  * Help users with privilege to wiretap other users
  */
   class WireTap extends ACommand {
-
-    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
 
   /**
    * Wiretaps conversation of particular user between given dates
@@ -68,6 +68,6 @@ import edu.northeastern.ccs.im.server.models.User;
    */
   @Override
   public String description() {
-    return CommandDescriptions.WIRETAP_DESCRIPTION;
+    return WIRETAP_DESCRIPTION;
   }
 }

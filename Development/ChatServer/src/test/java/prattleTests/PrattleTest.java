@@ -2335,7 +2335,7 @@ public class PrattleTest {
     Prattle.commandMessage(Message.makeCommandMessage("omar", 2, "/help"));
     Message callback = waitingList1.remove();
     assertEquals("Available COMMANDS:\n/wiretap Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> "
-            + "(Date format:mm/dd/yyyy).\n" + "/help Lists all of the available commands.",
+            + "(Date format:yyyy-MM-dd).\n" + "/help Lists all of the available commands.",
         callback.getText());
   }
 

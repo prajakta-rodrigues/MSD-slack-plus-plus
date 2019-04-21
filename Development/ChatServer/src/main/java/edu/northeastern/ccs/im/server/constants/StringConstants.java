@@ -12,6 +12,8 @@ public class StringConstants {
   public static final String ENGLISH = "english";
   public static final String ACTIVE_CHANNEL_SET = "Active channel set to Group %s";
   public static final String LINE_SEPARATOR = "-------------------------";
+  public static final String DATE_FORMAT_STRING = "yyyy-MM-dd";
+
 
   public static class ErrorMessages {
 
@@ -76,7 +78,7 @@ public class StringConstants {
     public static final String RECALL_DESCRIPTION = "Recalls a message based on the given number. Parameters: the number of most recently sent message to recall.";
     public static final String SEND_GROUP_INVITE_DESCRIPTION = "Send out group invite to user. Parameters : handle, groupName.";
     public static final String TRANSLATE_DESCRIPTION = "You can translate any sentence. Parameters: language to translate it to.";
-    public static final String WIRETAP_DESCRIPTION = "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:mm/dd/yyyy).";
+    public static final String WIRETAP_DESCRIPTION = "Wiretap conversations of a user. Parameters: <handle> <startDate> <endDate> (Date format:" + DATE_FORMAT_STRING + ").";
     public static final String PARENTAL_CONTROL_DESCRIPTION = "You can set the parental control mode on to filter content";
     public static final String SEARCH_DESCRIPTION = "Search for users starting with similar search term.Parameters: search term.";
   }
